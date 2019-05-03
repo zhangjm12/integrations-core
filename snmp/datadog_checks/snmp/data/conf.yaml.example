@@ -5,7 +5,7 @@
 
 init_config:
 
-  ## @param mibs_folder - string - required
+  ## @param mibs_folder - string - optional
   ## Specify an additional folder for your custom mib files (python format).
   #
   # mibs_folder: /path/to/your/mibs/folder
