@@ -31,7 +31,11 @@
   "type": "check",
   "integration_id": "postgres",
   "assets": {
-    "monitors": {},
+    "monitors": {
+      "Context Shard Replica Lag": "assets/recommended_monitors/postgres_context_shard.json",
+      "Postgres is not running on a replica host": "assets/recommended_monitors/postgres_not_running_replica.json",
+      "Transaction ID wraparound imminent": "assets/recommended_monitors/postgres_transaction_id.json"
+    },
     "dashboards": {},
     "service_checks": "assets/service_checks.json"
   }

@@ -26,7 +26,10 @@
   "type": "check",
   "integration_id": "cassandra",
   "assets": {
-    "monitors": {},
+    "monitors": {
+      "Average Exception Change": "assets/recommended_monitors/average_change_cassandra_exceptions.json",
+      "Average Latency": "assets/recommended_monitors/average_latency_one_minute_rate.json"
+    },
     "dashboards": {},
     "service_checks": "assets/service_checks.json"
   }

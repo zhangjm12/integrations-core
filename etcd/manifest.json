@@ -28,7 +28,11 @@
   "type": "check",
   "integration_id": "etcd",
   "assets": {
-    "monitors": {},
+    "monitors": {
+      "No Cluster Leader": "assets/recommended_monitors/etcd_cluster_no_leader.json",
+      "Leader Changed": "assets/recommended_monitors/etcd_leader_changes.json",
+      "Member Peer Errors": "assets/recommended_monitors/etcd_member_peer_errors.json"
+    },
     "dashboards": {},
     "service_checks": "assets/service_checks.json"
   }
