@@ -1,0 +1,375 @@
+{
+  "template_variables": [
+    {
+      "default": "*",
+      "prefix": null,
+      "name": "scope"
+    }
+  ],
+  "id": "kube_metrics_server",
+  "title": "Kubernetes Metrics Server",
+  "widgets": [
+    {
+      "definition": {
+        "url": "/static/images/screenboard/integrations/kubernetes.jpg",
+        "sizing": "zoom",
+        "type": "image"
+      },
+      "layout": {
+        "y": 3,
+        "x": 2,
+        "width": 24,
+        "height": 13
+      }
+    },
+    {
+      "definition": {
+        "color": "#000",
+        "text": "Metrics Server",
+        "type": "free_text",
+        "font_size": "auto",
+        "text_align": "left"
+      },
+      "layout": {
+        "y": 16,
+        "x": 2,
+        "width": 24,
+        "height": 5
+      }
+    },
+    {
+      "definition": {
+        "title_align": "center",
+        "title_size": "16",
+        "title": "Replicas Up",
+        "tags": [
+          "*"
+        ],
+        "group_by": [],
+        "time": {},
+        "type": "check_status",
+        "check": "kube_metrics_server.prometheus.health",
+        "grouping": "cluster"
+      },
+      "layout": {
+        "y": 23,
+        "x": 6,
+        "width": 15,
+        "height": 12
+      }
+    },
+    {
+      "definition": {
+        "title_size": "16",
+        "title": "Average scraping duration in seconds",
+        "title_align": "left",
+        "show_legend": false,
+        "time": {},
+        "requests": [
+          {
+            "q": "derivative(avg:kube_metrics_server.scraper_duration.sum{*})/derivative(avg:kube_metrics_server.scraper_duration.count{*})",
+            "style": {
+              "line_width": "normal",
+              "palette": "dog_classic",
+              "line_type": "solid"
+            },
+            "display_type": "line"
+          }
+        ],
+        "type": "timeseries",
+        "legend_size": "0"
+      },
+      "layout": {
+        "y": 2,
+        "x": 44,
+        "width": 42,
+        "height": 17
+      }
+    },
+    {
+      "definition": {
+        "title_size": "16",
+        "title": "Authenticated user requests by username",
+        "title_align": "left",
+        "show_legend": false,
+        "time": {},
+        "requests": [
+          {
+            "q": "avg:kube_metrics_server.authenticated_user.requests{*} by {username}.as_count()",
+            "style": {
+              "line_width": "normal",
+              "palette": "dog_classic",
+              "line_type": "solid"
+            },
+            "display_type": "bars"
+          }
+        ],
+        "type": "timeseries",
+        "legend_size": "0"
+      },
+      "layout": {
+        "y": 38,
+        "x": 44,
+        "width": 42,
+        "height": 17
+      }
+    },
+    {
+      "definition": {
+        "title_size": "16",
+        "title": "Average of Processing duration in seconds",
+        "title_align": "left",
+        "show_legend": false,
+        "time": {},
+        "requests": [
+          {
+            "q": "derivative(avg:kube_metrics_server.manager_tick_duration.sum{*})/derivative(avg:kube_metrics_server.manager_tick_duration.count{*})",
+            "style": {
+              "line_width": "normal",
+              "palette": "dog_classic",
+              "line_type": "solid"
+            },
+            "display_type": "line"
+          }
+        ],
+        "type": "timeseries",
+        "legend_size": "0"
+      },
+      "layout": {
+        "y": 2,
+        "x": 132,
+        "width": 42,
+        "height": 17
+      }
+    },
+    {
+      "definition": {
+        "title_size": "16",
+        "title": "Average kubelet summary request duration in seconds",
+        "title_align": "left",
+        "show_legend": false,
+        "time": {},
+        "requests": [
+          {
+            "q": "derivative(avg:kube_metrics_server.kubelet_summary_request_duration.sum{*})/derivative(avg:kube_metrics_server.kubelet_summary_request_duration.count{*})",
+            "style": {
+              "line_width": "normal",
+              "palette": "dog_classic",
+              "line_type": "solid"
+            },
+            "display_type": "line"
+          }
+        ],
+        "type": "timeseries",
+        "legend_size": "0"
+      },
+      "layout": {
+        "y": 2,
+        "x": 88,
+        "width": 42,
+        "height": 17
+      }
+    },
+    {
+      "definition": {
+        "title_size": "16",
+        "title": "Kubelet summary scrapes",
+        "title_align": "left",
+        "show_legend": false,
+        "time": {},
+        "requests": [
+          {
+            "q": "avg:kube_metrics_server.kubelet_summary_scrapes_total{*}.as_count()",
+            "style": {
+              "line_width": "normal",
+              "palette": "dog_classic",
+              "line_type": "solid"
+            },
+            "display_type": "line"
+          }
+        ],
+        "type": "timeseries",
+        "legend_size": "0"
+      },
+      "layout": {
+        "y": 2,
+        "x": 176,
+        "width": 42,
+        "height": 17
+      }
+    },
+    {
+      "definition": {
+        "title_size": "16",
+        "title": "Number of Goroutines",
+        "title_align": "left",
+        "show_legend": false,
+        "time": {},
+        "requests": [
+          {
+            "q": "avg:kube_metrics_server.go.goroutines{*}",
+            "style": {
+              "line_width": "normal",
+              "palette": "dog_classic",
+              "line_type": "solid"
+            },
+            "display_type": "line"
+          }
+        ],
+        "type": "timeseries",
+        "legend_size": "0"
+      },
+      "layout": {
+        "y": 20,
+        "x": 88,
+        "width": 42,
+        "height": 17
+      }
+    },
+    {
+      "definition": {
+        "title_size": "16",
+        "title": "Average go garbage collection duration in milliseconds",
+        "title_align": "left",
+        "show_legend": false,
+        "time": {},
+        "requests": [
+          {
+            "q": "derivative(avg:kube_metrics_server.go.gc_duration_seconds.sum{*})",
+            "style": {
+              "line_width": "normal",
+              "palette": "dog_classic",
+              "line_type": "solid"
+            },
+            "display_type": "area"
+          }
+        ],
+        "type": "timeseries",
+        "legend_size": "0"
+      },
+      "layout": {
+        "y": 20,
+        "x": 44,
+        "width": 42,
+        "height": 17
+      }
+    },
+    {
+      "definition": {
+        "title_size": "16",
+        "title": "File descriptors",
+        "title_align": "left",
+        "show_legend": false,
+        "time": {},
+        "requests": [
+          {
+            "q": "avg:kube_metrics_server.process.max_fds{*}, avg:kube_metrics_server.process.open_fds{*}",
+            "style": {
+              "line_width": "normal",
+              "palette": "dog_classic",
+              "line_type": "solid"
+            },
+            "display_type": "area",
+            "metadata": [
+              {
+                "alias_name": "max",
+                "expression": "avg:kube_metrics_server.process.max_fds{*}"
+              },
+              {
+                "alias_name": "open",
+                "expression": "avg:kube_metrics_server.process.open_fds{*}"
+              }
+            ]
+          }
+        ],
+        "type": "timeseries",
+        "legend_size": "0"
+      },
+      "layout": {
+        "y": 20,
+        "x": 132,
+        "width": 42,
+        "height": 17
+      }
+    },
+    {
+      "definition": {
+        "autoscale": false,
+        "title": "Last update EPOCH",
+        "title_align": "left",
+        "precision": 0,
+        "time": {},
+        "title_size": "16",
+        "requests": [
+          {
+            "q": "avg:kube_metrics_server.scraper_last_time{*}",
+            "aggregator": "last",
+            "conditional_formats": []
+          }
+        ],
+        "type": "query_value"
+      },
+      "layout": {
+        "y": 37,
+        "x": 6,
+        "width": 15,
+        "height": 12
+      }
+    },
+    {
+      "definition": {
+        "tick_pos": "50%",
+        "show_tick": true,
+        "type": "note",
+        "tick_edge": "right",
+        "text_align": "left",
+        "content": "Performance",
+        "font_size": "18",
+        "background_color": "blue"
+      },
+      "layout": {
+        "y": 7,
+        "x": 28,
+        "width": 14,
+        "height": 7
+      }
+    },
+    {
+      "definition": {
+        "tick_pos": "50%",
+        "show_tick": true,
+        "type": "note",
+        "tick_edge": "right",
+        "text_align": "left",
+        "content": "Telemetry",
+        "font_size": "18",
+        "background_color": "blue"
+      },
+      "layout": {
+        "y": 25,
+        "x": 28,
+        "width": 14,
+        "height": 7
+      }
+    },
+    {
+      "definition": {
+        "tick_pos": "50%",
+        "show_tick": true,
+        "type": "note",
+        "tick_edge": "right",
+        "text_align": "left",
+        "content": "Audit",
+        "font_size": "18",
+        "background_color": "blue"
+      },
+      "layout": {
+        "y": 43,
+        "x": 28,
+        "width": 14,
+        "height": 7
+      }
+    }
+  ],
+  "layout_type": "free"
+}
