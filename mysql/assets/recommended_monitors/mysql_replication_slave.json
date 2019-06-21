@@ -1,6 +1,6 @@
 {
     "name": "[MySQL] Replication slave not running",
-    "type": "metric alert",
+    "type": "query alert",
     "query": "sum(last_1m):avg:mysql.replication.seconds_behind_master{*} by {host} < 0.99",
     "message": "Check MySQL replication thread on {{host.name}}",
     "tags": [

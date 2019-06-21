@@ -28,8 +28,8 @@
   "integration_id": "mysql",
   "assets": {
     "monitors": {
-      "[MySQL] Replication Behind Master": "assets/recommended_monitors/mysql_replication_seconds_behind_master.json",
-      "[MySQL] Slave Replication Not Running": "assets/recommended_monitors/mysql_replication_slave.json"
+      "Replication Behind Master": "assets/recommended_monitors/mysql_replication_seconds_behind_master.json",
+      "Slave Replication Not Running": "assets/recommended_monitors/mysql_replication_slave.json"
     },
     "dashboards": {},
     "service_checks": "assets/service_checks.json"
