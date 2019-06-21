@@ -27,7 +27,10 @@
   "type": "check",
   "integration_id": "mysql",
   "assets": {
-    "monitors": {},
+    "monitors": {
+      "Replication Behind Master": "assets/recommended_monitors/mysql_replication_seconds_behind_master.json",
+      "Slave Replication Not Running": "assets/recommended_monitors/mysql_replication_slave.json"
+    },
     "dashboards": {},
     "service_checks": "assets/service_checks.json"
   }
