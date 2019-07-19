@@ -1,4 +1,10 @@
 {
+  "board_title": "Kubernetes Metrics Server",
+  "description": null,
+  "board_bgtype": "board_graph",
+  "originalHeight": 76,
+  "height": 76,
+  "width": 225,
   "template_variables": [
     {
       "default": "*",
@@ -6,370 +12,571 @@
       "name": "scope"
     }
   ],
-  "id": "kube_metrics_server",
-  "title": "Kubernetes Metrics Server",
+  "isIntegration": false,
+  "disableEditing": false,
+  "originalWidth": 225,
   "widgets": [
     {
-      "definition": {
-        "url": "/static/images/screenboard/integrations/kubernetes.jpg",
-        "sizing": "zoom",
-        "type": "image"
+      "board_id": "mmk-zds-miy",
+      "sizing": "zoom",
+      "globalTimeframe": {
+        "isLive": true,
+        "start": 1558079520000,
+        "end": 1558083120000
       },
-      "layout": {
-        "y": 3,
-        "x": 2,
-        "width": 24,
-        "height": 13
-      }
+      "generated_title": "",
+      "title_size": 16,
+      "title": true,
+      "url": "/static/images/screenboard/integrations/kubernetes.jpg",
+      "scaleFactor": 1,
+      "title_align": "left",
+      "title_text": "",
+      "height": 13,
+      "width": 24,
+      "type": "image",
+      "y": 3,
+      "x": 2,
+      "add_timeframe": true,
+      "margin": "",
+      "isShared": false
     },
     {
-      "definition": {
-        "color": "#000",
-        "text": "Metrics Server",
-        "type": "free_text",
-        "font_size": "auto",
-        "text_align": "left"
+      "board_id": "mmk-zds-miy",
+      "globalTimeframe": {
+        "isLive": true,
+        "start": 1558079520000,
+        "end": 1558083120000
       },
-      "layout": {
-        "y": 16,
-        "x": 2,
-        "width": 24,
-        "height": 5
-      }
+      "generated_title": "",
+      "font_size": "auto",
+      "title": true,
+      "color": "#000",
+      "text": "Metrics Server",
+      "title_align": "left",
+      "text_align": "left",
+      "title_text": "",
+      "height": 5,
+      "width": 24,
+      "type": "free_text",
+      "x": 2,
+      "y": 16,
+      "title_size": 16,
+      "add_timeframe": true,
+      "scaleFactor": 1,
+      "isShared": false
     },
     {
-      "definition": {
-        "title_align": "center",
-        "title_size": "16",
-        "title": "Replicas Up",
-        "tags": [
-          "*"
-        ],
-        "group_by": [],
-        "time": {},
-        "type": "check_status",
-        "check": "kube_metrics_server.prometheus.health",
-        "grouping": "cluster"
+      "height": 12,
+      "text_size": "auto",
+      "check": "kube_metrics_server.prometheus.health",
+      "board_id": "mmk-zds-miy",
+      "group": null,
+      "title": true,
+      "title_align": "center",
+      "text_align": "center",
+      "width": 15,
+      "group_by": [],
+      "type": "check_status",
+      "isShared": false,
+      "tags": [
+        "*"
+      ],
+      "time": {},
+      "title_text": "Replicas Up",
+      "title_size": 16,
+      "scaleFactor": 1,
+      "add_timeframe": true,
+      "globalTimeframe": {
+        "isLive": true,
+        "start": 1560870108937,
+        "end": 1560873708937
       },
-      "layout": {
-        "y": 23,
-        "x": 6,
-        "width": 15,
-        "height": 12
-      }
+      "error": null,
+      "y": 23,
+      "x": 6,
+      "grouping": "cluster"
     },
     {
-      "definition": {
-        "title_size": "16",
-        "title": "Average scraping duration in seconds",
-        "title_align": "left",
-        "show_legend": false,
-        "time": {},
+      "board_id": "mmk-zds-miy",
+      "globalTimeframe": {
+        "isLive": true,
+        "start": 1560870108937,
+        "end": 1560873708937
+      },
+      "title_align": "left",
+      "title_size": 16,
+      "title": true,
+      "type": "timeseries",
+      "generated_title": "Timeseries",
+      "title_text": "Average scraping duration in seconds",
+      "height": 15,
+      "tile_def": {
+        "viz": "timeseries",
         "requests": [
           {
             "q": "derivative(avg:kube_metrics_server.scraper_duration.sum{*})/derivative(avg:kube_metrics_server.scraper_duration.count{*})",
+            "aggregator": "avg",
             "style": {
-              "line_width": "normal",
+              "width": "normal",
               "palette": "dog_classic",
-              "line_type": "solid"
+              "type": "solid"
             },
-            "display_type": "line"
+            "type": "line",
+            "conditional_formats": []
           }
         ],
-        "type": "timeseries",
-        "legend_size": "0"
+        "autoscale": true
       },
-      "layout": {
-        "y": 2,
-        "x": 44,
-        "width": 42,
-        "height": 17
-      }
+      "width": 42,
+      "time": {},
+      "error": null,
+      "y": 2,
+      "x": 44,
+      "legend_size": "0",
+      "isShared": false,
+      "scaleFactor": 1,
+      "legend": false,
+      "add_timeframe": true
     },
     {
-      "definition": {
-        "title_size": "16",
-        "title": "Authenticated user requests by username",
-        "title_align": "left",
-        "show_legend": false,
-        "time": {},
+      "board_id": "mmk-zds-miy",
+      "globalTimeframe": {
+        "isLive": true,
+        "start": 1560870108937,
+        "end": 1560873708937
+      },
+      "title_align": "left",
+      "title_size": 16,
+      "title": true,
+      "type": "timeseries",
+      "generated_title": "Timeseries",
+      "title_text": "Authenticated user requests by username",
+      "height": 15,
+      "tile_def": {
+        "viz": "timeseries",
         "requests": [
           {
             "q": "avg:kube_metrics_server.authenticated_user.requests{*} by {username}.as_count()",
+            "aggregator": "avg",
             "style": {
-              "line_width": "normal",
+              "width": "normal",
               "palette": "dog_classic",
-              "line_type": "solid"
+              "type": "solid"
             },
-            "display_type": "bars"
+            "type": "bars",
+            "conditional_formats": []
           }
         ],
-        "type": "timeseries",
-        "legend_size": "0"
+        "autoscale": true
       },
-      "layout": {
-        "y": 38,
-        "x": 44,
-        "width": 42,
-        "height": 17
-      }
+      "width": 42,
+      "time": {},
+      "error": null,
+      "y": 38,
+      "x": 44,
+      "legend_size": "0",
+      "isShared": false,
+      "scaleFactor": 1,
+      "legend": false,
+      "add_timeframe": true
     },
     {
-      "definition": {
-        "title_size": "16",
-        "title": "Average of Processing duration in seconds",
-        "title_align": "left",
-        "show_legend": false,
-        "time": {},
+      "board_id": "mmk-zds-miy",
+      "globalTimeframe": {
+        "isLive": true,
+        "start": 1560870108937,
+        "end": 1560873708937
+      },
+      "title_align": "left",
+      "title_size": 16,
+      "title": true,
+      "type": "timeseries",
+      "generated_title": "Timeseries",
+      "title_text": "Average of Processing duration in seconds",
+      "height": 15,
+      "tile_def": {
+        "viz": "timeseries",
         "requests": [
           {
             "q": "derivative(avg:kube_metrics_server.manager_tick_duration.sum{*})/derivative(avg:kube_metrics_server.manager_tick_duration.count{*})",
+            "aggregator": "avg",
             "style": {
-              "line_width": "normal",
+              "width": "normal",
               "palette": "dog_classic",
-              "line_type": "solid"
+              "type": "solid"
             },
-            "display_type": "line"
+            "type": "line",
+            "conditional_formats": []
           }
         ],
-        "type": "timeseries",
-        "legend_size": "0"
+        "autoscale": true
       },
-      "layout": {
-        "y": 2,
-        "x": 132,
-        "width": 42,
-        "height": 17
-      }
+      "width": 42,
+      "time": {},
+      "error": null,
+      "y": 2,
+      "x": 132,
+      "legend_size": "0",
+      "isShared": false,
+      "scaleFactor": 1,
+      "legend": false,
+      "add_timeframe": true
     },
     {
-      "definition": {
-        "title_size": "16",
-        "title": "Average kubelet summary request duration in seconds",
-        "title_align": "left",
-        "show_legend": false,
-        "time": {},
+      "board_id": "mmk-zds-miy",
+      "globalTimeframe": {
+        "isLive": true,
+        "start": 1560870108937,
+        "end": 1560873708937
+      },
+      "title_align": "left",
+      "title_size": 16,
+      "title": true,
+      "type": "timeseries",
+      "generated_title": "Timeseries",
+      "title_text": "Average kubelet summary request duration in seconds",
+      "height": 15,
+      "tile_def": {
+        "viz": "timeseries",
         "requests": [
           {
             "q": "derivative(avg:kube_metrics_server.kubelet_summary_request_duration.sum{*})/derivative(avg:kube_metrics_server.kubelet_summary_request_duration.count{*})",
+            "aggregator": "avg",
             "style": {
-              "line_width": "normal",
+              "width": "normal",
               "palette": "dog_classic",
-              "line_type": "solid"
+              "type": "solid"
             },
-            "display_type": "line"
+            "type": "line",
+            "conditional_formats": []
           }
         ],
-        "type": "timeseries",
-        "legend_size": "0"
+        "autoscale": true
       },
-      "layout": {
-        "y": 2,
-        "x": 88,
-        "width": 42,
-        "height": 17
-      }
+      "width": 42,
+      "time": {},
+      "error": null,
+      "y": 2,
+      "x": 88,
+      "legend_size": "0",
+      "isShared": false,
+      "scaleFactor": 1,
+      "legend": false,
+      "add_timeframe": true
     },
     {
-      "definition": {
-        "title_size": "16",
-        "title": "Kubelet summary scrapes",
-        "title_align": "left",
-        "show_legend": false,
-        "time": {},
+      "board_id": "mmk-zds-miy",
+      "globalTimeframe": {
+        "isLive": true,
+        "start": 1560870108937,
+        "end": 1560873708937
+      },
+      "title_align": "left",
+      "title_size": 16,
+      "title": true,
+      "type": "timeseries",
+      "generated_title": "Timeseries",
+      "title_text": "Kubelet summary scrapes",
+      "height": 15,
+      "tile_def": {
+        "viz": "timeseries",
         "requests": [
           {
             "q": "avg:kube_metrics_server.kubelet_summary_scrapes_total{*}.as_count()",
+            "aggregator": "avg",
             "style": {
-              "line_width": "normal",
+              "width": "normal",
               "palette": "dog_classic",
-              "line_type": "solid"
+              "type": "solid"
             },
-            "display_type": "line"
+            "type": "line",
+            "conditional_formats": []
           }
         ],
-        "type": "timeseries",
-        "legend_size": "0"
+        "autoscale": true
       },
-      "layout": {
-        "y": 2,
-        "x": 176,
-        "width": 42,
-        "height": 17
-      }
+      "width": 42,
+      "time": {},
+      "error": null,
+      "y": 2,
+      "x": 176,
+      "legend_size": "0",
+      "isShared": false,
+      "scaleFactor": 1,
+      "legend": false,
+      "add_timeframe": true
     },
     {
-      "definition": {
-        "title_size": "16",
-        "title": "Number of Goroutines",
-        "title_align": "left",
-        "show_legend": false,
-        "time": {},
+      "board_id": "mmk-zds-miy",
+      "globalTimeframe": {
+        "isLive": true,
+        "start": 1560870108937,
+        "end": 1560873708937
+      },
+      "title_align": "left",
+      "title_size": 16,
+      "title": true,
+      "type": "timeseries",
+      "generated_title": "Timeseries",
+      "title_text": "Number of Goroutines",
+      "height": 15,
+      "tile_def": {
+        "viz": "timeseries",
         "requests": [
           {
             "q": "avg:kube_metrics_server.go.goroutines{*}",
+            "aggregator": "avg",
             "style": {
-              "line_width": "normal",
+              "width": "normal",
               "palette": "dog_classic",
-              "line_type": "solid"
+              "type": "solid"
             },
-            "display_type": "line"
+            "type": "line",
+            "conditional_formats": []
           }
         ],
-        "type": "timeseries",
-        "legend_size": "0"
+        "autoscale": true
       },
-      "layout": {
-        "y": 20,
-        "x": 88,
-        "width": 42,
-        "height": 17
-      }
+      "width": 42,
+      "time": {},
+      "error": null,
+      "y": 20,
+      "x": 88,
+      "legend_size": "0",
+      "isShared": false,
+      "scaleFactor": 1,
+      "legend": false,
+      "add_timeframe": true
     },
     {
-      "definition": {
-        "title_size": "16",
-        "title": "Average go garbage collection duration in milliseconds",
-        "title_align": "left",
-        "show_legend": false,
-        "time": {},
+      "board_id": "458-fey-7vs",
+      "globalTimeframe": {
+        "isLive": true,
+        "start": 1560870108937,
+        "end": 1560873708937
+      },
+      "title_align": "left",
+      "title_size": 16,
+      "title": true,
+      "type": "timeseries",
+      "generated_title": "Timeseries",
+      "title_text": "Average go garbage collection duration in milliseconds",
+      "height": 15,
+      "tile_def": {
+        "viz": "timeseries",
         "requests": [
           {
             "q": "derivative(avg:kube_metrics_server.go.gc_duration_seconds.sum{*})",
+            "aggregator": "avg",
             "style": {
-              "line_width": "normal",
+              "width": "normal",
               "palette": "dog_classic",
-              "line_type": "solid"
+              "type": "solid"
             },
-            "display_type": "area"
+            "type": "area",
+            "conditional_formats": []
           }
         ],
-        "type": "timeseries",
-        "legend_size": "0"
+        "autoscale": true
       },
-      "layout": {
-        "y": 20,
-        "x": 44,
-        "width": 42,
-        "height": 17
-      }
+      "width": 42,
+      "time": {},
+      "error": null,
+      "y": 20,
+      "x": 44,
+      "legend_size": "0",
+      "add_timeframe": true,
+      "scaleFactor": 1,
+      "legend": false,
+      "isShared": false
     },
     {
-      "definition": {
-        "title_size": "16",
-        "title": "File descriptors",
-        "title_align": "left",
-        "show_legend": false,
-        "time": {},
+      "board_id": "mmk-zds-miy",
+      "globalTimeframe": {
+        "isLive": true,
+        "start": 1560870108937,
+        "end": 1560873708937
+      },
+      "title_align": "left",
+      "title_size": 16,
+      "title": true,
+      "type": "timeseries",
+      "generated_title": "Timeseries",
+      "title_text": "File descriptors",
+      "height": 15,
+      "tile_def": {
+        "viz": "timeseries",
         "requests": [
           {
-            "q": "avg:kube_metrics_server.process.max_fds{*}, avg:kube_metrics_server.process.open_fds{*}",
             "style": {
-              "line_width": "normal",
+              "width": "normal",
               "palette": "dog_classic",
-              "line_type": "solid"
+              "type": "solid"
             },
-            "display_type": "area",
-            "metadata": [
-              {
-                "alias_name": "max",
-                "expression": "avg:kube_metrics_server.process.max_fds{*}"
+            "aggregator": "avg",
+            "conditional_formats": [],
+            "q": "avg:kube_metrics_server.process.max_fds{*}, avg:kube_metrics_server.process.open_fds{*}",
+            "type": "area",
+            "metadata": {
+              "avg:kube_metrics_server.process.max_fds{*}": {
+                "alias": "max"
               },
-              {
-                "alias_name": "open",
-                "expression": "avg:kube_metrics_server.process.open_fds{*}"
+              "avg:kube_metrics_server.process.open_fds{*}": {
+                "alias": "open"
               }
-            ]
+            }
           }
         ],
-        "type": "timeseries",
-        "legend_size": "0"
+        "autoscale": true
       },
-      "layout": {
-        "y": 20,
-        "x": 132,
-        "width": 42,
-        "height": 17
-      }
+      "width": 42,
+      "time": {},
+      "error": null,
+      "y": 20,
+      "x": 132,
+      "legend_size": "0",
+      "isShared": false,
+      "scaleFactor": 1,
+      "legend": false,
+      "add_timeframe": true
     },
     {
-      "definition": {
-        "autoscale": false,
-        "title": "Last update EPOCH",
-        "title_align": "left",
-        "precision": 0,
-        "time": {},
-        "title_size": "16",
+      "board_id": "mmk-zds-miy",
+      "x": 6,
+      "globalTimeframe": {
+        "isLive": true,
+        "start": 1560870108937,
+        "end": 1560873708937
+      },
+      "title_align": "left",
+      "title_size": 16,
+      "title": true,
+      "type": "query_value",
+      "generated_title": "Timeseries",
+      "title_text": "Last update EPOCH",
+      "height": 10,
+      "tile_def": {
+        "viz": "query_value",
         "requests": [
           {
             "q": "avg:kube_metrics_server.scraper_last_time{*}",
             "aggregator": "last",
+            "style": {
+              "width": "normal",
+              "palette": "dog_classic",
+              "type": "solid"
+            },
+            "type": "line",
             "conditional_formats": []
           }
         ],
-        "type": "query_value"
+        "autoscale": false,
+        "color_by_groups": [],
+        "precision": "0"
       },
-      "layout": {
-        "y": 37,
-        "x": 6,
-        "width": 15,
-        "height": 12
-      }
+      "width": 15,
+      "time": {},
+      "error": null,
+      "y": 37,
+      "autoscale": true,
+      "legend_size": "0",
+      "isShared": false,
+      "scaleFactor": 1,
+      "legend": false,
+      "add_timeframe": true
     },
     {
-      "definition": {
-        "tick_pos": "50%",
-        "show_tick": true,
-        "type": "note",
-        "tick_edge": "right",
-        "text_align": "left",
-        "content": "Performance",
-        "font_size": "18",
-        "background_color": "blue"
+      "height": 7,
+      "tick_pos": "50%",
+      "board_id": "68j-v2s-ewc",
+      "title_size": 16,
+      "title": true,
+      "title_align": "left",
+      "text_align": "left",
+      "bgcolor": "blue",
+      "html": "Performance",
+      "type": "note",
+      "isShared": false,
+      "refresh_every": 30000,
+      "auto_refresh": false,
+      "title_text": "",
+      "tick": true,
+      "scaleFactor": 1,
+      "add_timeframe": true,
+      "globalTimeframe": {
+        "isLive": true,
+        "start": 1558098394900,
+        "end": 1558101994900
       },
-      "layout": {
-        "y": 7,
-        "x": 28,
-        "width": 14,
-        "height": 7
-      }
+      "font_size": "18",
+      "generated_title": "Note",
+      "tick_edge": "right",
+      "y": 7,
+      "x": 28,
+      "width": 14
     },
     {
-      "definition": {
-        "tick_pos": "50%",
-        "show_tick": true,
-        "type": "note",
-        "tick_edge": "right",
-        "text_align": "left",
-        "content": "Telemetry",
-        "font_size": "18",
-        "background_color": "blue"
+      "height": 7,
+      "tick_pos": "50%",
+      "board_id": "68j-v2s-ewc",
+      "title_size": 16,
+      "title": true,
+      "title_align": "left",
+      "text_align": "left",
+      "bgcolor": "blue",
+      "html": "Telemetry",
+      "type": "note",
+      "isShared": false,
+      "refresh_every": 30000,
+      "auto_refresh": false,
+      "title_text": "",
+      "tick": true,
+      "scaleFactor": 1,
+      "add_timeframe": true,
+      "globalTimeframe": {
+        "isLive": true,
+        "start": 1558098394900,
+        "end": 1558101994900
       },
-      "layout": {
-        "y": 25,
-        "x": 28,
-        "width": 14,
-        "height": 7
-      }
+      "font_size": "18",
+      "generated_title": "Note",
+      "tick_edge": "right",
+      "y": 25,
+      "x": 28,
+      "width": 14
     },
     {
-      "definition": {
-        "tick_pos": "50%",
-        "show_tick": true,
-        "type": "note",
-        "tick_edge": "right",
-        "text_align": "left",
-        "content": "Audit",
-        "font_size": "18",
-        "background_color": "blue"
+      "height": 7,
+      "tick_pos": "50%",
+      "board_id": "68j-v2s-ewc",
+      "title_size": 16,
+      "title": true,
+      "title_align": "left",
+      "text_align": "left",
+      "bgcolor": "blue",
+      "html": "Audit",
+      "type": "note",
+      "isShared": false,
+      "refresh_every": 30000,
+      "auto_refresh": false,
+      "title_text": "",
+      "tick": true,
+      "scaleFactor": 1,
+      "add_timeframe": true,
+      "globalTimeframe": {
+        "isLive": true,
+        "start": 1558098394900,
+        "end": 1558101994900
       },
-      "layout": {
-        "y": 43,
-        "x": 28,
-        "width": 14,
-        "height": 7
-      }
+      "font_size": "18",
+      "generated_title": "Note",
+      "tick_edge": "right",
+      "y": 43,
+      "x": 28,
+      "width": 14
     }
   ],
-  "layout_type": "free"
+  "disableCog": false,
+  "id": 703392,
+  "isShared": false
 }
