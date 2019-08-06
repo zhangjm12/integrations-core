@@ -25,12 +25,10 @@ from datadog_checks.base.checks.libs.vmware.all_metrics import ALL_METRICS
 from datadog_checks.base.checks.libs.vmware.basic_metrics import BASIC_METRICS
 from datadog_checks.base.config import is_affirmative
 
-from .cache_config import CacheConfig
+from .cache import MetadataCache, MorCache
 from .common import SOURCE_TYPE
-from .errors import BadConfigError, ConnectionError
+from .errors import BadConfigError, ConnectionError, MetadataNotFoundError, MorNotFoundError
 from .event import VSphereEvent
-from .metadata_cache import MetadataCache, MetadataNotFoundError
-from .mor_cache import MorCache, MorNotFoundError
 from .objects_queue import ObjectsQueue
 
 # Default vCenter sampling interval
@@ -91,10 +89,9 @@ class VSphereCheck(AgentCheck):
     """
 
     SERVICE_CHECK_NAME = 'vcenter.can_connect'
-    pool = None
 
-    def __init__(self, name, init_config, agentConfig, instances):
-        AgentCheck.__init__(self, name, init_config, agentConfig, instances)
+    def __init__(self, name, init_config, instances):
+        super(VSphereCheck, self).__init__(name, init_config, instances)
         self.time_started = time.time()
 
         self.batch_morlist_size = max(init_config.get("batch_morlist_size", BATCH_MORLIST_SIZE), 0)
@@ -114,9 +111,7 @@ class VSphereCheck(AgentCheck):
 
         # Event configuration
         self.event_config = {}
-
-        # Caching configuration
-        self.cache_config = CacheConfig()
+        self.pool = None
 
         # build up configurations
         for instance in instances:
@@ -132,12 +127,12 @@ class VSphereCheck(AgentCheck):
 
         # Cache of processed Mor objects
         self.mor_cache = MorCache()
+        # Metrics metadata, for each instance keeps the mapping: perfCounterKey -> {name, group, description}
+        self.metadata_cache = MetadataCache()
 
         # managed entity raw view
         self.registry = {}
 
-        # Metrics metadata, for each instance keeps the mapping: perfCounterKey -> {name, group, description}
-        self.metadata_cache = MetadataCache()
         self.latest_event_query = {}
         self.exception_printed = 0
 

@@ -10,3 +10,11 @@ class BadConfigError(CheckException):
 
 class ConnectionError(Exception):
     pass
+
+
+class MetadataNotFoundError(Exception):
+    pass
+
+
+class MorNotFoundError(Exception):
+    pass
