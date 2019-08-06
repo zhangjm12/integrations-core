@@ -16,10 +16,10 @@ class VsphereCache:
     threading pool.
     """
 
-    def __init__(self):
+    def __init__(self, interval):
         self._lock = threading.RLock()
         self.last_ts = 0
-        self.interval = None
+        self.interval = interval
 
     def clear(self):
         """
@@ -35,8 +35,8 @@ class MetadataCache(VsphereCache):
     For each instance key the cache maps: counter ID --> metric name, unit
     """
 
-    def __init__(self):
-        super(MetadataCache, self).__init__()
+    def __init__(self, interval):
+        super(MetadataCache, self).__init__(interval)
         self._metadata = {}
 
     def __contains__(self, counter_id):
@@ -79,8 +79,8 @@ class MorCache(VsphereCache):
     The cache maps: mor_name --> mor_dict_object
     """
 
-    def __init__(self):
-        super(MorCache, self).__init__()
+    def __init__(self, interval):
+        super(MorCache, self).__init__(interval)
         self._mors = {}
 
     def __setitem__(self, key, value):

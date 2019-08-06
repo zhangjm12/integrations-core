@@ -110,30 +110,21 @@ class VSphereCheck(AgentCheck):
         self.server_instances_lock = threading.RLock()
 
         # Event configuration
-        self.event_config = {}
+        self.event_config = self.instance.get('event_config')
         self.pool = None
-
-        # build up configurations
-        for instance in instances:
-            i_key = self._instance_key(instance)
-            # caches
-            self.cache_config.set_interval(CacheConfig.Morlist, i_key, self.refresh_morlist_interval)
-            self.cache_config.set_interval(CacheConfig.Metadata, i_key, self.refresh_metrics_metadata_interval)
-            # events
-            self.event_config[i_key] = instance.get('event_config')
 
         # Queue of raw Mor objects to process
         self.mor_objects_queue = ObjectsQueue()
 
         # Cache of processed Mor objects
-        self.mor_cache = MorCache()
+        self.mor_cache = MorCache(self.refresh_morlist_interval)
         # Metrics metadata, for each instance keeps the mapping: perfCounterKey -> {name, group, description}
-        self.metadata_cache = MetadataCache()
+        self.metadata_cache = MetadataCache(self.refresh_metrics_metadata_interval)
 
         # managed entity raw view
         self.registry = {}
 
-        self.latest_event_query = {}
+        self.latest_event_query = None
         self.exception_printed = 0
 
     def print_exception(self, msg):
@@ -163,21 +154,18 @@ class VSphereCheck(AgentCheck):
         self.pool.join()
         assert self.pool.get_nworkers() == 0
 
-    def _query_event(self, instance):
-        i_key = self._instance_key(instance)
-        last_time = self.latest_event_query.get(i_key)
-        tags = instance.get('tags', [])
+    def _query_event(self):
+        tags = self.instance.get('tags', [])
 
-        server_instance = self._get_server_instance(instance)
+        server_instance = self._get_server_instance()
         event_manager = server_instance.content.eventManager
 
         # Be sure we don't duplicate any event, never query the "past"
-        if not last_time:
-            last_time = event_manager.latestEvent.createdTime + timedelta(seconds=1)
-            self.latest_event_query[i_key] = last_time
+        if not self.latest_event_query:
+            self.latest_event_query = event_manager.latestEvent.createdTime + timedelta(seconds=1)
 
         query_filter = vim.event.EventFilterSpec()
-        time_filter = vim.event.EventFilterSpec.ByTime(beginTime=last_time)
+        time_filter = vim.event.EventFilterSpec.ByTime(beginTime=self.latest_event_query)
         query_filter.time = time_filter
 
         try:
