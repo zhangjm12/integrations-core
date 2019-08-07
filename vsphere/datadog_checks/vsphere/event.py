@@ -57,7 +57,7 @@ class VSphereEvent(object):
         else:
             self.event_config = event_config
 
-    def _is_filtered(self):
+    def is_filtered(self):
         # Filter the unwanted types
         if self.event_type not in EXCLUDE_FILTERS:
             return True
@@ -70,9 +70,6 @@ class VSphereEvent(object):
         return False
 
     def get_datadog_payload(self):
-        if self._is_filtered():
-            return None
-
         transform_method = getattr(self, 'transform_%s' % self.event_type.lower(), None)
         if callable(transform_method):
             return transform_method()

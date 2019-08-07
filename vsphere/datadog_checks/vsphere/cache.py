@@ -28,6 +28,10 @@ class VsphereCache:
         self.last_ts = 0
         self.interval = None
 
+    def should_refresh_cache(self):
+        elapsed = time.time() - self.last_ts
+        return elapsed > self.interval
+
 
 class MetadataCache(VsphereCache):
     """
@@ -94,7 +98,7 @@ class MorCache(VsphereCache):
                 raise MorNotFoundError("Mor object '{}' is not in the cache.".format(item))
             return self._mors[item]
 
-    def __iter__(self):
+    def iteritems(self):
         with self._lock:
             return iteritems(self._mors)
 
