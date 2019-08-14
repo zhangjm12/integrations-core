@@ -2,7 +2,7 @@
 
 ## Overview
 
-This check monitors the kubernetes [NGINX Ingress Controller][1].
+This check monitors the Kubernetes [NGINX Ingress Controller][1].
 
 ## Setup
 
@@ -16,7 +16,9 @@ The `nginx-ingress-controller` check is included in the [Datadog Agent][2] packa
 
 1. Edit the `nginx_ingress_controller.d/conf.yaml` file, in the `conf.d/` folder at the root of your Agent's configuration directory to start collecting your NGINX ingress controller metrics. See the [sample nginx_ingress_controller.d/conf.yaml][2] for all available configuration options.
 
-2. [Restart the Agent][3].
+2. Configure the [Kubernetes Metrics Server integration][9], which is also included in the [Datadog Agent][2] package and does not require additional installation. Edit the `kube_metrics_server.d/conf.yaml` file, in the `conf.d/` folder at the root of your Agent's configuration directory to start collecting your `kube_metrics_server` performance data. 
+
+3. [Restart the Agent][3].
 
 #### Log collection
 
@@ -86,3 +88,4 @@ Need help? Contact [Datadog support][8].
 [6]: https://docs.datadoghq.com/agent/guide/agent-commands/?tab=agentv6#agent-status-and-information
 [7]: https://github.com/DataDog/integrations-core/blob/master/nginx_ingress_controller/metadata.csv
 [8]: https://docs.datadoghq.com/help
+[9]: https://docs.datadoghq.com/integrations/kube_metrics_server
