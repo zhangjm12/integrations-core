@@ -10,12 +10,14 @@ Follow the instructions below to install and configure this check for an Agent r
 
 ### Installation
 
-The mapr check is included in the [Datadog Agent][2] package. Additionally you will need to perform the following steps:
+The mapr check is included in the [Datadog Agent][2] package. However, to be able to run it you will need to perform the following steps:
 
-1. Update `LD_LIBRARY_PATH` as explained [here][8] and [here][9]
-2. Install the [mapr-streams-python][7] library.
-3. Create a password for the `dd-agent` user and have this user in every node of the cluster with the same `UID`/`GID` so that it is recognized by mapr. See [Managing users and groups][10].
-4. Generate a long-lived (10,000 years by default) token for this user.
+1. Download and extract the [MapR Client][12]
+2. Update `LD_LIBRARY_PATH` and `DYLD_LIBRARY_PATH` as explained [here][9] (usually with `/opt/mapr/lib/)`
+3. Set `JAVA_HOME` (if running on macos you will need to install system java)
+3. Install the [mapr-streams-python][7] library.
+4. Create a password for the `dd-agent` user and have this user in every node of the cluster with the same `UID`/`GID` so that it is recognized by mapr. See [Managing users and groups][10].
+5. Generate a long-lived (10,000 years by default) token for this user.
 
 ### Configuration
 
@@ -61,3 +63,4 @@ Need help? Contact [Datadog support][6].
 [9]: https://mapr.com/docs/60/MapR_Streams/MapRStreamCAPISetup.html
 [10]: https://mapr.com/docs/61/AdministratorGuide/c-managing-users-and-groups.html
 [11]: https://www.rubydoc.info/gems/fluent-plugin-datadog
+[12]: https://mapr.com/docs/61/AdvancedInstallation/SettingUptheClient-install-mapr-client.html

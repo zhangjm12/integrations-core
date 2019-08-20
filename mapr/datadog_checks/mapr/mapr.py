@@ -14,7 +14,7 @@ except Exception  as e:
 
 from six import iteritems
 
-from datadog_checks.base import AgentCheck
+from datadog_checks.base import AgentCheck, ConfigurationError
 
 
 class MaprCheck(AgentCheck):
@@ -22,10 +22,17 @@ class MaprCheck(AgentCheck):
     def __init__(self, name, init_config, instances):
         super(MaprCheck, self).__init__(name, init_config, instances)
         self._conn = None
-        # TODO: make me configurable
-        os.environ['MAPR_TICKETFILE_LOCATION'] = "/tmp/longlived_ticket"
+        self.hostname = instances[0].get('hostname')
+        self.topic_path = instances[0].get('topic_path')
 
     def check(self, instance):
+        mapr_ticketfile_location = instance.get('mapr_ticketfile_location')
+        if mapr_ticketfile_location:
+            os.environ['MAPR_TICKETFILE_LOCATION'] = mapr_ticketfile_location
+        elif not os.environ.get('MAPR_TICKETFILE_LOCATION'):
+            raise ConfigurationError(
+                "MAPR_TICKETFILE_LOCATION needs to be provided either in config or as an environment variable")
+
         metrics = {}
         while True:
             m = self.conn.poll(timeout=1.0)
@@ -41,7 +48,7 @@ class MaprCheck(AgentCheck):
                             "tags": ["{}:{}".format(k, v) for k, v in iteritems(metric['tags'])],
                             "value": metric['value']
                         }
-                except Exception:
+                except Exception as e:
                     # TODO handle histogran netrics
                     # Error: (mapr.py:45) | Received unexpected message [
                     # {"metric": "mapr.db.table.latency","buckets": {"2,5": 10,"5,10": 21},
@@ -53,7 +60,7 @@ class MaprCheck(AgentCheck):
                     self.log.error("Received unexpected message %s", m.value())
             elif m.error().code() != KafkaError._PARTITION_EOF:
                 # Real error happened
-                print(m.error())
+                self.log.error(m.error())
                 break
 
         # Submit metrics
@@ -70,21 +77,16 @@ class MaprCheck(AgentCheck):
             h = ((h << 5) + h) + ord(c)
         return abs(h % rng)
 
-    @staticmethod
-    def get_host_name():
-        # TODO implement me correctly
-        return "mapr-lab-2-ghs6.c.datadog-integrations-lab.internal"
-
     @property
     def conn(self):
         if self._conn:
             return self._conn
 
-        topic_name = MaprCheck.get_host_name()  # According to docs we should append the metric name.
+        topic_name = self.hostname  # According to docs we should append the metric name.
         stream_id = MaprCheck.get_stream_id(topic_name, rng=2)
 
         # TODO: Make the path configurable
-        topic_path = "/var/mapr/mapr.monitoring/metricstreams/{}:{}".format(stream_id, topic_name)
+        topic_path = "{}:{}".format(os.path.join(self.topic_path, stream_id), topic_name)
         self._conn = Consumer(
             {
                 "group.id": "dd-agent",  # uniquely identify this consumer
