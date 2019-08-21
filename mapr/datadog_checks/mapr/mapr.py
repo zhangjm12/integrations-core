@@ -24,6 +24,7 @@ class MaprCheck(AgentCheck):
         self._conn = None
         self.hostname = instances[0].get('hostname')
         self.topic_path = instances[0].get('topic_path')
+        self.allowed_metrics = [re.compile(w) for w in instances[0].get('whitelist')]
 
     def check(self, instance):
         mapr_ticketfile_location = instance.get('mapr_ticketfile_location')
@@ -43,7 +44,7 @@ class MaprCheck(AgentCheck):
                 # Metric received
                 try:
                     metric = json.loads(m.value().decode('utf-8'))[0]
-                    if self.should_collect_metric(metric['metric']):
+                    if self.should_collect_metric(metric['metric'], allowed_metrics):
                         metrics[metric['metric']] = {
                             "tags": ["{}:{}".format(k, v) for k, v in iteritems(metric['tags'])],
                             "value": metric['value']
@@ -82,7 +83,7 @@ class MaprCheck(AgentCheck):
         if self._conn:
             return self._conn
 
-        topic_name = self.hostname  # According to docs we should append the metric name.
+        topic_name = self.host  # According to docs we should append the metric name.
         stream_id = MaprCheck.get_stream_id(topic_name, rng=2)
 
         # TODO: Make the path configurable
@@ -98,12 +99,6 @@ class MaprCheck(AgentCheck):
         return self._conn
 
     def should_collect_metric(self, metric_name):
-        # TODO: be configurable. Right now we collect every mapr metric.
-        allowed_metrics = [r'mapr..*']
-
-        for reg in allowed_metrics:
+        for reg in self.allowed_metrics:
             if re.match(reg, metric_name):
                 return True
-
-
-
