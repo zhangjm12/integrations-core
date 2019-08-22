@@ -4,6 +4,7 @@
 import pytest
 
 from datadog_checks.mapr import MaprCheck
+
 from .common import KAFKA_METRIC
 
 
@@ -47,7 +48,7 @@ def test_submit_gauge_additional_tags(instance, aggregator):
             'clusterid:7616098736519857348',
             'fqdn:mapr-lab-2-ghs6.c.datadog-integrations-lab.internal',
             'foo:bar',
-            'baz:biz'
+            'baz:biz',
         ],
     )
 
