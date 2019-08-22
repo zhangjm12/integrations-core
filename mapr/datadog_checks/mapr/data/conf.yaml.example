@@ -22,3 +22,12 @@ instances:
     ## Either the environment variable or this config option needs to be set if security is enabled on the cluster.
     #
     # mapr_ticketfile_location: <MAPR_TICKETFILE_LOCATION>
+
+    ## @param tags  - list of key:value elements - optional
+    ## List of tags to attach to every metric, event and service check emitted by this integration.
+    ##
+    ## Learn more about tagging: https://docs.datadoghq.com/tagging/
+    #
+    # tags:
+    #   - <KEY_1>:<VALUE_1>
+    #   - <KEY_2>:<VALUE_2>

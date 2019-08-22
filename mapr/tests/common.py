@@ -9,3 +9,14 @@ INSTANCE = {
     'whitelist': ['*'],
     'mapr_ticketfile_location': 'foo',
 }
+
+KAFKA_METRIC = {
+    u'metric': u'mapr.process.context_switch_involuntary',
+    u'value': 6308,
+    u'tags': {
+        u'clustername': u'demo',
+        u'process_name': u'apiserver',
+        u'clusterid': u'7616098736519857348',
+        u'fqdn': u'mapr-lab-2-ghs6.c.datadog-integrations-lab.internal',
+    },
+}

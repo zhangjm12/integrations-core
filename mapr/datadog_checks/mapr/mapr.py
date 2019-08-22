@@ -36,6 +36,7 @@ class MaprCheck(AgentCheck):
             )
 
     def check(self, instance):
+        tags = instance.get('tags', [])
         while True:
             m = self.conn.poll(timeout=1.0)
             if m is None:
@@ -45,7 +46,7 @@ class MaprCheck(AgentCheck):
                 # Metric received
                 try:
                     kafka_metric = json.loads(m.value().decode('utf-8'))
-                    self.submit_metric(kafka_metric)
+                    self.submit_metric(kafka_metric, tags)
                 except Exception as e:
                     self.log.error("Received unexpected message %s, it wont be processed", m.value())
                     self.log.exception(e)
@@ -91,10 +92,10 @@ class MaprCheck(AgentCheck):
             else:
                 self.log.debug("Ignoring non whitelisted metric %s", metric_name)
 
-    def submit_metric(self, metric):
+    def submit_metric(self, metric, additional_tags):
         metric_name = metric['metric']
         if self.should_collect_metric(metric_name):
-            tags = ["{}:{}".format(k, v) for k, v in iteritems(metric['tags'])]
+            tags = ["{}:{}".format(k, v) for k, v in iteritems(metric['tags'])] + additional_tags
             if 'buckets' in metric:
                 # TODO handle histogram netrics See https://github.com/DataDog/integrations-core/pull/4321/files
                 self.log.debug("Histogram metrics are not yet supported, ignoring %s", metric)

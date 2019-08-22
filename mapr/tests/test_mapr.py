@@ -4,6 +4,7 @@
 import pytest
 
 from datadog_checks.mapr import MaprCheck
+from .common import KAFKA_METRIC
 
 
 @pytest.mark.unit
@@ -18,18 +19,8 @@ def test_whitelist(instance):
 
 @pytest.mark.unit
 def test_submit_gauge(instance, aggregator):
-    kafka_metric = {
-        u'metric': u'mapr.process.context_switch_involuntary',
-        u'value': 6308,
-        u'tags': {
-            u'clustername': u'demo',
-            u'process_name': u'apiserver',
-            u'clusterid': u'7616098736519857348',
-            u'fqdn': u'mapr-lab-2-ghs6.c.datadog-integrations-lab.internal',
-        },
-    }
     check = MaprCheck('mapr', {}, [instance])
-    check.submit_metric(kafka_metric)
+    check.submit_metric(KAFKA_METRIC, [])
 
     aggregator.assert_metric(
         'mapr.process.context_switch_involuntary',
@@ -39,6 +30,24 @@ def test_submit_gauge(instance, aggregator):
             'process_name:apiserver',
             'clusterid:7616098736519857348',
             'fqdn:mapr-lab-2-ghs6.c.datadog-integrations-lab.internal',
+        ],
+    )
+
+
+@pytest.mark.unit
+def test_submit_gauge_additional_tags(instance, aggregator):
+    check = MaprCheck('mapr', {}, [instance])
+    check.submit_metric(KAFKA_METRIC, ['foo:bar', 'baz:biz'])
+
+    aggregator.assert_metric(
+        'mapr.process.context_switch_involuntary',
+        tags=[
+            'clustername:demo',
+            'process_name:apiserver',
+            'clusterid:7616098736519857348',
+            'fqdn:mapr-lab-2-ghs6.c.datadog-integrations-lab.internal',
+            'foo:bar',
+            'baz:biz'
         ],
     )
 
@@ -59,7 +68,7 @@ def test_submit_bucket(instance, aggregator):
         },
     }
     check = MaprCheck('mapr', {}, [instance])
-    check.submit_metric(kafka_metric)
+    check.submit_metric(kafka_metric, [])
 
     aggregator.assert_all_metrics_covered()  # No metrics submitted
 
