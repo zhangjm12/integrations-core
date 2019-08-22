@@ -188,7 +188,7 @@ jobs:
     - stage: test
       env: CHECK=linux_proc_extras PYTHON3=true
     - stage: test
-        env: CHECK=mapr PYTHON3=true LD_LIBRARY_PATH=/opt/mapr/lib
+      env: CHECK=mapr PYTHON3=true LD_LIBRARY_PATH=/opt/mapr/lib
     - stage: test
       env: CHECK=mapreduce PYTHON3=true
     - stage: test
