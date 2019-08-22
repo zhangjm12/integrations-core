@@ -14,6 +14,8 @@ else
 fi
 
 
+sudo add-apt-repository 'deb http://package.mapr.com/releases/v6.1.0/ubuntu binary trusty'
+sudo add-apt-repository 'deb http://package.mapr.com/releases/MEP/MEP-v6.1.0/ubuntu binary trusty'
 sudo apt-get update
 sudo apt-get install mapr-client
 #wget
