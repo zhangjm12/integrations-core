@@ -33,7 +33,7 @@ The mapr check is included in the [Datadog Agent][2] package. However, to be abl
 
 ### Metrics
 
-mapr does not include any metrics.
+See [metadata.csv][13] for a list of default metrics provided by this integration.
 
 ### Service Checks
 
@@ -64,3 +64,5 @@ Need help? Contact [Datadog support][6].
 [10]: https://mapr.com/docs/61/AdministratorGuide/c-managing-users-and-groups.html
 [11]: https://www.rubydoc.info/gems/fluent-plugin-datadog
 [12]: https://mapr.com/docs/61/AdvancedInstallation/SettingUptheClient-install-mapr-client.html
+[13]: https://github.com/DataDog/integrations-core/blob/master/mapr/metadata.csv
+
