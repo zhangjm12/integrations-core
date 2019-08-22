@@ -4,8 +4,8 @@
 
 
 INSTANCE = {
-    'mapr_host': 'maprdemo',
+    'mapr_host': 'mapr-lab-2-ghs6.c.datadog-integrations-lab.internal',
     'topic_path': '/var/mapr/mapr.monitoring/metricstreams',
-    'whitelist': ['mapr.*'],
-    'mapr_ticketfile_location': 'foo'
+    'whitelist': ['*'],
+    'mapr_ticketfile_location': 'foo',
 }

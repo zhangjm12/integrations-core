@@ -8,6 +8,7 @@ instances:
 
     ## @param mapr_ticketfile_location - string - optional
     ## The path to the mapR user ticket, if included it will override the MAPR_TICKETFILE_LOCATION environment variable.
+    ## One of them is required if security is enabled on the cluster
     #
     # mapr_ticketfile_location: <MAPR_TICKETFILE_LOCATION>
 

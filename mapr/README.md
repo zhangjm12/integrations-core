@@ -17,7 +17,7 @@ The mapr check is included in the [Datadog Agent][2] package. However, to be abl
 3. Set `JAVA_HOME` (if running on macos you will need to install system java)
 3. Install the [mapr-streams-python][7] library.
 4. Create a password for the `dd-agent` user and have this user in every node of the cluster with the same `UID`/`GID` so that it is recognized by mapr. See [Managing users and groups][10].
-5. Generate a long-lived (10,000 years by default) token for this user.
+5. If security is enabled on the cluster (recommended), generate a [long-lived ticket][8] for this user.
 
 ### Configuration
 

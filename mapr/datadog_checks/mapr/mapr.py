@@ -2,8 +2,13 @@
 # All rights reserved
 # Licensed under a 3-clause BSD style license (see LICENSE)
 import json
-import re
 import os
+import re
+
+from six import iteritems
+
+from datadog_checks.base import AgentCheck
+
 try:
     # This should be `confluent_kafka` but made by mapr!
     from confluent_kafka import Consumer, KafkaError
@@ -12,10 +17,6 @@ except ImportError as e:
     raise e
     # on our infra you can run
     # export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/mapr/lib:/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.222.b10-0.el7_6.x86_64/jre/lib/amd64/server/  # noqa
-
-from six import iteritems
-
-from datadog_checks.base import AgentCheck, ConfigurationError
 
 
 class MaprCheck(AgentCheck):
@@ -26,15 +27,15 @@ class MaprCheck(AgentCheck):
         self.topic_path = instances[0]['topic_path']
         self.allowed_metrics = [re.compile('mapr.{}'.format(w)) for w in instances[0]['whitelist']]
 
-    def check(self, instance):
-        mapr_ticketfile_location = instance.get('mapr_ticketfile_location')
+        mapr_ticketfile_location = instances[0].get('mapr_ticketfile_location')
         if mapr_ticketfile_location:
             os.environ['MAPR_TICKETFILE_LOCATION'] = mapr_ticketfile_location
         elif not os.environ.get('MAPR_TICKETFILE_LOCATION'):
-            raise ConfigurationError(
-                "MAPR_TICKETFILE_LOCATION needs to be provided either in config or as an environment variable")
+            self.log.debug(
+                "MAPR_TICKETFILE_LOCATION environment variable not set, this may cause authentication issues"
+            )
 
-        metrics = {}
+    def check(self, instance):
         while True:
             m = self.conn.poll(timeout=1.0)
             if m is None:
@@ -43,36 +44,17 @@ class MaprCheck(AgentCheck):
             if m.error() is None:
                 # Metric received
                 try:
-                    metric = json.loads(m.value().decode('utf-8'))[0]
-                    if self.should_collect_metric(metric['metric']):
-                        metrics[metric['metric']] = {
-                            "tags": ["{}:{}".format(k, v) for k, v in iteritems(metric['tags'])],
-                            "value": metric['value']
-                        }
+                    kafka_metric = json.loads(m.value().decode('utf-8'))
+                    self.submit_metric(kafka_metric)
                 except Exception as e:
-                    # TODO handle histogram netrics See https://github.com/DataDog/integrations-core/pull/4321/files
-                    # Error: (mapr.py:45) | Received unexpected message [
-                    # {
-                    #     "metric": "mapr.db.table.latency",
-                    #     "buckets": {"2,5": 10,"5,10": 21},
-                    #     "tags": {
-                    #         "table_fid": "2070.36.262534",
-                    #         "table_path": "/var/mapr/mapr.monitoring/tsdb",
-                    #         "noindex": "//primary","rpc_type": "put",
-                    #         "fqdn": "mapr-lab-2-ghs6.c.datadog-integrations-lab.internal",
-                    #         "clusterid" : "7616098736519857348",
-                    #         "clustername" : "demo"
-                    # }}]
-                    self.log.warning("Received unexpected message %s, it wont be processed", m.value())
+                    self.log.error("Received unexpected message %s, it wont be processed", m.value())
+                    self.log.exception(e)
             elif m.error().code() != KafkaError._PARTITION_EOF:
                 # Real error happened
                 self.log.error(m.error())
                 break
-
-        # Submit metrics
-        # No distinction between gauge and count metrics, this should be hardcoded metric by metric
-        for m, props in iteritems(metrics):
-            self.gauge(m, props["value"], tags=props["tags"])
+            else:
+                self.log.debug(m.error())
 
     @staticmethod
     def get_stream_id(topic_name, rng=2):
@@ -106,3 +88,16 @@ class MaprCheck(AgentCheck):
         for reg in self.allowed_metrics:
             if re.match(reg, metric_name):
                 return True
+            else:
+                self.log.debug("Ignoring non whitelisted metric %s", metric_name)
+
+    def submit_metric(self, metric):
+        metric_name = metric['metric']
+        if self.should_collect_metric(metric_name):
+            tags = ["{}:{}".format(k, v) for k, v in iteritems(metric['tags'])]
+            if 'buckets' in metric:
+                # TODO handle histogram netrics See https://github.com/DataDog/integrations-core/pull/4321/files
+                self.log.debug("Histogram metrics are not yet supported, ignoring %s", metric)
+            else:
+                # No distinction between gauge and count metrics, this should be hardcoded metric by metric
+                self.gauge(metric_name, metric['value'], tags=tags)
