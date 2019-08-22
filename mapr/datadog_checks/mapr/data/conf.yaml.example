@@ -2,15 +2,9 @@ init_config:
 
 instances:
     ## @param hostname - string - required
-    ## The mapR host to monitor
+    ## The mapR host to monitor.
     #
-  - mapr_host: localhost
-
-    ## @param mapr_ticketfile_location - string - optional
-    ## The path to the mapR user ticket, if included it will override the MAPR_TICKETFILE_LOCATION environment variable.
-    ## One of them is required if security is enabled on the cluster
-    #
-    # mapr_ticketfile_location: <MAPR_TICKETFILE_LOCATION>
+    # mapr_host: <MAPR_HOST>
 
     ## @param topic_path - string - required
     ## The mapR topic path
@@ -22,3 +16,9 @@ instances:
     #
   - whitelist:
     - fs.*
+
+    ## @param mapr_ticketfile_location - string - optional
+    ## The path to the mapR user ticket, if included it will override the MAPR_TICKETFILE_LOCATION environment variable.
+    ## Either the environment variable or this config option needs to be set if security is enabled on the cluster.
+    #
+    # mapr_ticketfile_location: <MAPR_TICKETFILE_LOCATION>
