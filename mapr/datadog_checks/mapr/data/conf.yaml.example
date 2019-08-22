@@ -4,7 +4,7 @@ instances:
     ## @param hostname - string - required
     ## The mapR host to monitor
     #
-  - host: localhost
+  - mapr_host: localhost
 
     ## @param mapr_ticketfile_location - string - optional
     ## The path to the mapR user ticket, if included it will override the MAPR_TICKETFILE_LOCATION environment variable.
@@ -17,7 +17,7 @@ instances:
   - topic_path: /var/mapr/mapr.monitoring/metricstreams
 
     ## @param whitelist - list - required
-    ## List regexes of metrics to collect
+    ## List regexes of metrics to collect. They will be prefixed with `mapr.`
     #
   - whitelist:
-    - mapr.fs.*
+    - fs.*

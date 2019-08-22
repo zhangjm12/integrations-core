@@ -7,8 +7,9 @@ import os
 try:
     # This should be `confluent_kafka` but made by mapr!
     from confluent_kafka import Consumer, KafkaError
-except Exception  as e:
+except ImportError as e:
     print("Unable to import library `confluent_kafka`, make sure it is installed and LD_LIBRARY_PATH is set correctly")
+    raise e
     # on our infra you can run
     # export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/mapr/lib:/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.222.b10-0.el7_6.x86_64/jre/lib/amd64/server/  # noqa
 
@@ -18,13 +19,12 @@ from datadog_checks.base import AgentCheck, ConfigurationError
 
 
 class MaprCheck(AgentCheck):
-    
     def __init__(self, name, init_config, instances):
         super(MaprCheck, self).__init__(name, init_config, instances)
         self._conn = None
-        self.hostname = instances[0].get('hostname')
-        self.topic_path = instances[0].get('topic_path')
-        self.allowed_metrics = [re.compile(w) for w in instances[0].get('whitelist')]
+        self.mapr_host = instances[0]['mapr_host']
+        self.topic_path = instances[0]['topic_path']
+        self.allowed_metrics = [re.compile('mapr.{}'.format(w)) for w in instances[0]['whitelist']]
 
     def check(self, instance):
         mapr_ticketfile_location = instance.get('mapr_ticketfile_location')
@@ -44,21 +44,26 @@ class MaprCheck(AgentCheck):
                 # Metric received
                 try:
                     metric = json.loads(m.value().decode('utf-8'))[0]
-                    if self.should_collect_metric(metric['metric'], allowed_metrics):
+                    if self.should_collect_metric(metric['metric']):
                         metrics[metric['metric']] = {
                             "tags": ["{}:{}".format(k, v) for k, v in iteritems(metric['tags'])],
                             "value": metric['value']
                         }
                 except Exception as e:
-                    # TODO handle histogran netrics
+                    # TODO handle histogram netrics See https://github.com/DataDog/integrations-core/pull/4321/files
                     # Error: (mapr.py:45) | Received unexpected message [
-                    # {"metric": "mapr.db.table.latency","buckets": {"2,5": 10,"5,10": 21},
-                    # "tags": {"table_fid": "2070.36.262534","table_path": "/var/mapr/mapr.monitoring/tsdb",
-                    # "noindex": "//primary","rpc_type": "put",
-                    # "fqdn": "mapr-lab-2-ghs6.c.datadog-integrations-lab.internal",
-                    # "clusterid" : "7616098736519857348",
-                    # "clustername" : "demo"}}]
-                    self.log.error("Received unexpected message %s", m.value())
+                    # {
+                    #     "metric": "mapr.db.table.latency",
+                    #     "buckets": {"2,5": 10,"5,10": 21},
+                    #     "tags": {
+                    #         "table_fid": "2070.36.262534",
+                    #         "table_path": "/var/mapr/mapr.monitoring/tsdb",
+                    #         "noindex": "//primary","rpc_type": "put",
+                    #         "fqdn": "mapr-lab-2-ghs6.c.datadog-integrations-lab.internal",
+                    #         "clusterid" : "7616098736519857348",
+                    #         "clustername" : "demo"
+                    # }}]
+                    self.log.warning("Received unexpected message %s, it wont be processed", m.value())
             elif m.error().code() != KafkaError._PARTITION_EOF:
                 # Real error happened
                 self.log.error(m.error())
@@ -83,11 +88,10 @@ class MaprCheck(AgentCheck):
         if self._conn:
             return self._conn
 
-        topic_name = self.host  # According to docs we should append the metric name.
+        topic_name = self.mapr_host  # According to docs we should append the metric name.
         stream_id = MaprCheck.get_stream_id(topic_name, rng=2)
 
-        # TODO: Make the path configurable
-        topic_path = "{}:{}".format(os.path.join(self.topic_path, stream_id), topic_name)
+        topic_path = "{}:{}".format(os.path.join(self.topic_path, str(stream_id)), topic_name)
         self._conn = Consumer(
             {
                 "group.id": "dd-agent",  # uniquely identify this consumer

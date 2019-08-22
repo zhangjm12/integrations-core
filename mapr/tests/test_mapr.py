@@ -7,7 +7,7 @@ import pytest
 
 @pytest.mark.unit
 def test_whitelist(instance):
-    instance['whitelist'] = ['mapr.fs.*', 'mapr.db.*']
+    instance['whitelist'] = ['fs.*', 'db.*']
     check = MaprCheck('mapr', {}, [instance])
 
     assert check.should_collect_metric('mapr.fs.read_cachemisses')
@@ -16,7 +16,7 @@ def test_whitelist(instance):
 
 
 def test_check(aggregator, instance):
-    check = MaprCheck('mapr', {}, {})
+    check = MaprCheck('mapr', {}, [instance])
     check.check(instance)
 
     aggregator.assert_all_metrics_covered()
