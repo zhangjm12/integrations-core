@@ -4,7 +4,7 @@ instances:
     ## @param hostname - string - required
     ## The mapR host to monitor.
     #
-    # mapr_host: <MAPR_HOST>
+  - mapr_host: <MAPR_HOST>
 
     ## @param topic_path - string - required
     ## The mapR topic path
