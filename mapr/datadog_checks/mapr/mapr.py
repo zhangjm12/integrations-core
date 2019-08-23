@@ -20,8 +20,8 @@ except ImportError as e:
 
 
 class MaprCheck(AgentCheck):
-    def __init__(self, name, init_config, instances):
-        super(MaprCheck, self).__init__(name, init_config, instances)
+    def __init__(self, name, init_config, agentConfig, instances):
+        super(MaprCheck, self).__init__(name, init_config, agentConfig, instances)
         self._conn = None
         self.mapr_host = instances[0]['mapr_host']
         self.topic_path = instances[0]['topic_path']
