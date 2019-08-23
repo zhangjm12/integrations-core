@@ -45,7 +45,7 @@ class MaprCheck(AgentCheck):
             if m.error() is None:
                 # Metric received
                 try:
-                    kafka_metric = json.loads(m.value().decode('utf-8'))
+                    kafka_metric = json.loads(m.value().decode('utf-8'))[0]
                     self.submit_metric(kafka_metric, tags)
                 except Exception as e:
                     self.log.error("Received unexpected message %s, it wont be processed", m.value())

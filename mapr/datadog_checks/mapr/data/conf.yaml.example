@@ -9,12 +9,12 @@ instances:
     ## @param topic_path - string - required
     ## The mapR topic path
     #
-  - topic_path: /var/mapr/mapr.monitoring/metricstreams
+    topic_path: /var/mapr/mapr.monitoring/metricstreams
 
     ## @param whitelist - list - required
     ## List regexes of metrics to collect. They will be prefixed with `mapr.`
     #
-  - whitelist:
+    whitelist:
     - fs.*
 
     ## @param mapr_ticketfile_location - string - optional
