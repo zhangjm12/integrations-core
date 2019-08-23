@@ -52,7 +52,7 @@ MapR uses fluentD for logs. You can use [fluentd datadog plugin][11] to collect 
 
 Need help? Contact [Datadog support][6].
 
-[1]: **LINK_TO_INTEGRATION_SITE**
+[1]: https://mapr.com
 [2]: https://docs.datadoghq.com/agent/autodiscovery/integrations
 [3]: https://github.com/DataDog/integrations-core/blob/master/mapr/datadog_checks/mapr/data/conf.yaml.example
 [4]: https://docs.datadoghq.com/agent/guide/agent-commands/?tab=agentv6#start-stop-and-restart-the-agent
