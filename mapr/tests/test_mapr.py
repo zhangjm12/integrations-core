@@ -70,7 +70,18 @@ def test_submit_bucket(instance, aggregator):
     }
     check = MaprCheck('mapr', {}, {}, [instance])
     check.submit_metric(kafka_metric, [])
+    expected_tags = [
+        "clusterid:7616098736519857348",
+        "clustername:demo",
+        "fqdn:mapr-lab-2-ghs6.c.datadog-integrations-lab.internal",
+        "noindex://primary",
+        "rpc_type:put",
+        "table_fid:2070.36.262534",
+        "table_path:/var/mapr/mapr.monitoring/tsdb",
+    ]
 
+    aggregator.assert_histogram_bucket('mapr.db.table.latency', 10, 2, 5, True, 'stubbed.hostname', expected_tags)
+    aggregator.assert_histogram_bucket('mapr.db.table.latency', 21, 5, 10, True, 'stubbed.hostname', expected_tags)
     aggregator.assert_all_metrics_covered()  # No metrics submitted
 
 

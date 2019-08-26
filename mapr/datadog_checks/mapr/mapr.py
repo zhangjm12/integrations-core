@@ -97,8 +97,11 @@ class MaprCheck(AgentCheck):
         if self.should_collect_metric(metric_name):
             tags = ["{}:{}".format(k, v) for k, v in iteritems(metric['tags'])] + additional_tags
             if 'buckets' in metric:
-                # TODO handle histogram netrics See https://github.com/DataDog/integrations-core/pull/4321/files
-                self.log.debug("Histogram metrics are not yet supported, ignoring %s", metric)
+                for bounds, value in metric['buckets'].items():
+                    lower, upper = bounds.split(',')
+                    self.submit_histogram_bucket(
+                        metric_name, value, int(lower), int(upper), monotonic=True, hostname=self.hostname, tags=tags
+                    )
             else:
                 # No distinction between gauge and count metrics, this should be hardcoded metric by metric
                 self.gauge(metric_name, metric['value'], tags=tags)
