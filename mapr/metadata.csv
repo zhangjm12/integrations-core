@@ -144,6 +144,6 @@ mapr.streams.listen_currpcs,gauge,,object,,The number of concurrent Stream consu
 mapr.rpc.bytes_read,gauge,,byte,,The number of bytes received by the MapR Filesystem over RPC.,0,mapr,
 mapr.rpc.bytes_sent,gauge,,byte,,The number of bytes sent by the MapR filesystem over RPC.,0,mapr,
 mapr.rpc.calls_recd,gauge,,message,,The number of RPC calls received by the MapR Filesystem.,0,mapr,
-mapr.topology.utilization,gauge,,percent,,	The aggregate percentage of CPU utilization.,0,mapr,
+mapr.topology.utilization,gauge,,percent,,The aggregate percentage of CPU utilization.,0,mapr,
 mapr.topology.disks_used_capacity,gauge,,gibibyte,,The amount disk space used in gigabytes.,0,mapr,
 mapr.topology.disks_total_capacity,gauge,,gibibyte,,The disk capacity in gigabytes. ,0,mapr,
