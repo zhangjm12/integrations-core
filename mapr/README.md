@@ -1,4 +1,4 @@
-# Agent Check: mapr
+# Agent Check: MapR
 
 ## Overview
 
