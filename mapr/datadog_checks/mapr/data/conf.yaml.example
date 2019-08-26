@@ -12,7 +12,7 @@ instances:
     topic_path: /var/mapr/mapr.monitoring/metricstreams
 
     ## @param whitelist - list - required
-    ## List regexes of metrics to collect. They will be prefixed with `mapr.`
+    ## List regexes of metrics to collect. Metrics are prefixed with `mapr.`
     #
     whitelist:
     - fs.*
