@@ -16,15 +16,20 @@ The MapR check is included in the [Datadog Agent][2] package. However, additiona
 2. Update `LD_LIBRARY_PATH` and `DYLD_LIBRARY_PATH` as explained in the [MapR documentation][9] (usually with `/opt/mapr/lib/)`.
 3. Set `JAVA_HOME` (if you are running on macOS install system Java).
 3. Install the [mapr-streams-python][7] library.
-4. Create a password for the `dd-agent` user and have this user in every node of the cluster with the same `UID`/`GID` so that it is recognized by mapr. See [Managing users and groups][10].
-5. If security is enabled on the cluster (recommended), generate a [long-lived ticket][8] for this user.
+4. Create a password for the `dd-agent` user, then add this user to every node of the cluster with the same `UID`/`GID` so it is recognized by MapR. See [Managing users and groups][10] for additional details.
+5. If security is enabled on the cluster (recommended), generate a [long-lived ticket][8] for the `dd-agent` user.
 
 ### Configuration
+#### Metric collection
 
-1. Edit the `mapr.d/conf.yaml` file, in the `conf.d/` folder at the root of your Agent's configuration directory to start collecting your mapr performance data. See the [sample mapr.d/conf.yaml][3] for all available configuration options.
+1. Edit the `mapr.d/conf.yaml` file, in the `conf.d/` folder at the root of your Agent's configuration directory to collect your MapR performance data. See the [sample mapr.d/conf.yaml][3] for all available configuration options.
 
 2. [Restart the Agent][4].
 
+#### Log collection
+
+ MapR uses fluentD for logs. Use the [fluentd datadog plugin][11] to collect MapR logs.
+ 
 ### Validation
 
 [Run the Agent's status subcommand][5] and look for `mapr` under the Checks section.
@@ -37,15 +42,13 @@ See [metadata.csv][13] for a list of default metrics provided by this integratio
 
 ### Service Checks
 
-mapr does not include any service checks.
+The MapR check does not include any service checks.
 
 ### Events
 
-mapr does not include any events.
+The MapR check does not include any events.
 
-### Logs
 
-MapR uses fluentD for logs. You can use [fluentd datadog plugin][11] to collect mapr logs.
 
 
 ## Troubleshooting
