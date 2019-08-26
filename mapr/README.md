@@ -12,7 +12,7 @@ Follow the instructions below to install and configure this check for an Agent r
 
 The MapR check is included in the [Datadog Agent][2] package. However, additional installation steps are necessary:
 
-1. Download and extract the [MapR Client][12]
+1. Download and extract the [MapR Client][12].
 2. Update `LD_LIBRARY_PATH` and `DYLD_LIBRARY_PATH` as explained in the [MapR documentation][9] (usually with `/opt/mapr/lib/)`.
 3. Set `JAVA_HOME` (if running on macos you will need to install system java)
 3. Install the [mapr-streams-python][7] library.
