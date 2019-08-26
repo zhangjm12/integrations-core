@@ -2,7 +2,7 @@
 
 ## Overview
 
-This check monitors [mapr][1] through the Datadog Agent.
+This check monitors [MapR][1] through the Datadog Agent.
 
 ## Setup
 
