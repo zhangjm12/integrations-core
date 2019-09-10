@@ -6,102 +6,121 @@ import os
 import re
 
 from six import iteritems
+try:
+    # The `confluent_kafka` library here is the one made by mapr
+    import confluent_kafka as ck
+except ImportError as e:
+    ck = None
 
 from datadog_checks.base import AgentCheck
+from datadog_checks.base.errors import CheckException
+from .common import ALLOWED_METRICS, GAUGE_METRICS, MONOTONIC_COUNTER_METRICS, COUNT_METRICS
+from .utils import get_fqdn, get_stream_id_for_topic
 
-try:
-    # This should be `confluent_kafka` but made by mapr!
-    from confluent_kafka import Consumer, KafkaError
-except ImportError as e:
-    print("Unable to import library `confluent_kafka`, make sure it is installed and LD_LIBRARY_PATH is set correctly")
-    raise e
-    # on our infra you can run
-    # export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/mapr/lib:/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.222.b10-0.el7_6.x86_64/jre/lib/amd64/server/  # noqa
+
+DEFAULT_STREAM_PATH = "/var/mapr/mapr.monitoring/metricstreams"
+STATUS_METRIC = "mapr.status.ok"
 
 
 class MaprCheck(AgentCheck):
-    def __init__(self, name, init_config, agentConfig, instances):
-        super(MaprCheck, self).__init__(name, init_config, agentConfig, instances)
-        self._conn = None
-        self.mapr_host = instances[0]['mapr_host']
-        self.topic_path = instances[0]['topic_path']
-        self.allowed_metrics = [re.compile('mapr.{}'.format(w)) for w in instances[0]['whitelist']]
 
-        mapr_ticketfile_location = instances[0].get('mapr_ticketfile_location')
-        if mapr_ticketfile_location:
-            os.environ['MAPR_TICKETFILE_LOCATION'] = mapr_ticketfile_location
+    def __init__(self, name, init_config, instances):
+        super(MaprCheck, self).__init__(name, init_config, instances)
+        self._conn = None
+        self.hostname = self.instance.get('hostname', get_fqdn())
+        self.topic_path = "{stream_path}/{stream_id}:{topic_name}".format(
+            stream_path=self.instance.get('stream_path', DEFAULT_STREAM_PATH),
+            stream_id=get_stream_id_for_topic(self.hostname),
+            topic_name=self.hostname
+        )
+        self.allowed_metrics = [re.compile(w) for w in self.instance.get('metrics', [])]
+        self.base_tags = self.instance.get('tags', [])
+
+        auth_ticket = self.instance.get('ticket_location')
+        if auth_ticket:
+            os.environ['MAPR_TICKETFILE_LOCATION'] = auth_ticket
         elif not os.environ.get('MAPR_TICKETFILE_LOCATION'):
-            self.log.debug(
+            self.log.info(
                 "MAPR_TICKETFILE_LOCATION environment variable not set, this may cause authentication issues"
             )
 
-    def check(self, instance):
-        tags = instance.get('tags', [])
+    def check(self, _):
+        if ck is None:
+            raise CheckException(
+                "confluent_kafka was not imported correctly, make sure the library is installed and that you've"
+                "set LD_LIBRARY_PATH correctly. Please refer to datadog documentation for more details."
+            )
+
+        conn = self.get_connection()
+        # TODO: assert that the topic exists, otherwise the check polls from nowhere
         while True:
-            m = self.conn.poll(timeout=1.0)
-            if m is None:
+            msg = conn.poll(timeout=0.4)
+            if msg is None:
                 # Timed out, no more messages
                 break
-            if m.error() is None:
+
+            if msg.error() is None:
                 # Metric received
                 try:
-                    kafka_metric = json.loads(m.value().decode('utf-8'))[0]
-                    self.submit_metric(kafka_metric, tags)
+                    metric = json.loads(msg.value().decode('utf-8'))[0]
+                    metric_name = metric['metric']
+                    if self.should_collect_metric(metric_name):
+                        # Will sometimes submit the same metric multiple time, but because it's only
+                        # gauges and monotonic_counter that's fine.
+                        self.submit_metric(metric)
                 except Exception as e:
-                    self.log.error("Received unexpected message %s, it wont be processed", m.value())
+                    self.log.warning("Received unexpected message %s, wont be processed", msg.value())
                     self.log.exception(e)
-            elif m.error().code() != KafkaError._PARTITION_EOF:
+            elif msg.error().code() != ck.KafkaError._PARTITION_EOF:
                 # Real error happened
-                self.log.error(m.error())
-                break
-            else:
-                self.log.debug(m.error())
+                raise CheckException(msg.error())
 
-    @staticmethod
-    def get_stream_id(topic_name, rng=2):
-        """To distribute load, all the topics are not in the same stream. Each topic named is hashed
-        to obtain an id which is in turn the name of the stream"""
-        h = 5381
-        for c in topic_name:
-            h = ((h << 5) + h) + ord(c)
-        return abs(h % rng)
+        self.gauge(STATUS_METRIC, 1)
 
-    @property
-    def conn(self):
+    def get_connection(self):
         if self._conn:
             return self._conn
 
-        topic_name = self.mapr_host  # According to docs we should append the metric name.
-        stream_id = MaprCheck.get_stream_id(topic_name, rng=2)
-
-        topic_path = "{}:{}".format(os.path.join(self.topic_path, str(stream_id)), topic_name)
-        self._conn = Consumer(
+        self._conn = ck.Consumer(
             {
                 "group.id": "dd-agent",  # uniquely identify this consumer
                 "enable.auto.commit": False  # important, we don't need to store the offset for this consumer,
                 # and if we do it just once the mapr library has a bug which prevents reading from the head
             }
         )
-        self._conn.subscribe([topic_path])
+        self._conn.subscribe([self.topic_path])
         return self._conn
 
     def should_collect_metric(self, metric_name):
+        if metric_name not in ALLOWED_METRICS:
+            # Metric is not part of datadog allowed list
+            return False
+        if not self.allowed_metrics:
+            # No filter specified, allow everything
+            return True
+
         for reg in self.allowed_metrics:
             if re.match(reg, metric_name):
+                # Metric matched one pattern
                 return True
-            else:
-                self.log.debug("Ignoring non whitelisted metric %s", metric_name)
 
-    def submit_metric(self, metric, additional_tags):
+        self.log.debug("Ignoring non whitelisted metric: %s", metric_name)
+        return False
+
+    def submit_metric(self, metric):
         metric_name = metric['metric']
-        if self.should_collect_metric(metric_name):
-            tags = ["{}:{}".format(k, v) for k, v in iteritems(metric['tags'])] + additional_tags
-            if 'buckets' in metric:
-                for bounds, value in metric['buckets'].items():
-                    lower, upper = bounds.split(',')
-                    self.submit_histogram_bucket(
-                        metric_name, value, int(lower), int(upper), monotonic=True, hostname=self.hostname, tags=tags
-                    )
-            else:
-                # No distinction between gauge and count metrics, this should be hardcoded metric by metric
+        tags = self.base_tags + ["{}:{}".format(k, v) for k, v in iteritems(metric['tags'])]
+
+        if 'buckets' in metric:
+            for bounds, value in metric['buckets'].items():
+                lower, upper = bounds.split(',')
+                self.submit_histogram_bucket(
+                    metric_name, value, int(lower), int(upper), monotonic=True, hostname=self.hostname, tags=tags
+                )
+        else:
+            if metric_name in GAUGE_METRICS:
                 self.gauge(metric_name, metric['value'], tags=tags)
+            elif metric_name in MONOTONIC_COUNTER_METRICS:
+                self.monotonic_count(metric_name, metric['value'], tags=tags)
+            elif metric_name in COUNT_METRICS:
+                self.count(metric_name, metric['value'], tags=tags)
