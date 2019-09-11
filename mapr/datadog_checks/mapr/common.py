@@ -89,7 +89,7 @@ COUNT_METRICS = {
     'mapr.streams.produce_msgs',
     'mapr.streams.produce_rpcs',
     'mapr.volmetrics.read_ops',
-    'mapr.volmetrics.write_ops'
+    'mapr.volmetrics.write_ops',
 }
 
 MONOTONIC_COUNTER_METRICS = {
@@ -161,7 +161,7 @@ GAUGE_METRICS = {
     'mapr.volume.quota',
     'mapr.volume.snapshot_used',
     'mapr.volume.total_used',
-    'mapr.volume.used'
+    'mapr.volume.used',
 }
 
 ALLOWED_METRICS = GAUGE_METRICS.union(COUNT_METRICS).union(MONOTONIC_COUNTER_METRICS)

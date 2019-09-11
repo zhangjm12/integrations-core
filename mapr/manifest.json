@@ -4,7 +4,7 @@
   "manifest_version": "1.0.0",
   "name": "mapr",
   "metric_prefix": "mapr.",
-  "metric_to_check": "mapr.status.ok",
+  "metric_to_check": "mapr.metrics.submitted",
   "creates_events": false,
   "short_description": "MapR metrics",
   "guid": "7d1de422-85a6-47cc-9962-427a9499d109",
