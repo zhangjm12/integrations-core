@@ -1,35 +1,37 @@
 {
-  "categories": [
-    "data store",
-    "os & system",
-    "log collection"
-  ],
-  "creates_events": false,
-  "display_name": "Ceph",
-  "guid": "8a60c34f-ecde-4269-bcae-636e6cbce98f",
-  "is_public": true,
-  "maintainer": "help@datadoghq.com",
-  "manifest_version": "1.0.0",
-  "metric_prefix": "ceph.",
-  "metric_to_check": "ceph.write_bytes_sec",
-  "name": "ceph",
+  "integration_id": "ceph", 
+  "display_name": "Ceph", 
+  "name": "ceph", 
+  "creates_events": false, 
+  "public_title": "Datadog-Ceph Integration", 
+  "metric_to_check": "ceph.write_bytes_sec", 
   "process_signatures": [
-    "ceph-mon",
-    "ceph-mgr",
+    "ceph-mon", 
+    "ceph-mgr", 
     "ceph-osd"
-  ],
-  "public_title": "Datadog-Ceph Integration",
-  "short_description": "Collect per-pool performance metrics and monitor overall cluster status.",
-  "support": "core",
+  ], 
   "supported_os": [
-    "linux",
+    "linux", 
     "mac_os"
-  ],
-  "type": "check",
-  "integration_id": "ceph",
+  ], 
+  "manifest_version": "1.0.0", 
+  "is_public": true, 
+  "short_description": "Collect per-pool performance metrics and monitor overall cluster status.", 
+  "maintainer": "help@datadoghq.com", 
+  "metric_prefix": "ceph.", 
+  "guid": "8a60c34f-ecde-4269-bcae-636e6cbce98f", 
+  "type": "check", 
+  "support": "core", 
+  "categories": [
+    "data store", 
+    "os & system", 
+    "log collection"
+  ], 
   "assets": {
-    "monitors": {},
-    "dashboards": {},
-    "service_checks": "assets/service_checks.json"
+    "service_checks": "assets/service_checks.json", 
+    "monitors": {
+      "ceph.aggregate_pct_used": "assets/recommended_monitors/ceph.aggregate_pct_used.json"
+    }, 
+    "dashboards": {}
   }
 }

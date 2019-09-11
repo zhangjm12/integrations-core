@@ -1,36 +1,40 @@
 {
-  "aliases": [
-    "/integrations/mongodb"
-  ],
-  "categories": [
-    "data store",
-    "log collection"
-  ],
-  "creates_events": true,
-  "display_name": "MongoDB",
-  "guid": "d51c342e-7a02-4611-a47f-1e8eade5735c",
-  "is_public": true,
-  "maintainer": "help@datadoghq.com",
-  "manifest_version": "1.0.0",
-  "metric_prefix": "mongodb.",
-  "metric_to_check": "mongodb.connections.available",
-  "name": "mongo",
+  "integration_id": "mongodb", 
+  "display_name": "MongoDB", 
+  "name": "mongo", 
+  "maintainer": "help@datadoghq.com", 
+  "creates_events": true, 
+  "public_title": "Datadog-MongoDB Integration", 
+  "metric_to_check": "mongodb.connections.available", 
   "process_signatures": [
     "mongod"
-  ],
-  "public_title": "Datadog-MongoDB Integration",
-  "short_description": "Track read/write performance, most-used replicas, collection metrics, and more.",
-  "support": "core",
+  ], 
   "supported_os": [
-    "linux",
-    "mac_os",
+    "linux", 
+    "mac_os", 
     "windows"
-  ],
-  "type": "check",
-  "integration_id": "mongodb",
+  ], 
   "assets": {
-    "monitors": {},
-    "dashboards": {},
-    "service_checks": "assets/service_checks.json"
-  }
+    "service_checks": "assets/service_checks.json", 
+    "monitors": {
+      "mongodb.replset.health": "assets/recommended_monitors/mongodb.replset.health.json", 
+      "mongodb.replset.replicationlag": "assets/recommended_monitors/mongodb.replset.replicationlag.json", 
+      "mongodb.connections.current": "assets/recommended_monitors/mongodb.connections.current.json"
+    }, 
+    "dashboards": {}
+  }, 
+  "manifest_version": "1.0.0", 
+  "short_description": "Track read/write performance, most-used replicas, collection metrics, and more.", 
+  "is_public": true, 
+  "metric_prefix": "mongodb.", 
+  "guid": "d51c342e-7a02-4611-a47f-1e8eade5735c", 
+  "type": "check", 
+  "support": "core", 
+  "categories": [
+    "data store", 
+    "log collection"
+  ], 
+  "aliases": [
+    "/integrations/mongodb"
+  ]
 }

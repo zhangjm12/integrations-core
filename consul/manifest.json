@@ -1,38 +1,43 @@
 {
-  "categories": [
-    "containers",
-    "orchestration",
-    "configuration & deployment",
-    "notification",
-    "log collection"
-  ],
-  "creates_events": true,
-  "display_name": "Consul",
-  "guid": "ec1e9fac-a339-49a3-b501-60656d2a5671",
-  "is_public": true,
-  "maintainer": "help@datadoghq.com",
-  "manifest_version": "1.0.0",
-  "metric_prefix": "consul.",
-  "metric_to_check": "consul.peers",
-  "name": "consul",
+  "integration_id": "consul", 
+  "maintainer": "help@datadoghq.com", 
+  "name": "consul", 
+  "display_name": "Consul", 
+  "creates_events": true, 
+  "public_title": "Datadog-Consul Integration", 
+  "metric_to_check": "consul.peers", 
   "process_signatures": [
-    "consul agent",
-    "consul_agent",
+    "consul agent", 
+    "consul_agent", 
     "consul-agent"
-  ],
-  "public_title": "Datadog-Consul Integration",
-  "short_description": "Alert on Consul health checks, see service-to-node mappings, and much more.",
-  "support": "core",
+  ], 
   "supported_os": [
-    "linux",
-    "mac_os",
+    "linux", 
+    "mac_os", 
     "windows"
-  ],
-  "type": "check",
-  "integration_id": "consul",
+  ], 
+  "manifest_version": "1.0.0", 
+  "short_description": "Alert on Consul health checks, see service-to-node mappings, and much more.", 
+  "is_public": true, 
+  "metric_prefix": "consul.", 
+  "guid": "ec1e9fac-a339-49a3-b501-60656d2a5671", 
+  "type": "check", 
+  "support": "core", 
+  "categories": [
+    "containers", 
+    "orchestration", 
+    "configuration & deployment", 
+    "notification", 
+    "log collection"
+  ], 
   "assets": {
-    "monitors": {},
-    "dashboards": {},
-    "service_checks": "assets/service_checks.json"
+    "service_checks": "assets/service_checks.json", 
+    "monitors": {
+      "consul.peers": "assets/recommended_monitors/consul.peers.json", 
+      "consul.catalog.nodes_critical": "assets/recommended_monitors/consul.catalog.nodes_critical.json", 
+      "consul.catalog.services_critical": "assets/recommended_monitors/consul.catalog.services_critical.json", 
+      "consul.catalog.nodes_up": "assets/recommended_monitors/consul.catalog.nodes_up.json"
+    }, 
+    "dashboards": {}
   }
 }

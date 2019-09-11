@@ -1,34 +1,38 @@
 {
-  "categories": [
-    "log collection",
-    "processing",
-    "messaging"
-  ],
-  "creates_events": false,
-  "display_name": "ActiveMQ",
-  "guid": "496df16d-5ad0-438c-aa2a-b8ba8ee3ae05",
-  "is_public": true,
-  "maintainer": "help@datadoghq.com",
-  "manifest_version": "1.0.0",
-  "metric_prefix": "activemq.",
-  "metric_to_check": "activemq.queue.size",
-  "name": "activemq",
+  "integration_id": "activemq", 
+  "display_name": "ActiveMQ", 
+  "name": "activemq", 
+  "maintainer": "help@datadoghq.com", 
+  "creates_events": false, 
+  "public_title": "Datadog-ActiveMQ Integration", 
+  "metric_to_check": "activemq.queue.size", 
   "process_signatures": [
     "activemq"
-  ],
-  "public_title": "Datadog-ActiveMQ Integration",
-  "short_description": "Collect metrics for brokers and queues, producers and consumers, and more.",
-  "support": "core",
+  ], 
   "supported_os": [
-    "linux",
-    "mac_os",
+    "linux", 
+    "mac_os", 
     "windows"
-  ],
-  "type": "check",
-  "integration_id": "activemq",
+  ], 
+  "manifest_version": "1.0.0", 
+  "short_description": "Collect metrics for brokers and queues, producers and consumers, and more.", 
+  "is_public": true, 
+  "metric_prefix": "activemq.", 
+  "guid": "496df16d-5ad0-438c-aa2a-b8ba8ee3ae05", 
+  "type": "check", 
+  "support": "core", 
+  "categories": [
+    "log collection", 
+    "processing", 
+    "messaging"
+  ], 
   "assets": {
-    "monitors": {},
-    "dashboards": {},
-    "service_checks": "assets/service_checks.json"
+    "service_checks": "assets/service_checks.json", 
+    "monitors": {
+      "activemq.queue.dequeue_count": "assets/recommended_monitors/activemq.queue.dequeue_count.json", 
+      "activemq.queue.enqueue_count": "assets/recommended_monitors/activemq.queue.enqueue_count.json", 
+      "activemq.queue.size": "assets/recommended_monitors/activemq.queue.size.json"
+    }, 
+    "dashboards": {}
   }
 }

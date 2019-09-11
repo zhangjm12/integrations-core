@@ -1,35 +1,37 @@
 {
-  "aliases": [
-    "/integrations/memcached"
-  ],
-  "categories": [
-    "web",
-    "caching"
-  ],
-  "creates_events": false,
-  "display_name": "Memcached",
-  "guid": "b1c4033c-bf96-4456-be63-e74ff171f991",
-  "is_public": true,
-  "maintainer": "help@datadoghq.com",
-  "manifest_version": "1.0.0",
-  "metric_prefix": "memcache.",
-  "metric_to_check": "memcache.uptime",
-  "name": "mcache",
+  "integration_id": "memcached", 
+  "maintainer": "help@datadoghq.com", 
+  "name": "mcache", 
+  "display_name": "Memcached", 
+  "creates_events": false, 
+  "public_title": "Datadog-Memcache Integration", 
+  "metric_to_check": "memcache.uptime", 
   "process_signatures": [
     "memcached"
-  ],
-  "public_title": "Datadog-Memcache Integration",
-  "short_description": "Track memory use, hits, misses, evictions, fill percent, and more.",
-  "support": "core",
+  ], 
   "supported_os": [
-    "linux",
+    "linux", 
     "mac_os"
-  ],
-  "type": "check",
-  "integration_id": "memcached",
+  ], 
   "assets": {
-    "monitors": {},
-    "dashboards": {},
-    "service_checks": "assets/service_checks.json"
-  }
+    "service_checks": "assets/service_checks.json", 
+    "monitors": {
+      "memcache.curr_connections": "assets/recommended_monitors/memcache.curr_connections.json"
+    }, 
+    "dashboards": {}
+  }, 
+  "manifest_version": "1.0.0", 
+  "short_description": "Track memory use, hits, misses, evictions, fill percent, and more.", 
+  "is_public": true, 
+  "metric_prefix": "memcache.", 
+  "guid": "b1c4033c-bf96-4456-be63-e74ff171f991", 
+  "type": "check", 
+  "support": "core", 
+  "categories": [
+    "web", 
+    "caching"
+  ], 
+  "aliases": [
+    "/integrations/memcached"
+  ]
 }

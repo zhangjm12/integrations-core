@@ -1,33 +1,35 @@
 {
-  "categories": [
-    "Collaboration",
-    "log collection"
-  ],
-  "creates_events": false,
-  "display_name": "Postfix",
-  "guid": "7f03c5b7-ee54-466e-8854-5896d62c82b4",
-  "is_public": true,
-  "maintainer": "help@datadoghq.com",
-  "manifest_version": "1.0.0",
-  "metric_prefix": "postfix.",
-  "metric_to_check": "postfix.queue.size",
-  "name": "postfix",
+  "integration_id": "postfix", 
+  "display_name": "Postfix", 
+  "name": "postfix", 
+  "creates_events": false, 
+  "public_title": "Datadog-Postfix Integration", 
+  "metric_to_check": "postfix.queue.size", 
   "process_signatures": [
-    "postfix start",
+    "postfix start", 
     "sendmail -bd"
-  ],
-  "public_title": "Datadog-Postfix Integration",
-  "short_description": "Monitor the size of all your Postfix queues.",
-  "support": "core",
+  ], 
   "supported_os": [
-    "linux",
+    "linux", 
     "mac_os"
-  ],
-  "type": "check",
-  "integration_id": "postfix",
+  ], 
+  "manifest_version": "1.0.0", 
+  "is_public": true, 
+  "short_description": "Monitor the size of all your Postfix queues.", 
+  "maintainer": "help@datadoghq.com", 
+  "metric_prefix": "postfix.", 
+  "guid": "7f03c5b7-ee54-466e-8854-5896d62c82b4", 
+  "type": "check", 
+  "support": "core", 
+  "categories": [
+    "Collaboration", 
+    "log collection"
+  ], 
   "assets": {
-    "monitors": {},
-    "dashboards": {},
-    "service_checks": "assets/service_checks.json"
+    "service_checks": "assets/service_checks.json", 
+    "monitors": {
+      "postfix.queue.size": "assets/recommended_monitors/postfix.queue.size.json"
+    }, 
+    "dashboards": {}
   }
 }

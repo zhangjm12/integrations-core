@@ -1,29 +1,33 @@
 {
+  "integration_id": "yarn", 
+  "display_name": "Yarn", 
+  "name": "yarn", 
+  "maintainer": "help@datadoghq.com", 
+  "creates_events": false, 
+  "public_title": "Datadog-Yarn Integration", 
+  "metric_to_check": "yarn.metrics.total_mb", 
+  "supported_os": [
+    "linux", 
+    "mac_os", 
+    "windows"
+  ], 
+  "manifest_version": "1.0.0", 
+  "short_description": "Collect cluster-wide health metrics and track application progress.", 
+  "is_public": true, 
+  "metric_prefix": "yarn.", 
+  "guid": "3223c2e3-29dd-4cfb-82a2-51b951c648eb", 
+  "type": "check", 
+  "support": "core", 
   "categories": [
     "processing"
-  ],
-  "creates_events": false,
-  "display_name": "Yarn",
-  "guid": "3223c2e3-29dd-4cfb-82a2-51b951c648eb",
-  "is_public": true,
-  "maintainer": "help@datadoghq.com",
-  "manifest_version": "1.0.0",
-  "metric_prefix": "yarn.",
-  "metric_to_check": "yarn.metrics.total_mb",
-  "name": "yarn",
-  "public_title": "Datadog-Yarn Integration",
-  "short_description": "Collect cluster-wide health metrics and track application progress.",
-  "support": "core",
-  "supported_os": [
-    "linux",
-    "mac_os",
-    "windows"
-  ],
-  "type": "check",
-  "integration_id": "yarn",
+  ], 
   "assets": {
-    "monitors": {},
-    "dashboards": {},
-    "service_checks": "assets/service_checks.json"
+    "service_checks": "assets/service_checks.json", 
+    "monitors": {
+      "yarn.metrics.active_nodes": "assets/recommended_monitors/yarn.metrics.active_nodes.json", 
+      "yarn.metrics.unhealthy_nodes": "assets/recommended_monitors/yarn.metrics.unhealthy_nodes.json", 
+      "yarn.metrics.total_nodes": "assets/recommended_monitors/yarn.metrics.total_nodes.json"
+    }, 
+    "dashboards": {}
   }
 }

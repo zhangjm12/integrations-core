@@ -1,29 +1,32 @@
 {
+  "integration_id": "spark", 
+  "maintainer": "help@datadoghq.com", 
+  "name": "spark", 
+  "creates_events": false, 
+  "public_title": "Datadog-Spark Integration", 
+  "metric_to_check": "spark.job.count", 
+  "supported_os": [
+    "linux", 
+    "mac_os", 
+    "windows"
+  ], 
+  "assets": {
+    "service_checks": "assets/service_checks.json", 
+    "monitors": {
+      "spark.driver.memory_used": "assets/recommended_monitors/spark.driver.memory_used.json", 
+      "spark.executor.memory_used": "assets/recommended_monitors/spark.executor.memory_used.json"
+    }, 
+    "dashboards": {}
+  }, 
+  "manifest_version": "1.0.0", 
+  "short_description": "Track failed task rates, shuffled bytes, and much more.", 
+  "is_public": true, 
+  "metric_prefix": "spark.", 
+  "guid": "f7a5a40f-f73c-465a-be8f-b2b371c706a2", 
+  "type": "check", 
+  "support": "core", 
   "categories": [
     "processing"
-  ],
-  "creates_events": false,
-  "display_name": "Spark",
-  "guid": "f7a5a40f-f73c-465a-be8f-b2b371c706a2",
-  "is_public": true,
-  "maintainer": "help@datadoghq.com",
-  "manifest_version": "1.0.0",
-  "metric_prefix": "spark.",
-  "metric_to_check": "spark.job.count",
-  "name": "spark",
-  "public_title": "Datadog-Spark Integration",
-  "short_description": "Track failed task rates, shuffled bytes, and much more.",
-  "support": "core",
-  "supported_os": [
-    "linux",
-    "mac_os",
-    "windows"
-  ],
-  "type": "check",
-  "integration_id": "spark",
-  "assets": {
-    "monitors": {},
-    "dashboards": {},
-    "service_checks": "assets/service_checks.json"
-  }
+  ], 
+  "display_name": "Spark"
 }

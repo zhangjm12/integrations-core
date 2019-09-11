@@ -1,34 +1,36 @@
 {
-  "categories": [
-    "web",
-    "caching",
-    "log collection"
-  ],
-  "creates_events": false,
-  "display_name": "Varnish",
-  "guid": "d2052eae-89b8-4cb1-b631-f373010da4b8",
-  "is_public": true,
-  "maintainer": "help@datadoghq.com",
-  "manifest_version": "1.0.0",
-  "metric_prefix": "varnish.",
-  "metric_to_check": "varnish.n_backend",
-  "name": "varnish",
+  "integration_id": "varnish", 
+  "display_name": "Varnish", 
+  "name": "varnish", 
+  "creates_events": false, 
+  "public_title": "Datadog-Varnish Integration", 
+  "metric_to_check": "varnish.n_backend", 
   "process_signatures": [
     "service varnish start"
-  ],
-  "public_title": "Datadog-Varnish Integration",
-  "short_description": "Track client and backend connections, cache misses and evictions, and more.",
-  "support": "core",
+  ], 
   "supported_os": [
-    "linux",
-    "mac_os",
+    "linux", 
+    "mac_os", 
     "windows"
-  ],
-  "type": "check",
-  "integration_id": "varnish",
+  ], 
+  "manifest_version": "1.0.0", 
+  "is_public": true, 
+  "short_description": "Track client and backend connections, cache misses and evictions, and more.", 
+  "maintainer": "help@datadoghq.com", 
+  "metric_prefix": "varnish.", 
+  "guid": "d2052eae-89b8-4cb1-b631-f373010da4b8", 
+  "type": "check", 
+  "support": "core", 
+  "categories": [
+    "web", 
+    "caching", 
+    "log collection"
+  ], 
   "assets": {
-    "monitors": {},
-    "dashboards": {},
-    "service_checks": "assets/service_checks.json"
+    "service_checks": "assets/service_checks.json", 
+    "monitors": {
+      "varnish.n_lru_nuked": "assets/recommended_monitors/varnish.n_lru_nuked.json"
+    }, 
+    "dashboards": {}
   }
 }

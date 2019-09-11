@@ -1,33 +1,37 @@
 {
-  "categories": [
-    "data store",
-    "log collection"
-  ],
-  "creates_events": false,
-  "display_name": "Cassandra",
-  "guid": "03ba454d-425c-4f61-9e9c-54682c3ebce5",
-  "is_public": true,
-  "maintainer": "help@datadoghq.com",
-  "manifest_version": "1.0.0",
-  "metric_prefix": "cassandra.",
-  "metric_to_check": "cassandra.load.count",
-  "name": "cassandra",
+  "integration_id": "cassandra", 
+  "display_name": "Cassandra", 
+  "name": "cassandra", 
+  "maintainer": "help@datadoghq.com", 
+  "creates_events": false, 
+  "public_title": "Datadog-Cassandra Integration", 
+  "metric_to_check": "cassandra.load.count", 
   "process_signatures": [
     "java org.apache.cassandra.service.CassandraDaemon"
-  ],
-  "public_title": "Datadog-Cassandra Integration",
-  "short_description": "Track cluster performance, capacity, overall health, and much more.",
-  "support": "core",
+  ], 
   "supported_os": [
-    "linux",
-    "mac_os",
+    "linux", 
+    "mac_os", 
     "windows"
-  ],
-  "type": "check",
-  "integration_id": "cassandra",
+  ], 
+  "manifest_version": "1.0.0", 
+  "short_description": "Track cluster performance, capacity, overall health, and much more.", 
+  "is_public": true, 
+  "metric_prefix": "cassandra.", 
+  "guid": "03ba454d-425c-4f61-9e9c-54682c3ebce5", 
+  "type": "check", 
+  "support": "core", 
+  "categories": [
+    "data store", 
+    "log collection"
+  ], 
   "assets": {
-    "monitors": {},
-    "dashboards": {},
-    "service_checks": "assets/service_checks.json"
+    "service_checks": "assets/service_checks.json", 
+    "monitors": {
+      "cassandra.dropped.one_minute_rate": "assets/recommended_monitors/cassandra.dropped.one_minute_rate.json", 
+      "cassandra.exceptions.count": "assets/recommended_monitors/cassandra.exceptions.count.json", 
+      "cassandra.live_ss_table_count": "assets/recommended_monitors/cassandra.live_ss_table_count.json"
+    }, 
+    "dashboards": {}
   }
 }

@@ -1,29 +1,33 @@
 {
+  "integration_id": "system", 
+  "display_name": "Process", 
+  "name": "process", 
+  "maintainer": "help@datadoghq.com", 
+  "creates_events": false, 
+  "public_title": "Datadog-Processes Integration", 
+  "metric_to_check": "system.processes.cpu.pct", 
+  "supported_os": [
+    "linux", 
+    "mac_os", 
+    "windows"
+  ], 
+  "manifest_version": "1.0.0", 
+  "short_description": "Capture metrics and monitor the status of running processes.", 
+  "is_public": true, 
+  "metric_prefix": "system.", 
+  "guid": "1675eced-b435-464a-8f84-f65e438f838e", 
+  "type": "check", 
+  "support": "core", 
   "categories": [
     "os & system"
-  ],
-  "creates_events": false,
-  "display_name": "Process",
-  "guid": "1675eced-b435-464a-8f84-f65e438f838e",
-  "is_public": true,
-  "maintainer": "help@datadoghq.com",
-  "manifest_version": "1.0.0",
-  "metric_prefix": "system.",
-  "metric_to_check": "system.processes.cpu.pct",
-  "name": "process",
-  "public_title": "Datadog-Processes Integration",
-  "short_description": "Capture metrics and monitor the status of running processes.",
-  "support": "core",
-  "supported_os": [
-    "linux",
-    "mac_os",
-    "windows"
-  ],
-  "type": "check",
-  "integration_id": "system",
+  ], 
   "assets": {
-    "monitors": {},
-    "dashboards": {},
-    "service_checks": "assets/service_checks.json"
+    "service_checks": "assets/service_checks.json", 
+    "monitors": {
+      "system.processes.number": "assets/recommended_monitors/system.processes.number.json", 
+      "system.processes.mem.pct": "assets/recommended_monitors/system.processes.mem.pct.json", 
+      "system.processes.cpu.pct": "assets/recommended_monitors/system.processes.cpu.pct.json"
+    }, 
+    "dashboards": {}
   }
 }

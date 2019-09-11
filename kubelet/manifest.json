@@ -1,27 +1,33 @@
 {
-  "categories": [
-    "containers"
-  ],
-  "creates_events": false,
-  "display_name": "Kubelet",
-  "guid": "55039e21-7e89-41fb-968c-ab8bf8f25da0",
-  "is_public": true,
-  "maintainer": "help@datadoghq.com",
-  "manifest_version": "1.2.0",
-  "metric_prefix": "kubernetes.",
-  "metric_to_check": "kubernetes.cpu.usage.total",
-  "name": "kubelet",
-  "public_title": "Datadog-Kubelet Integration",
-  "short_description": "Collects container stats from kubelet.",
-  "support": "core",
+  "integration_id": "kubelet", 
+  "maintainer": "help@datadoghq.com", 
+  "name": "kubelet", 
+  "creates_events": false, 
+  "public_title": "Datadog-Kubelet Integration", 
+  "metric_to_check": "kubernetes.cpu.usage.total", 
   "supported_os": [
     "linux"
-  ],
-  "type": "check",
-  "integration_id": "kubelet",
+  ], 
+  "manifest_version": "1.2.0", 
+  "is_public": true, 
+  "short_description": "Collects container stats from kubelet.", 
+  "display_name": "Kubelet", 
+  "metric_prefix": "kubernetes.", 
+  "guid": "55039e21-7e89-41fb-968c-ab8bf8f25da0", 
+  "type": "check", 
+  "support": "core", 
+  "categories": [
+    "containers"
+  ], 
   "assets": {
-    "monitors": {},
-    "dashboards": {},
-    "service_checks": "assets/service_checks.json"
+    "service_checks": "assets/service_checks.json", 
+    "monitors": {
+      "kubernetes.cpu.usage.total": "assets/recommended_monitors/kubernetes.cpu.usage.total.json", 
+      "kubernetes.pods.running": "assets/recommended_monitors/kubernetes.pods.running.json", 
+      "kubernetes.memory.usage_pct": "assets/recommended_monitors/kubernetes.memory.usage_pct.json", 
+      "kubernetes.containers.restarts": "assets/recommended_monitors/kubernetes.containers.restarts.json", 
+      "kubernetes.memory.usage": "assets/recommended_monitors/kubernetes.memory.usage.json"
+    }, 
+    "dashboards": {}
   }
 }

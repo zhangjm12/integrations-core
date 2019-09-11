@@ -1,28 +1,33 @@
 {
+  "integration_id": "sql-server", 
+  "maintainer": "help@datadoghq.com", 
+  "name": "sqlserver", 
+  "display_name": "SQL Server", 
+  "creates_events": false, 
+  "public_title": "Datadog-SQL Server Integration", 
+  "metric_to_check": "sqlserver.stats.connections", 
+  "supported_os": [
+    "linux", 
+    "windows"
+  ], 
+  "manifest_version": "1.0.0", 
+  "short_description": "Collect important SQL Server performance and health metrics.", 
+  "is_public": true, 
+  "metric_prefix": "sqlserver.", 
+  "guid": "635cb962-ee9f-4788-aa55-a7ffb9661498", 
+  "type": "check", 
+  "support": "core", 
   "categories": [
     "data store"
-  ],
-  "creates_events": false,
-  "display_name": "SQL Server",
-  "guid": "635cb962-ee9f-4788-aa55-a7ffb9661498",
-  "is_public": true,
-  "maintainer": "help@datadoghq.com",
-  "manifest_version": "1.0.0",
-  "metric_prefix": "sqlserver.",
-  "metric_to_check": "sqlserver.stats.connections",
-  "name": "sqlserver",
-  "public_title": "Datadog-SQL Server Integration",
-  "short_description": "Collect important SQL Server performance and health metrics.",
-  "support": "core",
-  "supported_os": [
-    "linux",
-    "windows"
-  ],
-  "type": "check",
-  "integration_id": "sql-server",
+  ], 
   "assets": {
-    "monitors": {},
-    "dashboards": {},
-    "service_checks": "assets/service_checks.json"
+    "service_checks": "assets/service_checks.json", 
+    "monitors": {
+      "sqlserver.stats.lock_waits": "assets/recommended_monitors/sqlserver.stats.lock_waits.json", 
+      "sqlserver.buffer.cache_hit_ratio": "assets/recommended_monitors/sqlserver.buffer.cache_hit_ratio.json", 
+      "sqlserver.stats.connections": "assets/recommended_monitors/sqlserver.stats.connections.json", 
+      "sqlserver.stats.procs_blocked": "assets/recommended_monitors/sqlserver.stats.procs_blocked.json"
+    }, 
+    "dashboards": {}
   }
 }

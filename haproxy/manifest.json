@@ -1,36 +1,39 @@
 {
-  "categories": [
-    "web",
-    "log collection"
-  ],
-  "creates_events": true,
-  "description": "The HAProxy integration helps to collect performance and availability metrics from HAProxy instances.",
-  "display_name": "HAProxy",
-  "guid": "cd935030-131f-4545-8b6a-a4ca21b8565b",
-  "is_public": true,
-  "maintainer": "help@datadoghq.com",
-  "manifest_version": "1.0.0",
-  "metric_prefix": "haproxy.",
-  "metric_to_check": "haproxy.frontend.bytes.in_rate",
-  "name": "haproxy",
+  "integration_id": "haproxy", 
+  "maintainer": "help@datadoghq.com", 
+  "description": "The HAProxy integration helps to collect performance and availability metrics from HAProxy instances.", 
+  "creates_events": true, 
+  "public_title": "Datadog-HAProxy Integration", 
+  "metric_to_check": "haproxy.frontend.bytes.in_rate", 
   "process_signatures": [
-    "haproxy",
-    "haproxy-master",
+    "haproxy", 
+    "haproxy-master", 
     "haproxy-controller"
-  ],
-  "public_title": "Datadog-HAProxy Integration",
-  "short_description": "Monitor key metrics for requests, responses, errors, bytes served, and more.",
-  "support": "core",
+  ], 
+  "name": "haproxy", 
   "supported_os": [
-    "linux",
-    "mac_os",
+    "linux", 
+    "mac_os", 
     "windows"
-  ],
-  "type": "check",
-  "integration_id": "haproxy",
+  ], 
+  "manifest_version": "1.0.0", 
+  "is_public": true, 
+  "short_description": "Monitor key metrics for requests, responses, errors, bytes served, and more.", 
+  "display_name": "HAProxy", 
+  "metric_prefix": "haproxy.", 
+  "guid": "cd935030-131f-4545-8b6a-a4ca21b8565b", 
+  "type": "check", 
+  "support": "core", 
+  "categories": [
+    "web", 
+    "log collection"
+  ], 
   "assets": {
-    "monitors": {},
-    "dashboards": {},
-    "service_checks": "assets/service_checks.json"
+    "service_checks": "assets/service_checks.json", 
+    "monitors": {
+      "haproxy.backend.response.time": "assets/recommended_monitors/haproxy.backend.response.time.json", 
+      "haproxy.backend.response.5xx": "assets/recommended_monitors/haproxy.backend.response.5xx.json"
+    }, 
+    "dashboards": {}
   }
 }

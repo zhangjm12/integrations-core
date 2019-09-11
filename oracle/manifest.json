@@ -1,31 +1,34 @@
 {
-  "categories": [
-    "data store"
-  ],
-  "creates_events": false,
-  "display_name": "Oracle Database",
-  "guid": "6c4ddc46-2763-4c56-8b71-c838b7f82d7b",
-  "is_public": true,
-  "maintainer": "help@datadoghq.com",
-  "manifest_version": "1.0.0",
-  "metric_prefix": "oracle.",
-  "metric_to_check": "oracle.session_count",
-  "name": "Oracle",
-  "public_title": "Datadog-Oracle Integration",
-  "short_description": "Oracle relational database system designed for enterprise grid computing",
-  "support": "core",
+  "integration_id": "oracle", 
+  "maintainer": "help@datadoghq.com", 
+  "name": "Oracle", 
+  "creates_events": false, 
+  "public_title": "Datadog-Oracle Integration", 
+  "metric_to_check": "oracle.session_count", 
   "supported_os": [
-    "linux",
-    "mac_os",
+    "linux", 
+    "mac_os", 
     "windows"
-  ],
-  "type": "check",
-  "integration_id": "oracle",
+  ], 
   "assets": {
-    "monitors": {},
+    "service_checks": "assets/service_checks.json", 
+    "monitors": {
+      "oracle.tablespace.in_use": "assets/recommended_monitors/oracle.tablespace.in_use.json", 
+      "oracle.session_limit_usage": "assets/recommended_monitors/oracle.session_limit_usage.json"
+    }, 
     "dashboards": {
       "oracle": "assets/dashboards/oracle_overview.json"
-    },
-    "service_checks": "assets/service_checks.json"
-  }
+    }
+  }, 
+  "manifest_version": "1.0.0", 
+  "short_description": "Oracle relational database system designed for enterprise grid computing", 
+  "is_public": true, 
+  "metric_prefix": "oracle.", 
+  "guid": "6c4ddc46-2763-4c56-8b71-c838b7f82d7b", 
+  "type": "check", 
+  "support": "core", 
+  "categories": [
+    "data store"
+  ], 
+  "display_name": "Oracle Database"
 }

@@ -1,35 +1,42 @@
 {
-  "categories": [
-    "orchestration",
-    "containers",
-    "configuration & deployment",
-    "orchestration"
-  ],
-  "creates_events": false,
-  "display_name": "etcd",
-  "guid": "a1cfafdb-5d88-4ae1-acdc-6356df755b73",
-  "is_public": true,
-  "maintainer": "help@datadoghq.com",
-  "manifest_version": "1.0.0",
-  "metric_prefix": "etcd.",
-  "metric_to_check": "etcd.store.watchers",
-  "name": "etcd",
+  "integration_id": "etcd", 
+  "display_name": "etcd", 
+  "name": "etcd", 
+  "creates_events": false, 
+  "public_title": "Datadog-etcd Integration", 
+  "metric_to_check": "etcd.store.watchers", 
   "process_signatures": [
     "etcd"
-  ],
-  "public_title": "Datadog-etcd Integration",
-  "short_description": "Track writes, updates, deletes, inter-node latencies, and more Etcd metrics.",
-  "support": "core",
+  ], 
   "supported_os": [
-    "linux",
-    "mac_os",
+    "linux", 
+    "mac_os", 
     "windows"
-  ],
-  "type": "check",
-  "integration_id": "etcd",
+  ], 
+  "manifest_version": "1.0.0", 
+  "is_public": true, 
+  "short_description": "Track writes, updates, deletes, inter-node latencies, and more Etcd metrics.", 
+  "maintainer": "help@datadoghq.com", 
+  "metric_prefix": "etcd.", 
+  "guid": "a1cfafdb-5d88-4ae1-acdc-6356df755b73", 
+  "type": "check", 
+  "support": "core", 
+  "categories": [
+    "orchestration", 
+    "containers", 
+    "configuration & deployment", 
+    "orchestration"
+  ], 
   "assets": {
-    "monitors": {},
-    "dashboards": {},
-    "service_checks": "assets/service_checks.json"
+    "service_checks": "assets/service_checks.json", 
+    "monitors": {
+      "etcd.store.gets.fail": "assets/recommended_monitors/etcd.store.gets.fail.json", 
+      "etcd.store.create.fail": "assets/recommended_monitors/etcd.store.create.fail.json", 
+      "etcd.leader.latency.avg": "assets/recommended_monitors/etcd.leader.latency.avg.json", 
+      "etcd.leader.counts.fail": "assets/recommended_monitors/etcd.leader.counts.fail.json", 
+      "etcd.store.sets.fail": "assets/recommended_monitors/etcd.store.sets.fail.json", 
+      "etcd.store.update.fail": "assets/recommended_monitors/etcd.store.update.fail.json"
+    }, 
+    "dashboards": {}
   }
 }

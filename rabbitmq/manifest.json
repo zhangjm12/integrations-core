@@ -1,33 +1,39 @@
 {
-  "categories": [
-    "processing",
-    "log collection"
-  ],
-  "creates_events": true,
-  "display_name": "RabbitMQ",
-  "guid": "a790a556-fbaa-4208-9d39-c42c3d57084b",
-  "is_public": true,
-  "maintainer": "help@datadoghq.com",
-  "manifest_version": "1.0.0",
-  "metric_prefix": "rabbitmq.",
-  "metric_to_check": "rabbitmq.queue.messages",
-  "name": "rabbitmq",
+  "integration_id": "rabbitmq", 
+  "maintainer": "help@datadoghq.com", 
+  "name": "rabbitmq", 
+  "creates_events": true, 
+  "public_title": "Datadog-RabbitMQ Integration", 
+  "metric_to_check": "rabbitmq.queue.messages", 
   "process_signatures": [
     "rabbitmq"
-  ],
-  "public_title": "Datadog-RabbitMQ Integration",
-  "short_description": "Track queue size, consumer count, unacknowledged messages, and more.",
-  "support": "core",
+  ], 
   "supported_os": [
-    "linux",
-    "mac_os",
+    "linux", 
+    "mac_os", 
     "windows"
-  ],
-  "type": "check",
-  "integration_id": "rabbitmq",
+  ], 
+  "manifest_version": "1.0.0", 
+  "is_public": true, 
+  "short_description": "Track queue size, consumer count, unacknowledged messages, and more.", 
+  "display_name": "RabbitMQ", 
+  "metric_prefix": "rabbitmq.", 
+  "guid": "a790a556-fbaa-4208-9d39-c42c3d57084b", 
+  "type": "check", 
+  "support": "core", 
+  "categories": [
+    "processing", 
+    "log collection"
+  ], 
   "assets": {
-    "monitors": {},
-    "dashboards": {},
-    "service_checks": "assets/service_checks.json"
+    "service_checks": "assets/service_checks.json", 
+    "monitors": {
+      "rabbitmq.queue.messages_ready": "assets/recommended_monitors/rabbitmq.queue.messages_ready.json", 
+      "rabbitmq.node.mem_used": "assets/recommended_monitors/rabbitmq.node.mem_used.json", 
+      "rabbitmq.queue.messages": "assets/recommended_monitors/rabbitmq.queue.messages.json", 
+      "rabbitmq.node.partitions": "assets/recommended_monitors/rabbitmq.node.partitions.json", 
+      "rabbitmq.queue.consumers": "assets/recommended_monitors/rabbitmq.queue.consumers.json"
+    }, 
+    "dashboards": {}
   }
 }

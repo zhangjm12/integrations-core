@@ -1,39 +1,44 @@
 {
+  "integration_id": "apache", 
+  "guid": "cb2b4a06-4ede-465e-9478-a45f8b32058a", 
+  "display_name": "Apache", 
+  "description": "Track requests per second, bytes served, worker threads, uptime, and more.", 
+  "creates_events": false, 
+  "public_title": "Datadog-Apache Integration", 
+  "metric_to_check": "apache.performance.busy_workers", 
+  "process_signatures": [
+    "httpd", 
+    "apache", 
+    "apache2"
+  ], 
   "aliases": [
     "/integrations/faq/issues-with-apache-integration/"
-  ],
-  "categories": [
-    "web",
-    "log collection"
-  ],
-  "creates_events": false,
-  "description": "Track requests per second, bytes served, worker threads, uptime, and more.",
-  "display_name": "Apache",
-  "guid": "cb2b4a06-4ede-465e-9478-a45f8b32058a",
-  "is_public": true,
-  "maintainer": "help@datadoghq.com",
-  "manifest_version": "1.0.0",
-  "metric_prefix": "apache.",
-  "metric_to_check": "apache.performance.busy_workers",
-  "name": "Apache",
-  "process_signatures": [
-    "httpd",
-    "apache",
-    "apache2"
-  ],
-  "public_title": "Datadog-Apache Integration",
-  "short_description": "Track requests per second, bytes served, worker threads, uptime, and more.",
-  "support": "core",
+  ], 
   "supported_os": [
-    "linux",
-    "mac_os",
+    "linux", 
+    "mac_os", 
     "windows"
-  ],
-  "type": "check",
-  "integration_id": "apache",
+  ], 
+  "manifest_version": "1.0.0", 
+  "is_public": true, 
+  "short_description": "Track requests per second, bytes served, worker threads, uptime, and more.", 
+  "maintainer": "help@datadoghq.com", 
+  "metric_prefix": "apache.", 
   "assets": {
-    "monitors": {},
-    "dashboards": {},
-    "service_checks": "assets/service_checks.json"
-  }
+    "service_checks": "assets/service_checks.json", 
+    "monitors": {
+      "apache.performance.busy_workers": "assets/recommended_monitors/apache.performance.busy_workers.json", 
+      "apache.net.hits": "assets/recommended_monitors/apache.net.hits.json", 
+      "apache.performance.idle_workers": "assets/recommended_monitors/apache.performance.idle_workers.json", 
+      "apache.net.request_per_s": "assets/recommended_monitors/apache.net.request_per_s.json"
+    }, 
+    "dashboards": {}
+  }, 
+  "type": "check", 
+  "support": "core", 
+  "categories": [
+    "web", 
+    "log collection"
+  ], 
+  "name": "Apache"
 }

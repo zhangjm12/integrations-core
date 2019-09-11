@@ -1,37 +1,43 @@
 {
-  "aliases": [
-    "/integrations/redis/"
-  ],
-  "categories": [
-    "data store",
-    "caching",
-    "log collection"
-  ],
-  "creates_events": false,
-  "display_name": "Redis",
-  "guid": "0e2f3ed1-d36b-47a4-b69c-fedb50adf240",
-  "is_public": true,
-  "maintainer": "help@datadoghq.com",
-  "manifest_version": "1.0.0",
-  "metric_prefix": "redis.",
-  "metric_to_check": "redis.net.clients",
-  "name": "redisdb",
+  "integration_id": "redis", 
+  "maintainer": "help@datadoghq.com", 
+  "name": "redisdb", 
+  "display_name": "Redis", 
+  "creates_events": false, 
+  "public_title": "Datadog-Redis Integration", 
+  "metric_to_check": "redis.net.clients", 
   "process_signatures": [
     "redis-server"
-  ],
-  "public_title": "Datadog-Redis Integration",
-  "short_description": "Track redis performance, memory use, blocked clients, evicted keys, and more.",
-  "support": "core",
+  ], 
   "supported_os": [
-    "linux",
-    "mac_os",
+    "linux", 
+    "mac_os", 
     "windows"
-  ],
-  "type": "check",
-  "integration_id": "redis",
+  ], 
   "assets": {
-    "monitors": {},
-    "dashboards": {},
-    "service_checks": "assets/service_checks.json"
-  }
+    "service_checks": "assets/service_checks.json", 
+    "monitors": {
+      "redis.net.clients": "assets/recommended_monitors/redis.net.clients.json", 
+      "redis.mem.used": "assets/recommended_monitors/redis.mem.used.json", 
+      "redis.key.length": "assets/recommended_monitors/redis.key.length.json", 
+      "redis.info.latency_ms": "assets/recommended_monitors/redis.info.latency_ms.json", 
+      "redis.keys": "assets/recommended_monitors/redis.keys.json"
+    }, 
+    "dashboards": {}
+  }, 
+  "manifest_version": "1.0.0", 
+  "short_description": "Track redis performance, memory use, blocked clients, evicted keys, and more.", 
+  "is_public": true, 
+  "metric_prefix": "redis.", 
+  "guid": "0e2f3ed1-d36b-47a4-b69c-fedb50adf240", 
+  "type": "check", 
+  "support": "core", 
+  "categories": [
+    "data store", 
+    "caching", 
+    "log collection"
+  ], 
+  "aliases": [
+    "/integrations/redis/"
+  ]
 }

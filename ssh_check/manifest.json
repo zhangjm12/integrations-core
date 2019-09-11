@@ -1,38 +1,40 @@
 {
-  "aliases": [
-    "/integrations/ssh"
-  ],
+  "integration_id": "ssh", 
+  "maintainer": "help@datadoghq.com", 
+  "name": "ssh_check", 
+  "display_name": "SSH", 
+  "creates_events": false, 
+  "public_title": "Datadog-SSH Check Integration", 
+  "metric_to_check": "sftp.response_time", 
+  "process_signatures": [
+    "ssh", 
+    "sftp", 
+    "sshd", 
+    "sshd:"
+  ], 
+  "supported_os": [
+    "linux", 
+    "mac_os", 
+    "windows"
+  ], 
+  "assets": {
+    "service_checks": "assets/service_checks.json", 
+    "monitors": {
+      "sftp.response_time": "assets/recommended_monitors/sftp.response_time.json"
+    }, 
+    "dashboards": {}
+  }, 
+  "manifest_version": "1.0.0", 
+  "short_description": "Monitor SSH connectivity and SFTP latency.", 
+  "is_public": true, 
+  "metric_prefix": "ssh.", 
+  "guid": "4eb195ef-554f-4cc2-80af-8f286c631fa8", 
+  "type": "check", 
+  "support": "core", 
   "categories": [
     "network"
-  ],
-  "creates_events": false,
-  "display_name": "SSH",
-  "guid": "4eb195ef-554f-4cc2-80af-8f286c631fa8",
-  "is_public": true,
-  "maintainer": "help@datadoghq.com",
-  "manifest_version": "1.0.0",
-  "metric_prefix": "ssh.",
-  "metric_to_check": "sftp.response_time",
-  "name": "ssh_check",
-  "process_signatures": [
-    "ssh",
-    "sftp",
-    "sshd",
-    "sshd:"
-  ],
-  "public_title": "Datadog-SSH Check Integration",
-  "short_description": "Monitor SSH connectivity and SFTP latency.",
-  "support": "core",
-  "supported_os": [
-    "linux",
-    "mac_os",
-    "windows"
-  ],
-  "type": "check",
-  "integration_id": "ssh",
-  "assets": {
-    "monitors": {},
-    "dashboards": {},
-    "service_checks": "assets/service_checks.json"
-  }
+  ], 
+  "aliases": [
+    "/integrations/ssh"
+  ]
 }

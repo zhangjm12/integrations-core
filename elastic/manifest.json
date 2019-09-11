@@ -1,36 +1,41 @@
 {
-  "aliases": [
-    "/integrations/elasticsearch"
-  ],
-  "categories": [
-    "data store",
-    "log collection"
-  ],
-  "creates_events": true,
-  "display_name": "Elasticsearch",
-  "guid": "d91d91bd-4a8e-4489-bfb1-b119d4cc388a",
-  "is_public": true,
-  "maintainer": "help@datadoghq.com",
-  "manifest_version": "1.0.0",
-  "metric_prefix": "elasticsearch.",
-  "metric_to_check": "elasticsearch.search.query.total",
-  "name": "elastic",
+  "integration_id": "elasticsearch", 
+  "display_name": "Elasticsearch", 
+  "name": "elastic", 
+  "creates_events": true, 
+  "public_title": "Datadog-ElasticSearch Integration", 
+  "metric_to_check": "elasticsearch.search.query.total", 
   "process_signatures": [
     "java org.elasticsearch.bootstrap.Elasticsearch"
-  ],
-  "public_title": "Datadog-ElasticSearch Integration",
-  "short_description": "Monitor overall cluster status down to JVM heap usage and everything in between.",
-  "support": "core",
+  ], 
+  "aliases": [
+    "/integrations/elasticsearch"
+  ], 
   "supported_os": [
-    "linux",
-    "mac_os",
+    "linux", 
+    "mac_os", 
     "windows"
-  ],
-  "type": "check",
-  "integration_id": "elasticsearch",
+  ], 
+  "manifest_version": "1.0.0", 
+  "is_public": true, 
+  "short_description": "Monitor overall cluster status down to JVM heap usage and everything in between.", 
+  "maintainer": "help@datadoghq.com", 
+  "metric_prefix": "elasticsearch.", 
+  "guid": "d91d91bd-4a8e-4489-bfb1-b119d4cc388a", 
+  "type": "check", 
+  "support": "core", 
+  "categories": [
+    "data store", 
+    "log collection"
+  ], 
   "assets": {
-    "monitors": {},
-    "dashboards": {},
-    "service_checks": "assets/service_checks.json"
+    "service_checks": "assets/service_checks.json", 
+    "monitors": {
+      "elasticsearch.cluster_status": "assets/recommended_monitors/elasticsearch.cluster_status.json", 
+      "elasticsearch.number_of_nodes": "assets/recommended_monitors/elasticsearch.number_of_nodes.json", 
+      "jvm.mem.heap_in_use": "assets/recommended_monitors/jvm.mem.heap_in_use.json", 
+      "elasticsearch.unassigned_shards": "assets/recommended_monitors/elasticsearch.unassigned_shards.json"
+    }, 
+    "dashboards": {}
   }
 }

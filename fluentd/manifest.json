@@ -1,37 +1,39 @@
 {
-  "aliases": [
-    "/logs/log_collection/fluentd"
-  ],
+  "integration_id": "fluentd", 
+  "maintainer": "help@datadoghq.com", 
+  "name": "fluentd", 
+  "display_name": "fluentd", 
+  "creates_events": false, 
+  "public_title": "Datadog-FluentD Integration", 
+  "metric_to_check": "fluentd.buffer_queue_length", 
+  "process_signatures": [
+    "td-agent", 
+    "fluentd", 
+    "ruby td-agent"
+  ], 
+  "supported_os": [
+    "linux", 
+    "mac_os", 
+    "windows"
+  ], 
+  "assets": {
+    "service_checks": "assets/service_checks.json", 
+    "monitors": {
+      "fluentd.buffer_total_queued_size": "assets/recommended_monitors/fluentd.buffer_total_queued_size.json"
+    }, 
+    "dashboards": {}
+  }, 
+  "manifest_version": "1.0.0", 
+  "short_description": "Monitor buffer queues and retry counts for each Fluentd plugin you've enabled.", 
+  "is_public": true, 
+  "metric_prefix": "fluentd.", 
+  "guid": "68100352-b993-43e6-9dc8-5ecd498e160b", 
+  "type": "check", 
+  "support": "core", 
   "categories": [
     "log collection"
-  ],
-  "creates_events": false,
-  "display_name": "fluentd",
-  "guid": "68100352-b993-43e6-9dc8-5ecd498e160b",
-  "is_public": true,
-  "maintainer": "help@datadoghq.com",
-  "manifest_version": "1.0.0",
-  "metric_prefix": "fluentd.",
-  "metric_to_check": "fluentd.buffer_queue_length",
-  "name": "fluentd",
-  "process_signatures": [
-    "td-agent",
-    "fluentd",
-    "ruby td-agent"
-  ],
-  "public_title": "Datadog-FluentD Integration",
-  "short_description": "Monitor buffer queues and retry counts for each Fluentd plugin you've enabled.",
-  "support": "core",
-  "supported_os": [
-    "linux",
-    "mac_os",
-    "windows"
-  ],
-  "type": "check",
-  "integration_id": "fluentd",
-  "assets": {
-    "monitors": {},
-    "dashboards": {},
-    "service_checks": "assets/service_checks.json"
-  }
+  ], 
+  "aliases": [
+    "/logs/log_collection/fluentd"
+  ]
 }

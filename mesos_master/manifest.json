@@ -1,38 +1,45 @@
 {
+  "integration_id": "mesos-master", 
+  "maintainer": "help@datadoghq.com", 
+  "name": "mesos_master", 
+  "creates_events": false, 
+  "public_title": "Datadog-Mesos Master Integration", 
+  "metric_to_check": "mesos.role.mem", 
+  "process_signatures": [
+    "mesos-master.sh --ip=127.0.0.1 --work_dir=/var/lib/mesos", 
+    "mesos-agent.sh --master --work_dir=/var/lib/mesos"
+  ], 
   "aliases": [
     "/integrations/mesos/"
-  ],
-  "categories": [
-    "configuration & deployment",
-    "containers",
-    "orchestration",
-    "log collection"
-  ],
-  "creates_events": false,
-  "display_name": "Mesos Master",
-  "guid": "f807f479-33f6-4c45-9c11-04ee2473acdc",
-  "is_public": true,
-  "maintainer": "help@datadoghq.com",
-  "manifest_version": "1.0.0",
-  "metric_prefix": "mesos.",
-  "metric_to_check": "mesos.role.mem",
-  "name": "mesos_master",
-  "process_signatures": [
-    "mesos-master.sh --ip=127.0.0.1 --work_dir=/var/lib/mesos",
-    "mesos-agent.sh --master --work_dir=/var/lib/mesos"
-  ],
-  "public_title": "Datadog-Mesos Master Integration",
-  "short_description": "Track cluster resource usage, master and slave counts, tasks statuses, and more.",
-  "support": "core",
+  ], 
   "supported_os": [
-    "linux",
+    "linux", 
     "mac_os"
-  ],
-  "type": "check",
-  "integration_id": "mesos-master",
+  ], 
+  "manifest_version": "1.0.0", 
+  "is_public": true, 
+  "short_description": "Track cluster resource usage, master and slave counts, tasks statuses, and more.", 
+  "display_name": "Mesos Master", 
+  "metric_prefix": "mesos.", 
+  "guid": "f807f479-33f6-4c45-9c11-04ee2473acdc", 
+  "type": "check", 
+  "support": "core", 
+  "categories": [
+    "configuration & deployment", 
+    "containers", 
+    "orchestration", 
+    "log collection"
+  ], 
   "assets": {
-    "monitors": {},
-    "dashboards": {},
-    "service_checks": "assets/service_checks.json"
+    "service_checks": "assets/service_checks.json", 
+    "monitors": {
+      "mesos.stats.elected": "assets/recommended_monitors/mesos.stats.elected.json", 
+      "mesos.cluster.cpus_percent": "assets/recommended_monitors/mesos.cluster.cpus_percent.json", 
+      "mesos.cluster.tasks_failed": "assets/recommended_monitors/mesos.cluster.tasks_failed.json", 
+      "mesos.cluster.disk_percent": "assets/recommended_monitors/mesos.cluster.disk_percent.json", 
+      "mesos.cluster.mem_percent": "assets/recommended_monitors/mesos.cluster.mem_percent.json", 
+      "mesos.cluster.slaves_active": "assets/recommended_monitors/mesos.cluster.slaves_active.json"
+    }, 
+    "dashboards": {}
   }
 }

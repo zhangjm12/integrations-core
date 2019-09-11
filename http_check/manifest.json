@@ -1,33 +1,38 @@
 {
+  "integration_id": "network", 
+  "display_name": "HTTP", 
+  "name": "http_check", 
+  "creates_events": false, 
+  "public_title": "Datadog-HTTP Check Integration", 
+  "metric_to_check": "network.http.response_time", 
   "aliases": [
     "/integrations/httpcheck"
-  ],
-  "categories": [
-    "web",
-    "network"
-  ],
-  "creates_events": false,
-  "display_name": "HTTP",
-  "guid": "eb133a1f-697c-4143-bad3-10e72541fa9c",
-  "is_public": true,
-  "maintainer": "help@datadoghq.com",
-  "manifest_version": "1.0.0",
-  "metric_prefix": "network.",
-  "metric_to_check": "network.http.response_time",
-  "name": "http_check",
-  "public_title": "Datadog-HTTP Check Integration",
-  "short_description": "Monitor any HTTP service for bad responses, soon-to-expire SSL certs, and more.",
-  "support": "core",
+  ], 
   "supported_os": [
-    "linux",
-    "mac_os",
+    "linux", 
+    "mac_os", 
     "windows"
-  ],
-  "type": "check",
-  "integration_id": "network",
+  ], 
+  "manifest_version": "1.0.0", 
+  "is_public": true, 
+  "short_description": "Monitor any HTTP service for bad responses, soon-to-expire SSL certs, and more.", 
+  "maintainer": "help@datadoghq.com", 
+  "metric_prefix": "network.", 
+  "guid": "eb133a1f-697c-4143-bad3-10e72541fa9c", 
+  "type": "check", 
+  "support": "core", 
+  "categories": [
+    "web", 
+    "network"
+  ], 
   "assets": {
-    "monitors": {},
-    "dashboards": {},
-    "service_checks": "assets/service_checks.json"
+    "service_checks": "assets/service_checks.json", 
+    "monitors": {
+      "network.http.can_connect": "assets/recommended_monitors/network.http.can_connect.json", 
+      "http.ssl.days_left": "assets/recommended_monitors/http.ssl.days_left.json", 
+      "network.http.cant_connect": "assets/recommended_monitors/network.http.cant_connect.json", 
+      "network.http.response_time": "assets/recommended_monitors/network.http.response_time.json"
+    }, 
+    "dashboards": {}
   }
 }

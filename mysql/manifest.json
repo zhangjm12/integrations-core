@@ -1,34 +1,40 @@
 {
-  "categories": [
-    "data store",
-    "log collection"
-  ],
-  "creates_events": true,
-  "description": "The MySQL integration helps to collect performance and avaialbility metrics from MySQL server instances.",
-  "display_name": "MySQL",
-  "guid": "056bfc7f-4775-4581-9442-502078593d10",
-  "is_public": true,
-  "maintainer": "help@datadoghq.com",
-  "manifest_version": "1.0.0",
-  "metric_prefix": "mysql.",
-  "metric_to_check": "mysql.net.connections",
-  "name": "MySQL",
+  "integration_id": "mysql", 
+  "maintainer": "help@datadoghq.com", 
+  "description": "The MySQL integration helps to collect performance and avaialbility metrics from MySQL server instances.", 
+  "display_name": "MySQL", 
+  "creates_events": true, 
+  "public_title": "Datadog-MySQL Integration", 
+  "metric_to_check": "mysql.net.connections", 
   "process_signatures": [
     "mysqld"
-  ],
-  "public_title": "Datadog-MySQL Integration",
-  "short_description": "Collect performance schema metrics, query throughput, custom metrics, and more.",
-  "support": "core",
+  ], 
   "supported_os": [
-    "linux",
-    "mac_os",
+    "linux", 
+    "mac_os", 
     "windows"
-  ],
-  "type": "check",
-  "integration_id": "mysql",
+  ], 
   "assets": {
-    "monitors": {},
-    "dashboards": {},
-    "service_checks": "assets/service_checks.json"
-  }
+    "service_checks": "assets/service_checks.json", 
+    "monitors": {
+      "mysql.replication.seconds_behind_master": "assets/recommended_monitors/mysql.replication.seconds_behind_master.json", 
+      "mysql.net.connections": "assets/recommended_monitors/mysql.net.connections.json", 
+      "mysql.replication.slave_running": "assets/recommended_monitors/mysql.replication.slave_running.json", 
+      "mysql.performance.slow_queries": "assets/recommended_monitors/mysql.performance.slow_queries.json", 
+      "mysql.performance.threads_connected": "assets/recommended_monitors/mysql.performance.threads_connected.json"
+    }, 
+    "dashboards": {}
+  }, 
+  "manifest_version": "1.0.0", 
+  "short_description": "Collect performance schema metrics, query throughput, custom metrics, and more.", 
+  "is_public": true, 
+  "metric_prefix": "mysql.", 
+  "guid": "056bfc7f-4775-4581-9442-502078593d10", 
+  "type": "check", 
+  "support": "core", 
+  "categories": [
+    "data store", 
+    "log collection"
+  ], 
+  "name": "MySQL"
 }

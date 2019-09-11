@@ -1,33 +1,35 @@
 {
+  "integration_id": "dns", 
+  "maintainer": "help@datadoghq.com", 
+  "name": "dns_check", 
+  "display_name": "DNS", 
+  "creates_events": false, 
+  "public_title": "Datadog-DNS Check Integration", 
+  "metric_to_check": "dns.response_time", 
+  "supported_os": [
+    "linux", 
+    "mac_os", 
+    "windows"
+  ], 
+  "assets": {
+    "service_checks": "assets/service_checks.json", 
+    "monitors": {
+      "dns.response_time": "assets/recommended_monitors/dns.response_time.json"
+    }, 
+    "dashboards": {}
+  }, 
+  "manifest_version": "1.0.0", 
+  "short_description": "Monitor the resolvablity of and lookup times for any DNS record.", 
+  "is_public": true, 
+  "metric_prefix": "dns.", 
+  "guid": "31e4c84c-fc4b-4cd4-97ed-0331bf4e2023", 
+  "type": "check", 
+  "support": "core", 
+  "categories": [
+    "network", 
+    "web"
+  ], 
   "aliases": [
     "/integrations/dnscheck"
-  ],
-  "categories": [
-    "network",
-    "web"
-  ],
-  "creates_events": false,
-  "display_name": "DNS",
-  "guid": "31e4c84c-fc4b-4cd4-97ed-0331bf4e2023",
-  "is_public": true,
-  "maintainer": "help@datadoghq.com",
-  "manifest_version": "1.0.0",
-  "metric_prefix": "dns.",
-  "metric_to_check": "dns.response_time",
-  "name": "dns_check",
-  "public_title": "Datadog-DNS Check Integration",
-  "short_description": "Monitor the resolvablity of and lookup times for any DNS record.",
-  "support": "core",
-  "supported_os": [
-    "linux",
-    "mac_os",
-    "windows"
-  ],
-  "type": "check",
-  "integration_id": "dns",
-  "assets": {
-    "monitors": {},
-    "dashboards": {},
-    "service_checks": "assets/service_checks.json"
-  }
+  ]
 }

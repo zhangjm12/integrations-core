@@ -1,33 +1,38 @@
 {
-  "categories": [
-    "web",
-    "log collection"
-  ],
-  "creates_events": false,
-  "display_name": "Tomcat",
-  "guid": "60f37d34-3bb7-43c9-9b52-2659b8898997",
-  "is_public": true,
-  "maintainer": "help@datadoghq.com",
-  "manifest_version": "1.0.0",
-  "metric_prefix": "tomcat.",
-  "metric_to_check": "tomcat.threads.count",
-  "name": "tomcat",
+  "integration_id": "tomcat", 
+  "maintainer": "help@datadoghq.com", 
+  "name": "tomcat", 
+  "display_name": "Tomcat", 
+  "creates_events": false, 
+  "public_title": "Datadog-Tomcat Integration", 
+  "metric_to_check": "tomcat.threads.count", 
   "process_signatures": [
     "java tomcat"
-  ],
-  "public_title": "Datadog-Tomcat Integration",
-  "short_description": "Track requests per second, bytes served, cache hits, servlet metrics, and more.",
-  "support": "core",
+  ], 
   "supported_os": [
-    "linux",
-    "mac_os",
+    "linux", 
+    "mac_os", 
     "windows"
-  ],
-  "type": "check",
-  "integration_id": "tomcat",
+  ], 
+  "manifest_version": "1.0.0", 
+  "short_description": "Track requests per second, bytes served, cache hits, servlet metrics, and more.", 
+  "is_public": true, 
+  "metric_prefix": "tomcat.", 
+  "guid": "60f37d34-3bb7-43c9-9b52-2659b8898997", 
+  "type": "check", 
+  "support": "core", 
+  "categories": [
+    "web", 
+    "log collection"
+  ], 
   "assets": {
-    "monitors": {},
-    "dashboards": {},
-    "service_checks": "assets/service_checks.json"
+    "service_checks": "assets/service_checks.json", 
+    "monitors": {
+      "tomcat.threads.busy": "assets/recommended_monitors/tomcat.threads.busy.json", 
+      "tomcat.error_count": "assets/recommended_monitors/tomcat.error_count.json", 
+      "tomcat.threads.count": "assets/recommended_monitors/tomcat.threads.count.json", 
+      "tomcat.request_count": "assets/recommended_monitors/tomcat.request_count.json"
+    }, 
+    "dashboards": {}
   }
 }

@@ -1,29 +1,35 @@
 {
-  "categories": [
-    "orchestration",
-    "containers"
-  ],
-  "creates_events": false,
-  "display_name": "Kubernetes State",
-  "guid": "fa0e4395-3eae-4df8-88f2-9d7075c21a2d",
-  "is_public": true,
-  "maintainer": "help@datadoghq.com",
-  "manifest_version": "1.0.0",
-  "metric_prefix": "kubernetes_state.",
-  "metric_to_check": "kubernetes_state.container.running",
-  "name": "kubernetes_state",
-  "public_title": "Datadog-Kubernetes State Integration",
-  "short_description": "Capture Pod scheduling events, track the status of your Kubelets, and more.",
-  "support": "core",
+  "integration_id": "kubernetes-state", 
+  "maintainer": "help@datadoghq.com", 
+  "name": "kubernetes_state", 
+  "creates_events": false, 
+  "public_title": "Datadog-Kubernetes State Integration", 
+  "metric_to_check": "kubernetes_state.container.running", 
   "supported_os": [
-    "linux",
+    "linux", 
     "mac_os"
-  ],
-  "type": "check",
-  "integration_id": "kubernetes-state",
+  ], 
+  "manifest_version": "1.0.0", 
+  "is_public": true, 
+  "short_description": "Capture Pod scheduling events, track the status of your Kubelets, and more.", 
+  "display_name": "Kubernetes State", 
+  "metric_prefix": "kubernetes_state.", 
+  "guid": "fa0e4395-3eae-4df8-88f2-9d7075c21a2d", 
+  "type": "check", 
+  "support": "core", 
+  "categories": [
+    "orchestration", 
+    "containers"
+  ], 
   "assets": {
-    "monitors": {},
-    "dashboards": {},
-    "service_checks": "assets/service_checks.json"
+    "service_checks": "assets/service_checks.json", 
+    "monitors": {
+      "kubernetes_state.node.status": "assets/recommended_monitors/kubernetes_state.node.status.json", 
+      "kubernetes_state.deployment.replicas_unavailable": "assets/recommended_monitors/kubernetes_state.deployment.replicas_unavailable.json", 
+      "kubernetes_state.deployment.replicas_available": "assets/recommended_monitors/kubernetes_state.deployment.replicas_available.json", 
+      "kubernetes_state.pod.status_phase": "assets/recommended_monitors/kubernetes_state.pod.status_phase.json", 
+      "kubernetes_state.container.restarts": "assets/recommended_monitors/kubernetes_state.container.restarts.json"
+    }, 
+    "dashboards": {}
   }
 }

@@ -1,39 +1,46 @@
 {
+  "integration_id": "docker", 
+  "maintainer": "help@datadoghq.com", 
+  "name": "docker_daemon", 
+  "creates_events": true, 
+  "public_title": "Datadog-Docker Daemon Integration", 
+  "metric_to_check": "docker.containers.running", 
+  "process_signatures": [
+    "dockerd", 
+    "docker-containerd", 
+    "docker run", 
+    "docker daemon", 
+    "docker-containerd-shim"
+  ], 
   "aliases": [
     "/integrations/docker"
-  ],
-  "categories": [
-    "containers",
-    "log collection"
-  ],
-  "creates_events": true,
-  "display_name": "Docker",
-  "guid": "08ee2733-0441-4438-8af8-e2f6fb926772",
-  "is_public": true,
-  "maintainer": "help@datadoghq.com",
-  "manifest_version": "1.0.0",
-  "metric_prefix": "docker.",
-  "metric_to_check": "docker.containers.running",
-  "name": "docker_daemon",
-  "process_signatures": [
-    "dockerd",
-    "docker-containerd",
-    "docker run",
-    "docker daemon",
-    "docker-containerd-shim"
-  ],
-  "public_title": "Datadog-Docker Daemon Integration",
-  "short_description": "Correlate container performance with that of the services running inside them.",
-  "support": "core",
+  ], 
   "supported_os": [
-    "linux",
+    "linux", 
     "mac_os"
-  ],
-  "type": "check",
-  "integration_id": "docker",
+  ], 
+  "manifest_version": "1.0.0", 
+  "is_public": true, 
+  "short_description": "Correlate container performance with that of the services running inside them.", 
+  "display_name": "Docker", 
+  "metric_prefix": "docker.", 
+  "guid": "08ee2733-0441-4438-8af8-e2f6fb926772", 
+  "type": "check", 
+  "support": "core", 
+  "categories": [
+    "containers", 
+    "log collection"
+  ], 
   "assets": {
-    "monitors": {},
-    "dashboards": {},
-    "service_checks": "assets/service_checks.json"
+    "service_checks": "assets/service_checks.json", 
+    "monitors": {
+      "docker.cpu.user": "assets/recommended_monitors/docker.cpu.user.json", 
+      "docker.mem.rss": "assets/recommended_monitors/docker.mem.rss.json", 
+      "docker.mem.in_use": "assets/recommended_monitors/docker.mem.in_use.json", 
+      "docker.containers.running": "assets/recommended_monitors/docker.containers.running.json", 
+      "docker.containers.stopped": "assets/recommended_monitors/docker.containers.stopped.json", 
+      "docker.cpu.usage": "assets/recommended_monitors/docker.cpu.usage.json"
+    }, 
+    "dashboards": {}
   }
 }

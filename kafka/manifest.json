@@ -1,34 +1,36 @@
 {
-  "categories": [
-    "processing",
-    "messaging",
-    "log collection"
-  ],
-  "creates_events": false,
-  "display_name": "Kafka",
-  "guid": "f201c0b7-4b31-4528-9955-ae756a4580b8",
-  "is_public": true,
-  "maintainer": "help@datadoghq.com",
-  "manifest_version": "1.0.0",
-  "metric_prefix": "kafka.",
-  "metric_to_check": "kafka.net.bytes_out",
-  "name": "kafka",
+  "integration_id": "kafka", 
+  "display_name": "Kafka", 
+  "name": "kafka", 
+  "creates_events": false, 
+  "public_title": "Datadog-Kafka Integration", 
+  "metric_to_check": "kafka.net.bytes_out", 
   "process_signatures": [
     "java kafka.kafka"
-  ],
-  "public_title": "Datadog-Kafka Integration",
-  "short_description": "Collect metrics for producers and consumers, replication, max lag, and more.",
-  "support": "core",
+  ], 
   "supported_os": [
-    "linux",
-    "mac_os",
+    "linux", 
+    "mac_os", 
     "windows"
-  ],
-  "type": "check",
-  "integration_id": "kafka",
+  ], 
+  "manifest_version": "1.0.0", 
+  "is_public": true, 
+  "short_description": "Collect metrics for producers and consumers, replication, max lag, and more.", 
+  "maintainer": "help@datadoghq.com", 
+  "metric_prefix": "kafka.", 
+  "guid": "f201c0b7-4b31-4528-9955-ae756a4580b8", 
+  "type": "check", 
+  "support": "core", 
+  "categories": [
+    "processing", 
+    "messaging", 
+    "log collection"
+  ], 
   "assets": {
-    "monitors": {},
-    "dashboards": {},
-    "service_checks": "assets/service_checks.json"
+    "service_checks": "assets/service_checks.json", 
+    "monitors": {
+      "kafka.replication.under_replicated_partitions": "assets/recommended_monitors/kafka.replication.under_replicated_partitions.json"
+    }, 
+    "dashboards": {}
   }
 }

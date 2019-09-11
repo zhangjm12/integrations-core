@@ -1,35 +1,39 @@
 {
-  "categories": [
-    "web",
-    "log collection"
-  ],
-  "creates_events": false,
-  "display_name": "Nginx",
-  "guid": "88620208-3919-457c-ba51-d844d09ac97f",
-  "is_public": true,
-  "maintainer": "help@datadoghq.com",
-  "manifest_version": "1.0.0",
-  "metric_prefix": "nginx.",
-  "metric_to_check": "nginx.net.connections",
-  "name": "nginx",
+  "integration_id": "nginx", 
+  "display_name": "Nginx", 
+  "name": "nginx", 
+  "maintainer": "help@datadoghq.com", 
+  "creates_events": false, 
+  "public_title": "Datadog-Nginx Integration", 
+  "metric_to_check": "nginx.net.connections", 
   "process_signatures": [
     "nginx: master process"
-  ],
-  "public_title": "Datadog-Nginx Integration",
-  "short_description": "Monitor connection and request metrics. Get more metrics with NGINX Plus.",
-  "support": "core",
+  ], 
   "supported_os": [
-    "linux",
-    "mac_os",
+    "linux", 
+    "mac_os", 
     "windows"
-  ],
-  "type": "check",
-  "integration_id": "nginx",
+  ], 
+  "manifest_version": "1.0.0", 
+  "short_description": "Monitor connection and request metrics. Get more metrics with NGINX Plus.", 
+  "is_public": true, 
+  "metric_prefix": "nginx.", 
+  "guid": "88620208-3919-457c-ba51-d844d09ac97f", 
+  "type": "check", 
+  "support": "core", 
+  "categories": [
+    "web", 
+    "log collection"
+  ], 
   "assets": {
-    "monitors": {},
+    "service_checks": "assets/service_checks.json", 
+    "monitors": {
+      "nginx.net.conn_dropped_per_s": "assets/recommended_monitors/nginx.net.conn_dropped_per_s.json", 
+      "nginx.net.connections": "assets/recommended_monitors/nginx.net.connections.json", 
+      "nginx.net.request_per_s": "assets/recommended_monitors/nginx.net.request_per_s.json"
+    }, 
     "dashboards": {
       "NGINX Plus base overview": "assets/dashboards/plus_overview.json"
-    },
-    "service_checks": "assets/service_checks.json"
+    }
   }
 }

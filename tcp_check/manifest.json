@@ -1,34 +1,37 @@
 {
+  "integration_id": "system", 
+  "maintainer": "help@datadoghq.com", 
+  "name": "tcp_check", 
+  "creates_events": false, 
+  "public_title": "Datadog-TCP Check Integration", 
+  "metric_to_check": "network.tcp.can_connect", 
   "aliases": [
-    "/guides/network_checks",
+    "/guides/network_checks", 
     "/integrations/tcpcheck"
-  ],
-  "categories": [
-    "network",
-    "web"
-  ],
-  "creates_events": false,
-  "display_name": "TCP",
-  "guid": "c514029e-0ed8-4c9f-abe5-2fd4096726ba",
-  "is_public": true,
-  "maintainer": "help@datadoghq.com",
-  "manifest_version": "1.0.0",
-  "metric_prefix": "network.",
-  "metric_to_check": "network.tcp.can_connect",
-  "name": "tcp_check",
-  "public_title": "Datadog-TCP Check Integration",
-  "short_description": "Monitor TCP connectivity to remote hosts.",
-  "support": "core",
+  ], 
   "supported_os": [
-    "linux",
-    "mac_os",
+    "linux", 
+    "mac_os", 
     "windows"
-  ],
-  "type": "check",
-  "integration_id": "system",
+  ], 
+  "manifest_version": "1.0.0", 
+  "is_public": true, 
+  "short_description": "Monitor TCP connectivity to remote hosts.", 
+  "display_name": "TCP", 
+  "metric_prefix": "network.", 
+  "guid": "c514029e-0ed8-4c9f-abe5-2fd4096726ba", 
+  "type": "check", 
+  "support": "core", 
+  "categories": [
+    "network", 
+    "web"
+  ], 
   "assets": {
-    "monitors": {},
-    "dashboards": {},
-    "service_checks": "assets/service_checks.json"
+    "service_checks": "assets/service_checks.json", 
+    "monitors": {
+      "network.tcp.can_connect": "assets/recommended_monitors/network.tcp.can_connect.json", 
+      "network.tcp.response_time": "assets/recommended_monitors/network.tcp.response_time.json"
+    }, 
+    "dashboards": {}
   }
 }
