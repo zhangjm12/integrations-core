@@ -35,7 +35,7 @@ def test_get_stream_id():
 @pytest.mark.unit
 @pytest.mark.usefixtures("mock_fqdn")
 def test_whitelist(instance):
-    instance['metrics'] = [r'mapr\.fs.*', r'mapr\.db.*']
+    instance['metric_whitelist'] = [r'mapr\.fs.*', r'mapr\.db.*']
     check = MaprCheck('mapr', {}, [instance])
 
     for m in ALLOWED_METRICS:

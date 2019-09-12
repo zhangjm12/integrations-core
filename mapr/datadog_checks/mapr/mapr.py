@@ -22,6 +22,7 @@ except ImportError:
 
 DEFAULT_STREAM_PATH = "/var/mapr/mapr.monitoring/metricstreams"
 METRICS_SUBMITTED_METRIC_NAME = "mapr.metrics.submitted"
+SERVICE_CHECK = "mapr.can_connect"
 
 
 class MaprCheck(AgentCheck):
@@ -34,7 +35,7 @@ class MaprCheck(AgentCheck):
             stream_id=get_stream_id_for_topic(self.hostname),
             topic_name=self.hostname,
         )
-        self.allowed_metrics = [re.compile(w) for w in self.instance.get('metrics', [])]
+        self.allowed_metrics = [re.compile(w) for w in self.instance.get('metric_whitelist', [])]
         self.base_tags = self.instance.get('tags', [])
         self.is_first_check_run = True
 
@@ -47,11 +48,17 @@ class MaprCheck(AgentCheck):
     def check(self, _):
         if ck is None:
             raise CheckException(
-                "confluent_kafka was not imported correctly, make sure the library is installed and that you've"
+                "confluent_kafka was not imported correctly, make sure the library is installed and that you've "
                 "set LD_LIBRARY_PATH correctly. Please refer to datadog documentation for more details."
             )
 
-        conn = self.get_connection()
+        try:
+            conn = self.get_connection()
+        except Exception:
+            self.service_check(
+                SERVICE_CHECK, AgentCheck.CRITICAL, self.base_tags + ['topic_path:{}'.format(self.topic_path)]
+            )
+            raise
 
         submitted_metrics_count = 0
 
@@ -82,6 +89,7 @@ class MaprCheck(AgentCheck):
             self.log.error("No metric to fetch in topic {}. Double-check the topic name and path", self.topic_path)
 
         self.gauge(METRICS_SUBMITTED_METRIC_NAME, submitted_metrics_count, self.base_tags)
+        self.service_check(SERVICE_CHECK, AgentCheck.OK, self.base_tags + ['topic:{}'.format(self.topic_path)])
         self.is_first_check_run = False
 
     def get_connection(self):
@@ -91,8 +99,8 @@ class MaprCheck(AgentCheck):
         self._conn = ck.Consumer(
             {
                 "group.id": "dd-agent",  # uniquely identify this consumer
-                "enable.auto.commit": False  # important, we don't need to store the offset for this consumer,
-                # and if we do it just once the mapr library has a bug which prevents reading from the head
+                "enable.auto.commit": False  # important, do not store the offset for this consumer,
+                # if we do it just once the mapr library has a bug (feature?) which prevents resetting it to the head
             }
         )
         self._conn.subscribe([self.topic_path])
