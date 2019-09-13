@@ -24,15 +24,27 @@ DEFAULT_STREAM_PATH = "/var/mapr/mapr.monitoring/metricstreams"
 METRICS_SUBMITTED_METRIC_NAME = "mapr.metrics.submitted"
 SERVICE_CHECK = "mapr.can_connect"
 
+"""
+All mapr metrics go through a Stream topic (similar to a Kafka topic) and are consumed by OpenTSDB, a timeserie
+database.
+All the metrics are distributed over multiple topics, one for each host. This way, the check instance can subscribe
+to the topic relevant to the current host and consume everything.
+
+Note: The MapR documentation https://mapr.com/docs/61/AdministratorGuide/spyglass-on-streams.html states that
+there is one topic per host per metric name. This is wrong starting with 6.1+, there is only one topic per host now.
+To support older versions of MapR, the check should be updated to subscribe those multiple topics.
+"""
+
 
 class MaprCheck(AgentCheck):
     def __init__(self, name, init_config, instances):
         super(MaprCheck, self).__init__(name, init_config, instances)
         self._conn = None
         self.hostname = self.instance.get('hostname', get_fqdn())
+        self.streams_count = self.instance.get('streams_count', 2)
         self.topic_path = "{stream_path}/{stream_id}:{topic_name}".format(
             stream_path=self.instance.get('stream_path', DEFAULT_STREAM_PATH),
-            stream_id=get_stream_id_for_topic(self.hostname),
+            stream_id=get_stream_id_for_topic(self.hostname, rng=self.streams_count),
             topic_name=self.hostname,
         )
         self.allowed_metrics = [re.compile(w) for w in self.instance.get('metric_whitelist', [])]

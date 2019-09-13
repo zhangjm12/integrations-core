@@ -2,7 +2,7 @@
 
 ## Overview
 
-This check monitors [MapR][1] through the Datadog Agent.
+This check monitors [MapR][1] 6.1+ through the Datadog Agent.
 
 ## Setup
 
@@ -14,8 +14,8 @@ The MapR check is included in the [Datadog Agent][2] package. However, some addi
 
 1. Agent 6 uses Upstart or systemd to orchestrate the `datadog-agent` service. To configure the MapR Event Store for
 Apache Kafka C Client, a `LD_LIBRARY_PATH` variable need to be set to `/opt/mapr/lib` in the service configuration files at the default locations of
-`/etc/init/datadog-agent.conf` (Upstart) or `/lib/systemd/system/datadog-agent.service` (systemd). See documentation on [Upstart](14)
-or [systemd](15) for more information on how to configure these settings.
+`/etc/init/datadog-agent.conf` (Upstart) or `/lib/systemd/system/datadog-agent.service` (systemd). See documentation on [Upstart][14]
+or [systemd][15] for more information on how to configure these settings.
 2. Create a password for the `dd-agent` user, then add this user to every node of the cluster with the same `UID`/`GID` so it is recognized by MapR. See [Managing users and groups][10] for additional details.
 3. Generate a [long-lived ticket][8] for the `dd-agent` user.
 
