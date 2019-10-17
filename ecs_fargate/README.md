@@ -166,41 +166,49 @@ You can monitor Fargate logs by using the AWS FireLens integration built on Data
 
 Configure the AWS FireLens integration built on Datadog's Fluent Bit output plugin to connect your FireLens monitored log data to Datadog Logs. 
 
-1. Enable Fluent Bit in the FireLens log router container in your Fargate task. For more information about enabling FireLens, see the dedicated [AWS Firelens docs][28]. For more information about Fargate container definitons, see the [AWS docs on Container Definitions][26]. AWS reccomends that you use [the regional Docker image][32]. Here is an example snippet of a task definition where the Fluent Bit image is configured:
-    
-    ```
-    [ 
-      { 
-        "essential":true,
-        "image":"amazon/aws-for-fluent-bit:latest",
-        "name":"log_router",
-        "firelensConfiguration":{ 
-            "type":"fluentbit",
-            "options":{ 
-                "enable-ecs-log-metadata":"true"
-            }
-        }
-      }
-    ]
-    ```
-
+1. Enable Fluent Bit in the FireLens log router container in your Fargate task. For more information about enabling FireLens, see the dedicated [AWS Firelens docs][28]. For more information about Fargate container definitons, see the [AWS docs on Container Definitions][26]. AWS reccomends that you use [the regional Docker image][32]. Here is an example snippet of a task definition where the Fluent Bit image is configured.
     
 2. Next, in the same Fargate task, define a log configuration with AWS FireLens as the log driver, and with data being output to Fluent Bit. Here is an example snippet of a task definition where the FireLens is the log driver, and it is outputting data to Fluent Bit:
 
+    Here is an example Fargate task where the Fluent Bit image is configured, and where FireLens is the log driver, and it 	is outputting data to Fluent Bit:
     
     ```
-    "logConfiguration": {
-	    "logDriver": "awsfirelens",
-	    "options": {
-		    "name": "datadog",
-		    "apiKey": "<DATADOG_API_KEY>",
-            "dd_service": "firelens-test",
-            "dd_source": "redis",
-            "dd_tags": "project:fluentbit",
-		    "provider": "ecs"
-	    }
+    {
+        "family": "firelens-example-datadog",
+        "taskRoleArn": "arn:aws:iam::XXXXXXXXXXXX:role/ecs_task_iam_role",
+        "executionRoleArn": "arn:aws:iam::XXXXXXXXXXXX:role/ecs_task_execution_role",
+        "containerDefinitions": [
+            {
+                "essential": true,
+                "image": "amazon/aws-for-fluent-bit:latest",
+                "name": "log_router",
+                "firelensConfiguration":{ 
+                    "type":"fluentbit",
+                    "options":{ 
+                        "enable-ecs-log-metadata":"true"
+                    }
+                },
+                "memoryReservation": 50
+             },
+             {
+                 "essential": true,
+                 "image": "httpd",
+                 "name": "app",
+                 "logConfiguration": {
+                     "logDriver":"awsfirelens",
+                     "options": {
+                        "name": "datadog",
+                        "apiKey": "<DATADOG_API_KEY>",
+                        "dd_service": "my-httpd-service",
+                        "dd_source": "httpd",
+                        "dd_tags": "project:example",
+                        "provider": "ecs"
+                    }
+                },
+                "memoryReservation": 100
+            }
+        ]
     }
-
     ```
 3. Now, whenever a Fargate task runs, Fluent Bit sends the container logs to your Datadog monitoring with information about all of the containers managed by your Fargate tasks. You can see the raw logs on the [Log Explorer page][30], [build monitors][31] for the logs, and use the [Live Container view][29].
 
