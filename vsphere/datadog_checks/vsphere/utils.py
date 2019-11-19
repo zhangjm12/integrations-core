@@ -65,42 +65,56 @@ def is_excluded_by_filters(mor, properties, resource_filters):
 
     return not match
 
+
+def get_tags_for_mor(infrastructure_data, mor, properties):
+    tags = []
+    if isinstance(mor, vim.VirtualMachine):
+        vsphere_type = 'vsphere_type:vm'
+        mor_type = "vm"
+        power_state = properties.get("runtime.powerState")
+
+        host_mor = properties.get("runtime.host")
+        host_props = infrastructure_data.get(host_mor, {})
+        hostname = ensure_unicode(host_props.get("name", "unknown"))
+        tags.append('vsphere_host:{}'.format(hostname))
+        tags = [
+            'vsphere_type:vm',
+            ''
+        ]
+    elif isinstance(obj, vim.HostSystem):
+        vsphere_type = 'vsphere_type:host'
+        vimtype = vim.HostSystem
+        mor_type = "host"
+    elif isinstance(obj, vim.Datastore):
+        vsphere_type = 'vsphere_type:datastore'
+        instance_tags.append(
+            'vsphere_datastore:{}'.format(ensure_unicode(properties.get("name", "unknown")))
+        )
+        hostname = None
+        vimtype = vim.Datastore
+        mor_type = "datastore"
+    elif isinstance(obj, vim.Datacenter):
+        vsphere_type = 'vsphere_type:datacenter'
+        instance_tags.append(
+            "vsphere_datacenter:{}".format(ensure_unicode(properties.get("name", "unknown")))
+        )
+        hostname = None
+        vimtype = vim.Datacenter
+        mor_type = "datacenter"
+    elif isinstance(obj, vim.ClusterComputeResource):
+        vsphere_type = 'vsphere_type:cluster'
+        instance_tags.append("vsphere_cluster:{}".format(ensure_unicode(properties.get("name", "unknown"))))
+        hostname = None
+        vimtype = vim.ClusterComputeResource
+        mor_type = "cluster"
+    else:
+        vsphere_type = None
+
+
+
 import sys
-from numbers import Number
-from collections import Set, Mapping, deque
 from types import ModuleType, FunctionType
 from gc import get_referents
-
-try: # Python 2
-    zero_depth_bases = (basestring, Number, xrange, bytearray)
-    iteritems = 'iteritems'
-except NameError: # Python 3
-    zero_depth_bases = (str, bytes, Number, range, bytearray)
-    iteritems = 'items'
-
-
-def getsize(obj_0):
-    """Recursively iterate to sum size of object & members."""
-    _seen_ids = set()
-    def inner(obj):
-        obj_id = id(obj)
-        if obj_id in _seen_ids:
-            return 0
-        _seen_ids.add(obj_id)
-        size = sys.getsizeof(obj)
-        if isinstance(obj, zero_depth_bases):
-            pass  # bypass remaining control flow and return
-        elif isinstance(obj, (tuple, list, Set, deque)):
-            size += sum(inner(i) for i in obj)
-        elif isinstance(obj, Mapping) or hasattr(obj, iteritems):
-            size += sum(inner(k) + inner(v) for k, v in getattr(obj, iteritems)())
-        # Check for custom object instances - may subclass above too
-        if hasattr(obj, '__dict__'):
-            size += inner(vars(obj))
-        if hasattr(obj, '__slots__'): # can have __slots__ with __dict__
-            size += sum(inner(getattr(obj, s)) for s in obj.__slots__ if hasattr(obj, s))
-        return size
-    return inner(obj_0)
 
 # Custom objects know their class.
 # Function objects seem to know way too much, including modules.
@@ -108,10 +122,10 @@ def getsize(obj_0):
 BLACKLIST = type, ModuleType, FunctionType
 
 
-def getsize2 (obj):
+def getsize(obj):
     """sum size of object & members."""
     if isinstance(obj, BLACKLIST):
-        raise TypeError('getsize() does not take argument of type: '+ str(type(obj)))
+        raise TypeError('getsize() does not take argument of type: ' + str(type(obj)))
     seen_ids = set()
     size = 0
     objects = [obj]

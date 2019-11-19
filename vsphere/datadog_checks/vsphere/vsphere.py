@@ -74,14 +74,19 @@ class VSphereCheck(AgentCheck):
                 # The resource does not match the specified patterns
                 continue
 
-            mor_tags = []
+            if isinstance(mor, vim.VirtualMachine):
+                power_state = properties.get("runtime.powerState")
+                if power_state != vim.VirtualMachinePowerState.poweredOn:
+                    # Skipping because of not powered on
+                    continue
+            mor_tags = get_tags_for_mor(mor, properties)
 
 
     def check(self, _):
-        if self.metrics_metadata_cache.should_refresh_cache():
+        if self.metrics_metadata_cache.is_expired():
             self.metrics_metadata_cache.reset()
-            #self.refresh_metrics_metadata_cache()
+            self.refresh_metrics_metadata_cache()
 
-        if self.infrastructure_cache.should_refresh_cache():
+        if self.infrastructure_cache.is_expired():
             self.infrastructure_cache.reset()
             self.refresh_infrastructure_cache()

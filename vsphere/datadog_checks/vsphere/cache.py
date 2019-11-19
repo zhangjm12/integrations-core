@@ -31,7 +31,7 @@ class VSphereCache:
             self.interval = None
             self._content = {}
 
-    def should_refresh_cache(self):
+    def is_expired(self):
         elapsed = time.time() - self.last_ts
         return elapsed > self.interval
 
