@@ -6,10 +6,11 @@ from collections import namedtuple
 from six import iteritems
 from pyVmomi import vim  # pylint: disable=E0611
 
-from datadog_checks.base import AgentCheck, is_affirmative
+from datadog_checks.base import AgentCheck, is_affirmative, ensure_unicode
 from datadog_checks.vsphere.api import VSphereAPI
 from datadog_checks.vsphere.cache import VSphereCache
-from datadog_checks.vsphere.utils import format_metric_name, is_excluded_by_filters
+from datadog_checks.vsphere.utils import format_metric_name, is_excluded_by_filters, get_parent_tags_recursively, \
+    MOR_TYPE_AS_STRING
 
 REALTIME_RESOURCES = [vim.VirtualMachine, vim.HostSystem]
 HISTORICAL_RESOURCES = [vim.Datacenter, vim.Datastore, vim.ClusterComputeResource]
@@ -39,6 +40,7 @@ class VSphereCheck(AgentCheck):
         self.collection_type = self.instance.get("collection_type", "realtime")
         self.resource_filters = self.instance.get("resource_filters", {})
         self.metric_filters = self.instance.get("metric_filters", {})
+        self.use_guest_hostname = self.instance.get("use_guest_hostname", False)
 
         self.collected_resource_types = REALTIME_RESOURCES if self.collection_type == 'realtime' else HISTORICAL_RESOURCES
 
@@ -64,6 +66,9 @@ class VSphereCheck(AgentCheck):
         # https://pubs.vmware.com/vsphere-50/index.jsp?topic=%2Fcom.vmware.wssdk.pg.doc_50%2FPG_Ch16_Performance.18.5.html
 
     def refresh_infrastructure_cache(self):
+        """Fetch the complete infrastructure, generate tags for each monitored resources and store all of that
+        into the infrastructure_cache. It also computes the resource `hostname` property to be used when submitting
+        metrics for this mor."""
         infrastucture_data = self.api.get_infrastructure()
 
         for mor, properties in iteritems(infrastucture_data):
@@ -74,19 +79,49 @@ class VSphereCheck(AgentCheck):
                 # The resource does not match the specified patterns
                 continue
 
+            hostname = None
+            tags = []
+
             if isinstance(mor, vim.VirtualMachine):
                 power_state = properties.get("runtime.powerState")
                 if power_state != vim.VirtualMachinePowerState.poweredOn:
                     # Skipping because of not powered on
                     continue
-            mor_tags = get_tags_for_mor(mor, properties)
 
+                # Host are not considered parents of the VMs they run, we use the `runtime.host` property
+                # to get the name of the ESX host
+                runtime_host = properties.get("runtime.host")
+                runtime_host_props = infrastucture_data.get(runtime_host, {})
+                runtime_hostname = ensure_unicode(runtime_host_props.get("name", "unknown"))
+                tags.append('vsphere_host:{}'.format(runtime_hostname))
+
+                if self.use_guest_hostname:
+                    hostname = properties.get("guest.hostName", properties.get("name", "unknown"))
+                else:
+                    hostname = properties.get("name", "unknown")
+            elif isinstance(mor, vim.HostSystem):
+                hostname = properties.get("name", "unknown")
+
+            tags.extend(get_parent_tags_recursively(mor, infrastucture_data))
+            tags.append('vsphere_type:{}'.format(MOR_TYPE_AS_STRING[type(mor)]))
+
+            mor_payload = {"tags": tags}
+            if hostname:
+                mor_payload['hostname'] = hostname
+
+            self.infrastructure_cache.set(mor, mor_payload)
 
     def check(self, _):
+        import time
+        t = time.time()
         if self.metrics_metadata_cache.is_expired():
             self.metrics_metadata_cache.reset()
             self.refresh_metrics_metadata_cache()
 
+        delta1 = time.time() - t
         if self.infrastructure_cache.is_expired():
             self.infrastructure_cache.reset()
             self.refresh_infrastructure_cache()
+
+        delta2 = time.time() - t
+        import pdb; pdb.set_trace()

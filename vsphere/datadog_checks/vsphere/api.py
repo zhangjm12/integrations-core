@@ -125,5 +125,4 @@ class VSphereAPI(object):
 
         rootFolder = self._conn.content.rootFolder
         infrastucture_data[rootFolder] = {"name": rootFolder.name, "parent": None}
-        import pdb; pdb.set_trace()
         return infrastucture_data

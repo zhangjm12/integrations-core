@@ -12,7 +12,7 @@ SHORT_ROLLUP = {
     "none": "raw",
 }
 
-RESOURCE_TO_CONFIG_MAPPING = {
+MOR_TYPE_AS_STRING = {
     vim.HostSystem: 'host',
     vim.VirtualMachine: 'vm',
     vim.Datacenter: 'datacenter',
@@ -66,49 +66,40 @@ def is_excluded_by_filters(mor, properties, resource_filters):
     return not match
 
 
-def get_tags_for_mor(infrastructure_data, mor, properties):
-    tags = []
-    if isinstance(mor, vim.VirtualMachine):
-        vsphere_type = 'vsphere_type:vm'
-        mor_type = "vm"
-        power_state = properties.get("runtime.powerState")
+def get_parent_tags_recursively(mor, infrastructure_data):
+    """Go up the resources hierarchy from the given mor. Note that a host running a VM is not considered to be a
+    parent of that VM.
 
-        host_mor = properties.get("runtime.host")
-        host_props = infrastructure_data.get(host_mor, {})
-        hostname = ensure_unicode(host_props.get("name", "unknown"))
-        tags.append('vsphere_host:{}'.format(hostname))
-        tags = [
-            'vsphere_type:vm',
-            ''
-        ]
-    elif isinstance(obj, vim.HostSystem):
-        vsphere_type = 'vsphere_type:host'
-        vimtype = vim.HostSystem
-        mor_type = "host"
-    elif isinstance(obj, vim.Datastore):
-        vsphere_type = 'vsphere_type:datastore'
-        instance_tags.append(
-            'vsphere_datastore:{}'.format(ensure_unicode(properties.get("name", "unknown")))
-        )
-        hostname = None
-        vimtype = vim.Datastore
-        mor_type = "datastore"
-    elif isinstance(obj, vim.Datacenter):
-        vsphere_type = 'vsphere_type:datacenter'
-        instance_tags.append(
-            "vsphere_datacenter:{}".format(ensure_unicode(properties.get("name", "unknown")))
-        )
-        hostname = None
-        vimtype = vim.Datacenter
-        mor_type = "datacenter"
-    elif isinstance(obj, vim.ClusterComputeResource):
-        vsphere_type = 'vsphere_type:cluster'
-        instance_tags.append("vsphere_cluster:{}".format(ensure_unicode(properties.get("name", "unknown"))))
-        hostname = None
-        vimtype = vim.ClusterComputeResource
-        mor_type = "cluster"
-    else:
-        vsphere_type = None
+    rootFolder(vim.Folder):
+      - vm(vim.Folder):
+          VM1-1
+          VM1-2
+      - host(vim.Folder):
+          HOST1
+          HOST2
+
+    """
+    mor_props = infrastructure_data.get(mor)
+    parent = mor_props.get('parent')
+    parent_props = infrastructure_data.get(parent, {})
+    if parent:
+        tags = []
+        parent_name = ensure_unicode(parent_props.get('name', 'unknown'))
+        if isinstance(parent, vim.HostSystem):
+            tags.append('vsphere_host:{}'.format(parent_name))
+        elif isinstance(parent, vim.Folder):
+            tags.append('vsphere_folder:{}'.format(parent_name))
+        elif isinstance(parent, vim.ComputeResource):
+            if isinstance(parent, vim.ClusterComputeResource):
+                tags.append('vsphere_cluster:{}'.format(parent_name))
+            tags.append('vsphere_compute:{}'.format(parent_name))
+        elif isinstance(parent, vim.Datacenter):
+            tags.append('vsphere_datacenter:{}'.format(parent_name))
+
+        parent_tags = get_parent_tags_recursively(parent, infrastructure_data)
+        parent_tags.extend(tags)
+        return parent_tags
+    return []
 
 
 
