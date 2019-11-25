@@ -1,20 +1,21 @@
 # (C) Datadog, Inc. 2019
 # All rights reserved
 # Licensed under Simplified BSD License (see LICENSE)
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 
 from six import iteritems
 from pyVmomi import vim  # pylint: disable=E0611
 
 from datadog_checks.base import AgentCheck, is_affirmative, ensure_unicode
 from datadog_checks.vsphere.api import VSphereAPI
-from datadog_checks.vsphere.cache import VSphereCache
+from datadog_checks.vsphere.cache import InfrastructureCache, MetricsMetadataCache
+from datadog_checks.vsphere.constants import ALLOWED_METRICS_FOR_MOR
 from datadog_checks.vsphere.utils import format_metric_name, is_excluded_by_filters, get_parent_tags_recursively, \
     MOR_TYPE_AS_STRING
 
 REALTIME_RESOURCES = [vim.VirtualMachine, vim.HostSystem]
 HISTORICAL_RESOURCES = [vim.Datacenter, vim.Datastore, vim.ClusterComputeResource]
-
+ALL_RESOURCES = REALTIME_RESOURCES + HISTORICAL_RESOURCES
 
 class VSphereCheck(AgentCheck):
     __NAMESPACE__ = 'vsphere'
@@ -33,8 +34,8 @@ class VSphereCheck(AgentCheck):
         self.validate_config()
 
         self.api = VSphereAPI(self.instance)
-        self.infrastructure_cache = VSphereCache(interval_sec=180)
-        self.metrics_metadata_cache = VSphereCache(interval_sec=600)
+        self.infrastructure_cache = InfrastructureCache(interval_sec=180)
+        self.metrics_metadata_cache = MetricsMetadataCache(interval_sec=600)
 
         self.collection_level = self.instance.get("collection_level", 1)
         self.collection_type = self.instance.get("collection_type", "realtime")
@@ -42,6 +43,8 @@ class VSphereCheck(AgentCheck):
         self.metric_filters = self.instance.get("metric_filters", {})
         self.use_guest_hostname = self.instance.get("use_guest_hostname", False)
 
+        self.batch_morlist_size = self.instance.get("batch_morlist_size", 50)
+        self.max_historical_metrics = self.instance.get("max_historical_metrics", 64)
         self.collected_resource_types = REALTIME_RESOURCES if self.collection_type == 'realtime' else HISTORICAL_RESOURCES
 
     def validate_config(self):
@@ -56,11 +59,17 @@ class VSphereCheck(AgentCheck):
         # TODO: VALIDATE FILTERS
 
     def refresh_metrics_metadata_cache(self):
-        metadata = {}
-        for counter in self.api.get_perf_counter_by_level(self.collection_level):
-            metadata[counter.key] = {"name": format_metric_name(counter), "unit": counter.unitInfo.key}
+        counters = self.api.get_perf_counter_by_level(self.collection_level)
 
-        self.metrics_metadata_cache.update(metadata)
+        for mor_type in ALL_RESOURCES:
+            allowed_counters = [c for c in counters if format_metric_name(c) in ALLOWED_METRICS_FOR_MOR[mor_type]]
+            metadata = {
+                c.key: {"name": format_metric_name(c), "unit": c.unitInfo.key}
+                for c in allowed_counters
+            }
+            self.metrics_metadata_cache.set_metadata(mor_type, metadata)
+
+        #self.metrics_metadata_cache.update(metadata)
         # TODO: Understand how much data actually changes between check runs
         # Apparently only when the server restarts?
         # https://pubs.vmware.com/vsphere-50/index.jsp?topic=%2Fcom.vmware.wssdk.pg.doc_50%2FPG_Ch16_Performance.18.5.html
@@ -102,18 +111,38 @@ class VSphereCheck(AgentCheck):
             elif isinstance(mor, vim.HostSystem):
                 hostname = properties.get("name", "unknown")
 
+            mor_type = MOR_TYPE_AS_STRING[type(mor)]
             tags.extend(get_parent_tags_recursively(mor, infrastucture_data))
-            tags.append('vsphere_type:{}'.format(MOR_TYPE_AS_STRING[type(mor)]))
+            tags.append('vsphere_type:{}'.format(mor_type))
 
             mor_payload = {"tags": tags}
             if hostname:
                 mor_payload['hostname'] = hostname
 
-            self.infrastructure_cache.set(mor, mor_payload)
+            self.infrastructure_cache.set_mor_data(mor, mor_payload)
+
+    def collect_metrics_async(self, mors_batch):
+        #self.api.collect_metrics(mors_batch)
+        pass
+
+    def collect_metrics(self):
+        for resource_type in ALL_RESOURCES:
+            mors = self.infrastructure_cache.get_mors(resource_type)
+
+            for batch in self.make_batch(mors):
+
+    def make_batch(self, mors):
+        """All those mors must be of the same resource!!!!"""
+        batch = {}
+        hist_metrics_count = 0
+
+        for mor in mors:
+            if mor
 
     def check(self, _):
         import time
         t = time.time()
+        import pdb; pdb.set_trace()
         if self.metrics_metadata_cache.is_expired():
             self.metrics_metadata_cache.reset()
             self.refresh_metrics_metadata_cache()
@@ -123,5 +152,5 @@ class VSphereCheck(AgentCheck):
             self.infrastructure_cache.reset()
             self.refresh_infrastructure_cache()
 
+        self.collect_metrics()
         delta2 = time.time() - t
-        import pdb; pdb.set_trace()

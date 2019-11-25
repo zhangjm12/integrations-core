@@ -7,9 +7,10 @@ import time
 from six import iteritems
 
 #from datadog_checks.vsphere.errors import MetadataNotFoundError, MorNotFoundError
+from datadog_checks.vsphere.utils import MOR_TYPE_AS_STRING
 
 
-class VSphereCache:
+class VSphereCache(object):
     """
     Wraps configuration and status for the Morlist and Metadata caches.
     CacheConfig is threadsafe and can be used from different workers in the
@@ -35,9 +36,10 @@ class VSphereCache:
         elapsed = time.time() - self.last_ts
         return elapsed > self.interval
 
-    def retrieve(self, key):
+    """def get(self, key, default=None):
         with self._lock:
-            return self._content[key]
+            resource_type = MOR_TYPE_AS_STRING[type(key)]
+            return self._content.get(key, default)
 
     def set(self, key, value):
         with self._lock:
@@ -57,8 +59,34 @@ class VSphereCache:
 
     def update(self, data):
         with self._lock:
-            return self._content.update(data)
+            return self._content.update(data)"""
 
+class MetricsMetadataCache(VSphereCache):
+    def get_metadata(self, resource_type):
+        with self._lock:
+            return self._content.get(resource_type)
+
+    def set_metadata(self, resource_type, metadata):
+        with self._lock:
+            self._content[resource_type] = metadata
+
+
+class InfrastructureCache(VSphereCache):
+    def get_mor_props(self, mor, default=None):
+        with self._lock:
+            mor_type = MOR_TYPE_AS_STRING[type(mor)]
+            return self._content.get(mor_type, {}).get(mor, default)
+
+    def get_mors(self, resource_type):
+        with self._lock:
+            return self._content.get(resource_type).keys()
+
+    def set_mor_data(self, mor, mor_data):
+        with self._lock:
+            mor_type = MOR_TYPE_AS_STRING[type(mor)]
+            if mor_type not in self._content:
+                self._content[mor_type] = {}
+            self._content[mor_type][mor] = mor_data
 #
 # class MetadataCache(VSphereCache):
 #     """Implements a thread safe storage for metrics metadata.

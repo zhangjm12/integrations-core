@@ -1,3 +1,6 @@
+from pyVmomi import vim  # pylint: disable=E0611
+
+
 VM_METRICS = {
     'cpu.costop.sum',
     'cpu.demand.avg',
@@ -22,4 +25,17 @@ VM_METRICS = {
     'cpu.usagemhz.raw',  # Are you even a thing?
     'cpu.used.sum',
     'cpu.wait.sum'
+}
+
+HOST_METRICS = {}
+DATACENTER_METRICS = {}
+DATASTORE_METRICS = {}
+CLUSTER_METRICS = {}
+
+ALLOWED_METRICS_FOR_MOR = {
+    vim.VirtualMachine: VM_METRICS,
+    vim.HostSystem: HOST_METRICS,
+    vim.Datacenter: DATACENTER_METRICS,
+    vim.Datastore: DATASTORE_METRICS,
+    vim.ClusterComputeResource: CLUSTER_METRICS
 }
