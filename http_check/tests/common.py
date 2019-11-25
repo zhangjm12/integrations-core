@@ -106,7 +106,7 @@ CONFIG_SSL_ONLY = {
         },
         {
             'name': 'cert_exp_soon',
-            'url': 'https://google.com',
+            'url': 'https://example.com',
             'timeout': 1,
             'check_certificate_expiration': True,
             'days_warning': 9999,
@@ -114,7 +114,7 @@ CONFIG_SSL_ONLY = {
         },
         {
             'name': 'cert_critical',
-            'url': 'https://google.com',
+            'url': 'https://example.com',
             'timeout': 1,
             'check_certificate_expiration': True,
             'days_warning': 9999,

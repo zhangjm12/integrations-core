@@ -95,13 +95,13 @@ def test_check_ssl(aggregator, http_check):
     aggregator.assert_service_check(HTTPCheck.SC_STATUS, status=HTTPCheck.OK, tags=good_cert_tags, count=1)
     aggregator.assert_service_check(HTTPCheck.SC_SSL_CERT, status=HTTPCheck.OK, tags=good_cert_tags, count=1)
 
-    expiring_soon_cert_tags = ['url:https://google.com', 'instance:cert_exp_soon']
+    expiring_soon_cert_tags = ['url:https://example.com', 'instance:cert_exp_soon']
     aggregator.assert_service_check(HTTPCheck.SC_STATUS, status=HTTPCheck.OK, tags=expiring_soon_cert_tags, count=1)
     aggregator.assert_service_check(
         HTTPCheck.SC_SSL_CERT, status=HTTPCheck.WARNING, tags=expiring_soon_cert_tags, count=1
     )
 
-    critical_cert_tags = ['url:https://google.com', 'instance:cert_critical']
+    critical_cert_tags = ['url:https://example.com', 'instance:cert_critical']
     aggregator.assert_service_check(HTTPCheck.SC_STATUS, status=HTTPCheck.OK, tags=critical_cert_tags, count=1)
     aggregator.assert_service_check(HTTPCheck.SC_SSL_CERT, status=HTTPCheck.CRITICAL, tags=critical_cert_tags, count=1)
 
