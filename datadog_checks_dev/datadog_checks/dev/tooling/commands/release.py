@@ -317,10 +317,6 @@ def testable(ctx, start_id, agent_version, milestone, dry_run):
     diif_command = 'git --no-pager log "--pretty=format:%H %s" origin/{}..origin/master'
 
     with chdir(root):
-        result = run_command('git fetch')
-        if result.code:
-            abort('Unable to run git fetch.')
-
         result = run_command(diif_command.format(current_release_branch), capture=True)
         if result.code:
             origin_release_branch = 'origin/{}'.format(current_release_branch)
