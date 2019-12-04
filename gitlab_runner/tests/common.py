@@ -12,6 +12,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 HOST = get_docker_hostname()
 
 GITLAB_TEST_TOKEN = "ddtesttoken"
+GITLAB_RUNNER_VERSION = os.environ['GITLAB_RUNNER_VERSION']
 GITLAB_LOCAL_MASTER_PORT = 8085
 GITLAB_LOCAL_RUNNER_PORT = 8087
 

@@ -18,7 +18,7 @@ from .common import (
     GITLAB_RUNNER_URL,
     GITLAB_TEST_TOKEN,
     HERE,
-)
+    GITLAB_RUNNER_VERSION)
 
 
 @pytest.fixture(scope="session")
@@ -29,6 +29,7 @@ def dd_environment():
 
     # specify couchbase container name
     env = {
+        'GITLAB_RUNNER_VERSION': GITLAB_RUNNER_VERSION,
         'GITLAB_TEST_TOKEN': GITLAB_TEST_TOKEN,
         'GITLAB_LOCAL_MASTER_PORT': str(GITLAB_LOCAL_MASTER_PORT),
         'GITLAB_LOCAL_RUNNER_PORT': str(GITLAB_LOCAL_RUNNER_PORT),
