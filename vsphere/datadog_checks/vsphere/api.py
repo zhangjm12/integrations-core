@@ -91,22 +91,6 @@ class VSphereAPI(object):
         }
         """
         content = self._conn.content
-        view_ref = content.viewManager.CreateContainerView(content.rootFolder, ALL_RESOURCES, True)
-        # Object used to query MORs as well as the attributes we require in one API call
-        # See https://code.vmware.com/apis/358/vsphere#/doc/vmodl.query.PropertyCollector.html
-        collector = content.propertyCollector
-
-        # Specify the root object from where we collect the rest of the objects
-        obj_spec = vmodl.query.PropertyCollector.ObjectSpec()
-        obj_spec.obj = view_ref
-        obj_spec.skip = True
-
-        # Specify the attribute of the root object to traverse to obtain all the attributes
-        traversal_spec = vmodl.query.PropertyCollector.TraversalSpec()
-        traversal_spec.path = "view"
-        traversal_spec.skip = False
-        traversal_spec.type = view_ref.__class__
-        obj_spec.selectSet = [traversal_spec]
 
         property_specs = []
         # Specify which attributes we want to retrieve per object
@@ -120,23 +104,40 @@ class VSphereAPI(object):
                 property_spec.pathSet.append("guest.hostName")
             property_specs.append(property_spec)
 
-        # Create our filter spec from the above specs
-        filter_spec = vmodl.query.PropertyCollector.FilterSpec()
-        filter_spec.objectSet = [obj_spec]
-        filter_spec.propSet = property_specs
+        # Specify the attribute of the root object to traverse to obtain all the attributes
+        traversal_spec = vmodl.query.PropertyCollector.TraversalSpec()
+        traversal_spec.path = "view"
+        traversal_spec.skip = False
+        traversal_spec.type = vim.view.ContainerView
 
         retr_opts = vmodl.query.PropertyCollector.RetrieveOptions()
         # To limit the number of objects retrieved per call.
         # If batch_collector_size is 0, collect maximum number of objects.
         retr_opts.maxObjects = BATCH_COLLETOR_SIZE
 
-        # Collect the objects and their properties
-        res = collector.RetrievePropertiesEx([filter_spec], retr_opts)
-        mors = res.objects
-        # Results can be paginated
-        while res.token is not None:
-            res = collector.ContinueRetrievePropertiesEx(res.token)
-            mors.extend(res.objects)
+        # Specify the root object from where we collect the rest of the objects
+        obj_spec = vmodl.query.PropertyCollector.ObjectSpec()
+        obj_spec.skip = True
+        obj_spec.selectSet = [traversal_spec]
+
+        # Create our filter spec from the above specs
+        filter_spec = vmodl.query.PropertyCollector.FilterSpec()
+        filter_spec.propSet = property_specs
+
+        view_ref = content.viewManager.CreateContainerView(content.rootFolder, ALL_RESOURCES, True)
+        try:
+            obj_spec.obj = view_ref
+            filter_spec.objectSet = [obj_spec]
+
+            # Collect the objects and their properties
+            res = content.propertyCollector.RetrievePropertiesEx([filter_spec], retr_opts)
+            mors = res.objects
+            # Results can be paginated
+            while res.token is not None:
+                res = content.propertyCollector.ContinueRetrievePropertiesEx(res.token)
+                mors.extend(res.objects)
+        finally:
+            view_ref.Destroy()
 
         infrastucture_data = {
             mor.obj: {
