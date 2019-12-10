@@ -95,6 +95,8 @@ def get_parent_tags_recursively(mor, infrastructure_data):
             tags.append('vsphere_compute:{}'.format(parent_name))
         elif isinstance(parent, vim.Datacenter):
             tags.append('vsphere_datacenter:{}'.format(parent_name))
+        elif isinstance(parent, vim.Datastore):
+            tags.append('vsphere_datastore:{}'.format(parent_name))
 
         parent_tags = get_parent_tags_recursively(parent, infrastructure_data)
         parent_tags.extend(tags)

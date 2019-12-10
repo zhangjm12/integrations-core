@@ -74,16 +74,16 @@ class MetricsMetadataCache(VSphereCache):
 class InfrastructureCache(VSphereCache):
     def get_mor_props(self, mor, default=None):
         with self._lock:
-            mor_type = MOR_TYPE_AS_STRING[type(mor)]
+            mor_type = type(mor)
             return self._content.get(mor_type, {}).get(mor, default)
 
     def get_mors(self, resource_type):
         with self._lock:
-            return self._content.get(resource_type).keys()
+            return self._content.get(resource_type, {}).keys()
 
     def set_mor_data(self, mor, mor_data):
         with self._lock:
-            mor_type = MOR_TYPE_AS_STRING[type(mor)]
+            mor_type = type(mor)
             if mor_type not in self._content:
                 self._content[mor_type] = {}
             self._content[mor_type][mor] = mor_data

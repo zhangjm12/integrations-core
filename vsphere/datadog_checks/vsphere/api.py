@@ -3,6 +3,7 @@
 # Licensed under Simplified BSD License (see LICENSE)
 import functools
 import ssl
+import threading
 
 from pyVim import connect
 from pyVmomi import vim, vmodl  # pylint: disable=E0611
@@ -13,6 +14,24 @@ from datadog_checks.vsphere.utils import smart_retry, getsize
 
 ALL_RESOURCES = [vim.VirtualMachine, vim.HostSystem, vim.Datacenter, vim.Datastore, vim.ClusterComputeResource, vim.ComputeResource, vim.Folder]
 BATCH_COLLETOR_SIZE = 500
+
+
+class MetricCollector(object):
+
+    def __init__(self, config_instance):
+        self._apis = {}
+        self.instance = config_instance
+
+    def query_metrics(self, query_specs):
+        thread_id = threading.get_ident()
+        if thread_id not in self._apis:
+            self._apis[thread_id] = VSphereAPI(self.instance)
+            #print("Creating new connection for thread {}".format(thread_id))
+        else:
+            pass
+            #print("Reusing existing connection for thread {}".format(thread_id))
+
+        return self._apis[thread_id].query_metrics(query_specs)
 
 
 class VSphereAPI(object):
@@ -51,6 +70,9 @@ class VSphereAPI(object):
             raise ConnectionError(err_msg)
 
         return conn
+
+    def get_connection(self):
+        return self._conn
 
     @smart_retry
     def get_perf_counter_by_level(self, collection_level):
@@ -126,3 +148,21 @@ class VSphereAPI(object):
         rootFolder = self._conn.content.rootFolder
         infrastucture_data[rootFolder] = {"name": rootFolder.name, "parent": None}
         return infrastucture_data
+
+    @smart_retry
+    def query_metrics(self, query_specs):
+        perfManager = self._conn.content.perfManager
+        return perfManager.QueryPerf(query_specs)
+
+    @smart_retry
+    def get_new_events(self, start_time):
+        event_manager = self._conn.content.eventManager
+        query_filter = vim.event.EventFilterSpec()
+        time_filter = vim.event.EventFilterSpec.ByTime(beginTime=start_time)
+        query_filter.time = time_filter
+        return event_manager.QueryEvents(query_filter)
+
+    @smart_retry
+    def get_latest_event_timestamp(self):
+        event_manager = self._conn.content.eventManager
+        return event_manager.latestEvent.createdTime

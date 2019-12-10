@@ -1,21 +1,26 @@
 # (C) Datadog, Inc. 2019
 # All rights reserved
 # Licensed under Simplified BSD License (see LICENSE)
-from collections import namedtuple, defaultdict
+from concurrent.futures.thread import ThreadPoolExecutor
+from datetime import datetime, timedelta
+from functools import partial
 
+from multiprocessing.pool import ThreadPool
 from six import iteritems
 from pyVmomi import vim  # pylint: disable=E0611
 
-from datadog_checks.base import AgentCheck, is_affirmative, ensure_unicode
-from datadog_checks.vsphere.api import VSphereAPI
+from datadog_checks.base import AgentCheck, is_affirmative, ensure_unicode, to_string
+from datadog_checks.vsphere.api import VSphereAPI, MetricCollector
 from datadog_checks.vsphere.cache import InfrastructureCache, MetricsMetadataCache
-from datadog_checks.vsphere.constants import ALLOWED_METRICS_FOR_MOR
+from datadog_checks.vsphere.metrics import ALLOWED_METRICS_FOR_MOR, should_collect_per_instance_values, \
+    get_mapped_instance_tag
 from datadog_checks.vsphere.utils import format_metric_name, is_excluded_by_filters, get_parent_tags_recursively, \
     MOR_TYPE_AS_STRING
 
 REALTIME_RESOURCES = [vim.VirtualMachine, vim.HostSystem]
 HISTORICAL_RESOURCES = [vim.Datacenter, vim.Datastore, vim.ClusterComputeResource]
 ALL_RESOURCES = REALTIME_RESOURCES + HISTORICAL_RESOURCES
+
 
 class VSphereCheck(AgentCheck):
     __NAMESPACE__ = 'vsphere'
@@ -37,15 +42,19 @@ class VSphereCheck(AgentCheck):
         self.infrastructure_cache = InfrastructureCache(interval_sec=180)
         self.metrics_metadata_cache = MetricsMetadataCache(interval_sec=600)
 
+        self.base_tags = self.instance.get("tags", [])
         self.collection_level = self.instance.get("collection_level", 1)
         self.collection_type = self.instance.get("collection_type", "realtime")
         self.resource_filters = self.instance.get("resource_filters", {})
         self.metric_filters = self.instance.get("metric_filters", {})
         self.use_guest_hostname = self.instance.get("use_guest_hostname", False)
 
+        self.thread_count = self.instance.get("thread_count", 4)
         self.batch_morlist_size = self.instance.get("batch_morlist_size", 50)
         self.max_historical_metrics = self.instance.get("max_historical_metrics", 64)
         self.collected_resource_types = REALTIME_RESOURCES if self.collection_type == 'realtime' else HISTORICAL_RESOURCES
+
+        self.latest_event_query = datetime.now()
 
     def validate_config(self):
         if 'ssl_verify' in self.instance and 'ssl_capath' in self.instance:
@@ -88,10 +97,12 @@ class VSphereCheck(AgentCheck):
                 # The resource does not match the specified patterns
                 continue
 
+            mor_name = properties.get("name", "unknown")
+            mor_type = MOR_TYPE_AS_STRING[type(mor)]
             hostname = None
             tags = []
 
-            if isinstance(mor, vim.VirtualMachine):
+            if mor_type == vim.VirtualMachine:
                 power_state = properties.get("runtime.powerState")
                 if power_state != vim.VirtualMachinePowerState.poweredOn:
                     # Skipping because of not powered on
@@ -105,13 +116,14 @@ class VSphereCheck(AgentCheck):
                 tags.append('vsphere_host:{}'.format(runtime_hostname))
 
                 if self.use_guest_hostname:
-                    hostname = properties.get("guest.hostName", properties.get("name", "unknown"))
+                    hostname = properties.get("guest.hostName", mor_name)
                 else:
-                    hostname = properties.get("name", "unknown")
-            elif isinstance(mor, vim.HostSystem):
-                hostname = properties.get("name", "unknown")
+                    hostname = mor_name
+            elif mor_type == vim.HostSystem:
+                hostname = mor_name
+            else:
+                tags.append('vsphere_{}:{}'.format(mor_type, mor_name))
 
-            mor_type = MOR_TYPE_AS_STRING[type(mor)]
             tags.extend(get_parent_tags_recursively(mor, infrastucture_data))
             tags.append('vsphere_type:{}'.format(mor_type))
 
@@ -121,36 +133,163 @@ class VSphereCheck(AgentCheck):
 
             self.infrastructure_cache.set_mor_data(mor, mor_payload)
 
-    def collect_metrics_async(self, mors_batch):
-        #self.api.collect_metrics(mors_batch)
-        pass
+    def submit_metrics(self, task, resource_type):
+        results = task.result()
+        metadata = self.metrics_metadata_cache.get_metadata(resource_type)
+        if not results:
+            return
+
+        for result_per_mor in results:
+            # TODO: IMPLEMENT ERROR HANDLING IF MOR NOT FOUND
+            mor_props = self.infrastructure_cache.get_mor_props(result_per_mor.entity)
+
+            for result in result_per_mor.value:
+                counter = metadata.get(result.id.counterId)
+                if not counter:
+                    # Fail-safe
+                    self.log.debug(
+                        "Skipping value for counter %s, because there is no metadata about it",
+                        ensure_unicode(result.id.counterId),
+                    )
+                    continue
+
+                metric_name = counter['name']
+                if not result.value:
+                    self.log.debug("Skipping `%s` metric because the value is empty", ensure_unicode(metric_name))
+                    continue
+
+                # Get the most recent value that isn't negative
+                valid_values = [v for v in result.value if v >= 0]
+                if not valid_values:
+                    continue
+                value = valid_values[-1]
+                if counter['unit'] == 'percent':
+                    value = float(value)/100
+
+                tags = []
+                if should_collect_per_instance_values(metric_name):
+                    instance_tag_key = get_mapped_instance_tag(metric_name)
+                    instance_tag_value = result.id.instance or 'none'
+                    tags.append('{}:{}'.format(instance_tag_key, instance_tag_value))
+
+                if resource_type in HISTORICAL_RESOURCES:
+                    tags.extend(mor_props['tags'])
+                    hostname = None
+                else:
+                    hostname = ensure_unicode(mor_props.get('hostname'))
+
+                tags.extend(self.base_tags)
+
+                # vsphere "rates" should be submitted as gauges (rate is
+                # precomputed).
+                print("Submitting vsphere.{}={} for hostname={} and tags={}".format(metric_name, value, hostname, tags))
+                self.gauge(ensure_unicode(metric_name), value, hostname=hostname, tags=tags)
 
     def collect_metrics(self):
+        pool_executor = ThreadPoolExecutor(max_workers=self.thread_count)
+        metric_collector = MetricCollector(self.instance)
+
         for resource_type in ALL_RESOURCES:
             mors = self.infrastructure_cache.get_mors(resource_type)
+            if not mors:
+                continue
+            counters = self.metrics_metadata_cache.get_metadata(resource_type)
+            metric_ids = []
+            for counter_key, counter_info in iteritems(counters):
+                instance = ""
+                if should_collect_per_instance_values(counter_info['name']):
+                    instance = "*"
+                metric_ids.append(vim.PerformanceManager.MetricId(counterId=counter_key, instance=instance))
 
-            for batch in self.make_batch(mors):
+            for batch in self.make_batch(mors, resource_type):
+                query_specs = []
+                for mor in batch:
+                    mor_props = self.infrastructure_cache.get_mor_props(mor)
+                    if not mor_props:
+                        continue
 
-    def make_batch(self, mors):
+                    query_spec = vim.PerformanceManager.QuerySpec()
+                    query_spec.entity = mor
+                    query_spec.metricId = metric_ids
+                    if resource_type in REALTIME_RESOURCES:
+                        query_spec.intervalId = 20  # FIXME: Make constant
+                        query_spec.maxSample = 1  # Request a single datapoint
+                    else:
+                        # We cannot use `maxSample` for historical metrics, let's specify a timewindow that will
+                        # contain at least one element
+                        query_spec.startTime = datetime.now() - timedelta(hours=2)
+                    query_specs.append(query_spec)
+                if query_specs:
+                    task = pool_executor.submit(metric_collector.query_metrics, query_specs)
+                    task.add_done_callback(lambda x, r=resource_type: self.submit_metrics(x, r))
+
+        print("Shutting down")
+        pool_executor.shutdown()
+
+    def make_batch(self, mors, resource_type):
         """All those mors must be of the same resource!!!!"""
-        batch = {}
-        hist_metrics_count = 0
+        batch = []
+        mors = [m for m in mors if type(m) == resource_type]
 
-        for mor in mors:
-            if mor
+        if resource_type in REALTIME_RESOURCES:
+            batch_size = self.batch_morlist_size
+        elif resource_type == vim.ClusterComputeResource:
+            batch_size = 1
+        else:
+            metrics_count = len(self.metrics_metadata_cache.get_metadata(resource_type))
+            batch_size = min(self.batch_morlist_size, self.max_historical_metrics/metrics_count)
+
+        for m in mors:
+            if len(batch) == batch_size:
+                yield batch
+                batch = []
+            batch.append(m)
+        yield batch
+
+    def submit_external_host_tags(self):
+        self.log.debug("Sending external_host_tags now")
+        external_host_tags = []
+        hosts = self.infrastructure_cache.get_mors(vim.HostSystem)
+        vms = self.infrastructure_cache.get_mors(vim.VirtualMachine)
+        for mor in hosts + vms:
+            # Note: some mors have a None hostname
+            mor_props = self.infrastructure_cache.get_mor_props(mor)
+            hostname = mor_props.get('hostname')
+            if hostname:
+                external_host_tags.append((hostname, {self.__NAMESPACE__: mor_props['tags']}))
+
+        self.set_external_tags(external_host_tags)
+
+    def collect_events(self):
+        try:
+            new_events = self.api.get_new_events(start_time=self.latest_event_query)
+
+            self.log.debug("Got %s new events from vCenter event manager", len(new_events))
+            for event in new_events:
+                # TODO: Submit the event
+                pass
+        except Exception as e:
+            # Don't get stuck on a failure to fetch an event
+            # Ignore them for next pass
+            self.log.warning("Unable to fetch Events %s", e)
+
+        self.latest_event_query = self.api.get_latest_event_timestamp() + timedelta(seconds=1)
 
     def check(self, _):
-        import time
-        t = time.time()
-        import pdb; pdb.set_trace()
+        self.batch_morlist_size = 1
+        self.thread_count = 4
+        self.base_tags.append("flo:test")
+        self.collection_type = 'historical'
+        self.collected_resource_types = [vim.Datastore]
+
         if self.metrics_metadata_cache.is_expired():
             self.metrics_metadata_cache.reset()
             self.refresh_metrics_metadata_cache()
 
-        delta1 = time.time() - t
         if self.infrastructure_cache.is_expired():
             self.infrastructure_cache.reset()
             self.refresh_infrastructure_cache()
+            if self.collection_type == 'realtime':
+                self.submit_external_host_tags()
 
         self.collect_metrics()
-        delta2 = time.time() - t
