@@ -9,13 +9,13 @@ from multiprocessing.pool import ThreadPool
 from six import iteritems
 from pyVmomi import vim  # pylint: disable=E0611
 
-from datadog_checks.base import AgentCheck, is_affirmative, ensure_unicode, to_string
+from datadog_checks.base import AgentCheck, is_affirmative, ensure_unicode, to_string, ConfigurationError
 from datadog_checks.vsphere.api import VSphereAPI, MetricCollector
 from datadog_checks.vsphere.cache import InfrastructureCache, MetricsMetadataCache
 from datadog_checks.vsphere.metrics import ALLOWED_METRICS_FOR_MOR, should_collect_per_instance_values, \
     get_mapped_instance_tag
 from datadog_checks.vsphere.utils import format_metric_name, is_excluded_by_filters, get_parent_tags_recursively, \
-    MOR_TYPE_AS_STRING
+    MOR_TYPE_AS_STRING, make_inventory_path
 
 REALTIME_RESOURCES = [vim.VirtualMachine, vim.HostSystem]
 HISTORICAL_RESOURCES = [vim.Datacenter, vim.Datastore, vim.ClusterComputeResource]
@@ -36,8 +36,6 @@ class VSphereCheck(AgentCheck):
 
     def __init__(self, name, init_config, instances):
         AgentCheck.__init__(self, name, init_config, instances)
-        self.validate_config()
-
         self.api = VSphereAPI(self.instance)
         self.infrastructure_cache = InfrastructureCache(interval_sec=180)
         self.metrics_metadata_cache = MetricsMetadataCache(interval_sec=600)
@@ -55,17 +53,62 @@ class VSphereCheck(AgentCheck):
         self.collected_resource_types = REALTIME_RESOURCES if self.collection_type == 'realtime' else HISTORICAL_RESOURCES
 
         self.latest_event_query = datetime.now()
+        self.validate_and_format_config()
 
-    def validate_config(self):
+    def validate_and_format_config(self):
         if 'ssl_verify' in self.instance and 'ssl_capath' in self.instance:
-            self.log.debug(
+            self.log.warning(
                 "Your configuration is incorrectly attempting to "
                 "specify both a CA path, and to disable SSL "
                 "verification. You cannot do both. Proceeding with "
                 "disabling ssl verification."
             )
 
-        # TODO: VALIDATE FILTERS
+        if self.collection_type not in ('realtime', 'historical'):
+            raise ConfigurationError(
+                "Your configuration is incorrectly attempting to "
+                "set the `collection_type` to %s. It should be either "
+                "'realtime' or 'historical'."
+            )
+
+        formatted_resource_filters = {}
+        allowed_prop_names = ('name', 'inventory_path')
+        allowed_prop_names_for_vm = allowed_prop_names + ('hostname', 'guest_hostname')
+        for f in self.resource_filters:
+            for (field, field_type) in {'resource': str, 'property': str, 'patterns': list}:
+                if field not in f:
+                    self.warning("Ignoring filter %r, it should define the field %s", f, field)
+                    continue
+                if not isinstance(f[field], field_type):
+                    self.warning("Ignoring filter %r because field %s should have type %s", f, field, field_type)
+                    continue
+
+            if f['resource'] not in self.collected_resource_types:
+                self.warning("Ignoring filter %r because resource %s"
+                             "is not collected when collection_type is %s", f['resource'], self.collection_type)
+                continue
+
+            prop_names = allowed_prop_names_for_vm if f['resource'] == 'vm' else allowed_prop_names
+            if f['property'] not in prop_names:
+                self.warning(
+                    "Ignoring filter %r because property '%s' is not valid "
+                    "for resource type %s. Should be one of %r",
+                    f, f['property'], f['resource'], prop_names
+                )
+                continue
+
+            filter_key = (f['resource'], f['property'])
+            if filter_key in formatted_resource_filters:
+                self.warning(
+                    "Ignoring filer %r because you already have a filter "
+                    "for resource type %s and property %s",
+                    f, f['resource'], f['property']
+                )
+                continue
+
+            formatted_resource_filters[filter_key] = f['patterns']
+
+        self.resource_filters = formatted_resource_filters
 
     def refresh_metrics_metadata_cache(self):
         counters = self.api.get_perf_counter_by_level(self.collection_level)
@@ -87,13 +130,13 @@ class VSphereCheck(AgentCheck):
         """Fetch the complete infrastructure, generate tags for each monitored resources and store all of that
         into the infrastructure_cache. It also computes the resource `hostname` property to be used when submitting
         metrics for this mor."""
-        infrastucture_data = self.api.get_infrastructure()
+        infrastructure_data = self.api.get_infrastructure()
 
-        for mor, properties in iteritems(infrastucture_data):
+        for mor, properties in iteritems(infrastructure_data):
             if not isinstance(mor, tuple(self.collected_resource_types)):
                 # Do nothing for the resource types we do not collect
                 continue
-            if is_excluded_by_filters(mor, properties, self.resource_filters):
+            if is_excluded_by_filters(mor, infrastructure_data, self.resource_filters):
                 # The resource does not match the specified patterns
                 continue
 
@@ -111,7 +154,7 @@ class VSphereCheck(AgentCheck):
                 # Host are not considered parents of the VMs they run, we use the `runtime.host` property
                 # to get the name of the ESX host
                 runtime_host = properties.get("runtime.host")
-                runtime_host_props = infrastucture_data.get(runtime_host, {})
+                runtime_host_props = infrastructure_data.get(runtime_host, {})
                 runtime_hostname = ensure_unicode(runtime_host_props.get("name", "unknown"))
                 tags.append('vsphere_host:{}'.format(runtime_hostname))
 
@@ -124,12 +167,14 @@ class VSphereCheck(AgentCheck):
             else:
                 tags.append('vsphere_{}:{}'.format(mor_type, mor_name))
 
-            tags.extend(get_parent_tags_recursively(mor, infrastucture_data))
+            tags.extend(get_parent_tags_recursively(mor, infrastructure_data))
             tags.append('vsphere_type:{}'.format(mor_type))
-
             mor_payload = {"tags": tags}
             if hostname:
                 mor_payload['hostname'] = hostname
+
+            if (mor_type, 'inventory_path') in self.resource_filters:
+                mor_payload['inv_path'] = make_inventory_path(mor, infrastructure_data)
 
             self.infrastructure_cache.set_mor_data(mor, mor_payload)
 
@@ -292,4 +337,5 @@ class VSphereCheck(AgentCheck):
             if self.collection_type == 'realtime':
                 self.submit_external_host_tags()
 
+        import pdb; pdb.set_trace()
         self.collect_metrics()

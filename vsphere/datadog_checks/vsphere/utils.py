@@ -41,29 +41,25 @@ def format_metric_name(counter):
     )
 
 
-def is_excluded_by_filters(mor, properties, resource_filters):
-    if isinstance(mor, vim.HostSystem):
-        resource_type = 'host'
-    elif isinstance(mor, vim.VirtualMachine):
-        resource_type = 'vm'
-    elif isinstance(mor, vim.Datacenter):
-        resource_type = 'datacenter'
-    elif isinstance(mor, vim.Datastore):
-        resource_type = 'datastore'
-    elif isinstance(mor, vim.ClusterComputeResource):
-        resource_type = 'cluster'
-    else:
-        # log something
-        return True
+def is_excluded_by_filters(mor, infrastructure_data, resource_filters):
+    resource_type = MOR_TYPE_AS_STRING[type(mor)]
+    name_filter = resource_filters.get((resource_type, 'name'))
+    inventory_path_filter = resource_filters.get((resource_type, 'inventory_path_filter'))
 
-    regex = resource_filters.get(resource_type)
-    mor_name = properties.get("name", "")
-    if not regex:
-        # No filter specified for this resource type, collect everything
-        return False
-    match = re.search(regex, mor_name)  # FIXME: Should we use re.IGNORECASE like legacy?
+    if name_filter:
+        for regex in name_filter:
+            mor_name = infrastructure_data.get(mor).get("name", "")
+            match = re.search(regex, mor_name)  # FIXME: Should we use re.IGNORECASE like legacy?
+            if match:
+                return False
 
-    return not match
+
+def make_inventory_path(mor, infrastructure_data):
+    mor_name = infrastructure_data.get(mor).get('name', '')
+    mor_parent = infrastructure_data.get(mor).get('parent')
+    if mor_parent:
+        return make_inventory_path(mor_parent, infrastructure_data) + '/' + mor_name
+    return ''
 
 
 def get_parent_tags_recursively(mor, infrastructure_data):
