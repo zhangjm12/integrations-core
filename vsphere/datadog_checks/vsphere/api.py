@@ -1,7 +1,6 @@
 # (C) Datadog, Inc. 2019
 # All rights reserved
 # Licensed under Simplified BSD License (see LICENSE)
-import functools
 import ssl
 import threading
 
@@ -9,7 +8,7 @@ from pyVim import connect
 from pyVmomi import vim, vmodl  # pylint: disable=E0611
 
 from datadog_checks.base import is_affirmative, ensure_unicode
-from datadog_checks.vsphere.utils import smart_retry, getsize
+from datadog_checks.vsphere.utils import smart_retry
 
 
 ALL_RESOURCES = [vim.VirtualMachine, vim.HostSystem, vim.Datacenter, vim.Datastore, vim.ClusterComputeResource, vim.ComputeResource, vim.Folder]
@@ -17,6 +16,8 @@ BATCH_COLLETOR_SIZE = 500
 
 
 class MetricCollector(object):
+    """This class is used for collecting metrics from multiple threads.
+    """
 
     def __init__(self, config_instance):
         self._apis = {}
@@ -26,22 +27,21 @@ class MetricCollector(object):
         thread_id = threading.get_ident()
         if thread_id not in self._apis:
             self._apis[thread_id] = VSphereAPI(self.instance)
-            #print("Creating new connection for thread {}".format(thread_id))
-        else:
-            pass
-            #print("Reusing existing connection for thread {}".format(thread_id))
 
         return self._apis[thread_id].query_metrics(query_specs)
 
 
 class VSphereAPI(object):
+    """Abstraction class over vSphere SOAP api using the pyvmomi library"""
+
     def __init__(self, instance):
         self.host = instance['host']
         self.username = instance['username']
         self.password = instance['password']
         self.ssl_verify = is_affirmative(instance.get('ssl_verify', True))
         self.ssl_capath = instance.get('ssl_capath')
-        self._conn = self.smart_connect()
+        self._conn = None
+        self.smart_connect()
 
     def smart_connect(self):
         context = None
@@ -62,14 +62,12 @@ class VSphereAPI(object):
                 pwd=self.password,
                 sslContext=context,
             )
-            # FIXME: Sometimes the connection can be in an unhealthy state where CurrentTime works
-            # FIXME: but not other kind of requests.
             conn.CurrentTime()
         except Exception as e:
             err_msg = "Connection to {} failed: {}".format(ensure_unicode(self.host), e)
             raise ConnectionError(err_msg)
 
-        return conn
+        self._conn = conn
 
     def get_connection(self):
         return self._conn
@@ -80,7 +78,7 @@ class VSphereAPI(object):
 
     @smart_retry
     def get_infrastructure(self):
-        """
+        """Traverse the whole vSphere infrastructure and outputs dict mapping the mors to their properties.
 
         :return: {
             'vim.VirtualMachine-VM0': {
@@ -139,21 +137,21 @@ class VSphereAPI(object):
         finally:
             view_ref.Destroy()
 
-        infrastucture_data = {
+        infrastructure_data = {
             mor.obj: {
                 prop.name: prop.val for prop in mor.propSet
             }
             for mor in mors if mor.propSet
         }
 
-        rootFolder = self._conn.content.rootFolder
-        infrastucture_data[rootFolder] = {"name": rootFolder.name, "parent": None}
-        return infrastucture_data
+        root_folder = self._conn.content.rootFolder
+        infrastructure_data[root_folder] = {"name": root_folder.name, "parent": None}
+        return infrastructure_data
 
     @smart_retry
     def query_metrics(self, query_specs):
-        perfManager = self._conn.content.perfManager
-        return perfManager.QueryPerf(query_specs)
+        perf_manager = self._conn.content.perfManager
+        return perf_manager.QueryPerf(query_specs)
 
     @smart_retry
     def get_new_events(self, start_time):

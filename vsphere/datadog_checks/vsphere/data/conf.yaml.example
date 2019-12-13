@@ -120,6 +120,8 @@ instances:
     #
     # threads_count: 4
 
+    # TODO: 'excluded_host_tags', see https://github.com/DataDog/integrations-core/pull/5201/files
+
     # TODO: CLEAN UP THAT PART
     ## @param batch_morlist_size - integer - optional - default: 50
     ## This value is used to determine the number of MORs the check will retrieve metrics for in the same API call
