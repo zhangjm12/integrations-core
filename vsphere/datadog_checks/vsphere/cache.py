@@ -1,39 +1,39 @@
 # (C) Datadog, Inc. 2019
 # All rights reserved
 # Licensed under Simplified BSD License (see LICENSE)
-import threading
 import time
-
-from six import iteritems
-
-#from datadog_checks.vsphere.errors import MetadataNotFoundError, MorNotFoundError
-from datadog_checks.vsphere.utils import MOR_TYPE_AS_STRING
+from contextlib import contextmanager
 
 
 class VSphereCache(object):
     """
     Wraps configuration and status for the Morlist and Metadata caches.
-    CacheConfig is threadsafe and can be used from different workers in the
-    threading pool.
+    CacheConfig is *not* threadsafe.
     """
 
-    def __init__(self, interval_sec):
-        self._lock = threading.Lock()
-        self.last_ts = 0
-        self.interval = interval_sec
+    def __init__(self, interval_sec, log=None):
+        self._last_ts = 0
+        self._interval = interval_sec
         self._content = {}
+        self.log = log
 
-    def reset(self):
+    @contextmanager
+    def update(self):
         """Reset the cache object to its initial state
         """
-        with self._lock:
-            self.last_ts = 0
-            self.interval = None
-            self._content = {}
+        old_content = self._content
+        self._content = {}  # 1. clear the content
+        try:
+            yield  # 2. Actually update the cache
+            self._last_ts = time.time()  # 3. Cache was updated successfully
+        except Exception:
+            # Restore old data
+            self._content = old_content
+            raise
 
     def is_expired(self):
-        elapsed = time.time() - self.last_ts
-        return elapsed > self.interval
+        elapsed = time.time() - self._last_ts
+        return elapsed > self._interval
 
 
 class MetricsMetadataCache(VSphereCache):
@@ -53,12 +53,10 @@ class MetricsMetadataCache(VSphereCache):
     }
     """
     def get_metadata(self, resource_type):
-        with self._lock:
-            return self._content.get(resource_type)
+        return self._content.get(resource_type)
 
     def set_metadata(self, resource_type, metadata):
-        with self._lock:
-            self._content[resource_type] = metadata
+        self._content[resource_type] = metadata
 
 
 class InfrastructureCache(VSphereCache):
@@ -73,17 +71,14 @@ class InfrastructureCache(VSphereCache):
     }
     """
     def get_mor_props(self, mor, default=None):
-        with self._lock:
-            mor_type = type(mor)
-            return self._content.get(mor_type, {}).get(mor, default)
+        mor_type = type(mor)
+        return self._content.get(mor_type, {}).get(mor, default)
 
     def get_mors(self, resource_type):
-        with self._lock:
-            return self._content.get(resource_type, {}).keys()
+        return self._content.get(resource_type, {}).keys()
 
     def set_mor_data(self, mor, mor_data):
-        with self._lock:
-            mor_type = type(mor)
-            if mor_type not in self._content:
-                self._content[mor_type] = {}
-            self._content[mor_type][mor] = mor_data
+        mor_type = type(mor)
+        if mor_type not in self._content:
+            self._content[mor_type] = {}
+        self._content[mor_type][mor] = mor_data

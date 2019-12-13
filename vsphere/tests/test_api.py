@@ -99,3 +99,10 @@ def test_metric_collection(realtime_instance):
 
         assert connect.SmartConnect.call_count == num_threads
         assert len(metric_collector._apis) == num_threads
+
+
+def test_vsphere(historical_instance, aggregator):
+    check = VSphereCheck('vsphere', {}, [historical_instance])
+    import pdb; pdb.set_trace()
+    check.check(historical_instance)
+    print("Hey")

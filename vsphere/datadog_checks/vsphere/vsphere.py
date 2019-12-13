@@ -115,13 +115,15 @@ class VSphereCheck(AgentCheck):
 
         for mor_type in ALL_RESOURCES:
             allowed_counters = [c for c in counters if format_metric_name(c) in ALLOWED_METRICS_FOR_MOR[mor_type]]
+            # TODO: temporary
+            allowed_counters = [c for c in counters]
+
             metadata = {
                 c.key: {"name": format_metric_name(c), "unit": c.unitInfo.key}
                 for c in allowed_counters
             }
             self.metrics_metadata_cache.set_metadata(mor_type, metadata)
 
-        #self.metrics_metadata_cache.update(metadata)
         # TODO: Understand how much data actually changes between check runs
         # Apparently only when the server restarts?
         # https://pubs.vmware.com/vsphere-50/index.jsp?topic=%2Fcom.vmware.wssdk.pg.doc_50%2FPG_Ch16_Performance.18.5.html
@@ -178,8 +180,13 @@ class VSphereCheck(AgentCheck):
 
             self.infrastructure_cache.set_mor_data(mor, mor_payload)
 
-    def submit_metrics(self, task, resource_type):
-        results = task.result()
+    def submit_metrics_callback(self, task, resource_type):
+        try:
+            results = task.result()
+        except Exception as e:
+            # TODO better exception handling
+            print(e)
+            return
         metadata = self.metrics_metadata_cache.get_metadata(resource_type)
         if not results:
             return
@@ -266,9 +273,8 @@ class VSphereCheck(AgentCheck):
                     query_specs.append(query_spec)
                 if query_specs:
                     task = pool_executor.submit(metric_collector.query_metrics, query_specs)
-                    task.add_done_callback(lambda x, r=resource_type: self.submit_metrics(x, r))
+                    task.add_done_callback(lambda x, r=resource_type: self.submit_metrics_callback(x, r))
 
-        print("Shutting down")
         pool_executor.shutdown()
 
     def make_batch(self, mors, resource_type):
@@ -328,14 +334,13 @@ class VSphereCheck(AgentCheck):
         self.collected_resource_types = [vim.Datastore]
 
         if self.metrics_metadata_cache.is_expired():
-            self.metrics_metadata_cache.reset()
-            self.refresh_metrics_metadata_cache()
+            with self.metrics_metadata_cache.update():
+                self.refresh_metrics_metadata_cache()
 
         if self.infrastructure_cache.is_expired():
-            self.infrastructure_cache.reset()
-            self.refresh_infrastructure_cache()
+            with self.infrastructure_cache.update():
+                self.refresh_infrastructure_cache()
             if self.collection_type == 'realtime':
                 self.submit_external_host_tags()
 
-        import pdb; pdb.set_trace()
         self.collect_metrics()
