@@ -101,7 +101,7 @@ HOST_METRICS = {
     'cpu.coreUtilization.avg',
     'cpu.coreUtilization.min',
     'cpu.coreUtilization.max',
-    'cpu.coreUtilization.raw',  # ?
+    'cpu.coreUtilization.raw',
     'cpu.idle.sum',
     'cpu.usage.avg',
     'cpu.usage.min',

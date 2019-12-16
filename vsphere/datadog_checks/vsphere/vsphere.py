@@ -111,6 +111,7 @@ class VSphereCheck(AgentCheck):
         self.resource_filters = formatted_resource_filters
 
     def refresh_metrics_metadata_cache(self):
+        import pdb; pdb.set_trace()
         counters = self.api.get_perf_counter_by_level(self.collection_level)
 
         for mor_type in ALL_RESOURCES:
@@ -290,6 +291,7 @@ class VSphereCheck(AgentCheck):
             metrics_count = len(self.metrics_metadata_cache.get_metadata(resource_type))
             batch_size = min(self.batch_morlist_size, self.max_historical_metrics/metrics_count)
 
+        import pdb; pdb.set_trace()
         for m in mors:
             if len(batch) == batch_size:
                 yield batch
@@ -332,7 +334,7 @@ class VSphereCheck(AgentCheck):
         self.base_tags.append("flo:test")
         self.collection_type = 'historical'
         self.collected_resource_types = [vim.Datastore]
-
+        import pdb; pdb.set_trace()
         if self.metrics_metadata_cache.is_expired():
             with self.metrics_metadata_cache.update():
                 self.refresh_metrics_metadata_cache()

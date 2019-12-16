@@ -103,6 +103,5 @@ def test_metric_collection(realtime_instance):
 
 def test_vsphere(historical_instance, aggregator):
     check = VSphereCheck('vsphere', {}, [historical_instance])
-    import pdb; pdb.set_trace()
     check.check(historical_instance)
     print("Hey")
