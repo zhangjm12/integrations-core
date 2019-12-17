@@ -101,7 +101,11 @@ def test_smart_retry(realtime_instance):
         assert len(metric_collector._apis) == num_threads"""
 
 
-def test_vsphere(historical_instance, aggregator):
-    check = VSphereCheck('vsphere', {}, [historical_instance])
-    check.check(historical_instance)
-    import pdb; pdb.set_trace()
+def test_vsphere_realtime(realtime_instance, aggregator):
+    realtime_instance['tags'] = ['flo:test']
+    realtime_instance['resource_filters'] = [
+        {'resource': 'vm', 'property': 'name', 'patterns': [r'^VM.*', r'^\$VM5']},
+        {'resource': 'host', 'property': 'name', 'patterns': [r'NO_HOST_LIKE_ME']}
+    ]
+    check = VSphereCheck('vsphere', {}, [realtime_instance])
+    check.check(realtime_instance)

@@ -79,8 +79,10 @@ class VSphereCheck(AgentCheck):
         formatted_resource_filters = {}
         allowed_prop_names = ('name', 'inventory_path')
         allowed_prop_names_for_vm = allowed_prop_names + ('hostname', 'guest_hostname')
+        allowed_resource_types = [MOR_TYPE_AS_STRING[k] for k in self.collected_resource_types]
+
         for f in self.resource_filters:
-            for (field, field_type) in {'resource': str, 'property': str, 'patterns': list}:
+            for (field, field_type) in iteritems({'resource': str, 'property': str, 'patterns': list}):
                 if field not in f:
                     self.warning("Ignoring filter %r, it should define the field %s", f, field)
                     continue
@@ -88,9 +90,9 @@ class VSphereCheck(AgentCheck):
                     self.warning("Ignoring filter %r because field %s should have type %s", f, field, field_type)
                     continue
 
-            if f['resource'] not in self.collected_resource_types:
+            if f['resource'] not in allowed_resource_types:
                 self.warning("Ignoring filter %r because resource %s"
-                             "is not collected when collection_type is %s", f['resource'], self.collection_type)
+                             "is not collected when collection_type is %s", f, f['resource'], self.collection_type)
                 continue
 
             prop_names = allowed_prop_names_for_vm if f['resource'] == 'vm' else allowed_prop_names
@@ -137,13 +139,11 @@ class VSphereCheck(AgentCheck):
         metrics for this mor."""
         infrastructure_data = self.api.get_infrastructure()
 
-        from collections import defaultdict
-        metrics_for_resource = defaultdict(set)
-
         for mor, properties in iteritems(infrastructure_data):
             if not isinstance(mor, tuple(self.collected_resource_types)):
                 # Do nothing for the resource types we do not collect
                 continue
+            import pdb; pdb.set_trace()
             if is_resource_excluded_by_filters(mor, infrastructure_data, self.resource_filters):
                 # The resource does not match the specified patterns
                 continue
@@ -185,8 +185,6 @@ class VSphereCheck(AgentCheck):
                 mor_payload['inv_path'] = make_inventory_path(mor, infrastructure_data)
 
             self.infrastructure_cache.set_mor_data(mor, mor_payload)
-
-        print(metrics_for_resource)
 
     def submit_metrics_callback(self, task, resource_type):
         try:
@@ -339,35 +337,6 @@ class VSphereCheck(AgentCheck):
         self.latest_event_query = self.api.get_latest_event_timestamp() + timedelta(seconds=1)
 
     def check(self, _):
-        import pdb; pdb.set_trace()
-        self.thread_count = 4
-        self.base_tags.append("flo:test")
-        self.collection_type = 'realtime'
-        self.collected_resource_types = REALTIME_RESOURCES
-
-        # resource_filters:
-        #   - resource: vm
-        #     property: name
-        #     patterns:
-        #       - <VM_REGEX_1>
-        #       - <VM_REGEX_2>
-        #   - resource: vm
-        #     property: hostname
-        #     patterns:
-        #       - <HOSTNAME_REGEX>
-        #   - resource: vm
-        #     property: guest_hostname
-        #     patterns:
-        #       - <GUEST_HOSTNAME_REGEX>
-        #   - resource: host
-        #     property: inventory_path
-        #     patterns:
-        #       - <INVENTORY_PATH_REGEX>
-        self.resource_filters = [
-            {'resource': 'vm', 'property': 'name', 'patterns': [r'^VM.*', r'^\$VM5']},
-            {'resource': 'host', 'property': 'name', 'patterns': [r'NO_HOST_LIKE_ME']}
-        ]
-
         self.max_historical_metrics = self.instance.get("max_query_metrics", self.api.get_max_query_metrics())
 
         if self.metrics_metadata_cache.is_expired():

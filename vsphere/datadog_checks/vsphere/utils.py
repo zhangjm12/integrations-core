@@ -49,7 +49,6 @@ def is_resource_excluded_by_filters(mor, infrastructure_data, resource_filters):
     resource_type = MOR_TYPE_AS_STRING[type(mor)]
     name_filter = resource_filters.get((resource_type, 'name'))
     inventory_path_filter = resource_filters.get((resource_type, 'inventory_path_filter'))
-    import pdb; pdb.set_trace()
     if name_filter:
         for regex in name_filter:
             mor_name = infrastructure_data.get(mor).get("name", "")
@@ -57,8 +56,6 @@ def is_resource_excluded_by_filters(mor, infrastructure_data, resource_filters):
             if match:
                 return False
         return True
-
-
 
 def make_inventory_path(mor, infrastructure_data):
     mor_name = infrastructure_data.get(mor).get('name', '')
