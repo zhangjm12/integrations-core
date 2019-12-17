@@ -45,17 +45,45 @@ def is_metric_excluded_by_filters(mors, metric_filters):
     return False
 
 
+def match_any_regex(string, regexes):
+    for regex in regexes:
+        match = re.search(regex, string)  # FIXME: Should we use re.IGNORECASE like legacy?
+        if match:
+            return True
+    return False
+
+
 def is_resource_excluded_by_filters(mor, infrastructure_data, resource_filters):
     resource_type = MOR_TYPE_AS_STRING[type(mor)]
+    valid_filter_types =
+    filters = {
+        d: resource_filters.get((resource_type, 'name')) for d in
+    }
     name_filter = resource_filters.get((resource_type, 'name'))
-    inventory_path_filter = resource_filters.get((resource_type, 'inventory_path_filter'))
+    inventory_path_filter = resource_filters.get((resource_type, 'inventory_path'))
+    hostname_filter = resource_filters.get((resource_type, 'hostname'))
+    guest_hostname_filter = resource_filters.get((resource_type, 'guest_hostname'))
+
+    if not any([name_filter, inventory_path_filter, hostname_filter, guest_hostname_filter]):
+        # No filter for this resource, collect everything
+        return False
+
     if name_filter:
-        for regex in name_filter:
-            mor_name = infrastructure_data.get(mor).get("name", "")
-            match = re.search(regex, mor_name)  # FIXME: Should we use re.IGNORECASE like legacy?
-            if match:
-                return False
-        return True
+        mor_name = infrastructure_data.get(mor).get("name", "")
+        if match_any_regex(mor_name, name_filter):
+            return False
+    if inventory_path_filter:
+        path = make_inventory_path(mor, infrastructure_data)
+        if match_any_regex(path, name_filter):
+            return False
+    if hostname_filter and isinstance(mor, vim.VirtualMachine):
+        hostname = infrastructure_data.get(mor).get("runtime.host", "")
+        if match_any_regex(hostname, name_filter):
+            return False
+    if guest_hostname_filter and isinstance(mor, vim.VirtualMachine):
+        guest_hostname = infrastructure_data.get(mor).get("guest.hostName", "")
+        if match_any_regex(guest_hostname, name_filter):
+            return False
 
 def make_inventory_path(mor, infrastructure_data):
     mor_name = infrastructure_data.get(mor).get('name', '')

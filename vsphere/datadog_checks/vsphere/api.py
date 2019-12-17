@@ -16,22 +16,6 @@ ALL_RESOURCES = [vim.VirtualMachine, vim.HostSystem, vim.Datacenter, vim.Datasto
 BATCH_COLLETOR_SIZE = 500
 
 
-class ConnectionPool(object):
-    """This class is used for collecting metrics from multiple threads.
-    """
-
-    def __init__(self, config_instance):
-        self._apis = {}
-        self.instance = config_instance
-
-    def get_api(self):
-        thread_id = threading.get_ident()
-        if thread_id not in self._apis:
-            self._apis[thread_id] = VSphereAPI(self.instance)
-
-        return self._apis[thread_id]
-
-
 class VSphereAPI(object):
     """Abstraction class over vSphere SOAP api using the pyvmomi library"""
 
@@ -151,7 +135,6 @@ class VSphereAPI(object):
 
     @smart_retry
     def query_metrics(self, query_specs):
-        print("Running from id: {}".format(threading.get_ident()))
         perf_manager = self._conn.content.perfManager
         return perf_manager.QueryPerf(query_specs)
 

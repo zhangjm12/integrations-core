@@ -105,7 +105,11 @@ def test_vsphere_realtime(realtime_instance, aggregator):
     realtime_instance['tags'] = ['flo:test']
     realtime_instance['resource_filters'] = [
         {'resource': 'vm', 'property': 'name', 'patterns': [r'^VM.*', r'^\$VM5']},
-        {'resource': 'host', 'property': 'name', 'patterns': [r'NO_HOST_LIKE_ME']}
+        {'resource': 'host', 'property': 'inventory_path', 'patterns': [r'NO_HOST_LIKE_ME']}
     ]
+    realtime_instance['thread_count'] = 24
+    import time
+    t = time.time()
     check = VSphereCheck('vsphere', {}, [realtime_instance])
     check.check(realtime_instance)
+    print(time.time() - t)

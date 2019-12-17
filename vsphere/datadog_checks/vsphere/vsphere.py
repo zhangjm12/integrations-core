@@ -1,17 +1,19 @@
 # (C) Datadog, Inc. 2019
 # All rights reserved
 # Licensed under Simplified BSD License (see LICENSE)
+import time
 from collections import defaultdict
 from concurrent.futures.thread import ThreadPoolExecutor
 from datetime import datetime, timedelta
 from functools import partial
+from itertools import chain
 
 from multiprocessing.pool import ThreadPool
 from six import iteritems
 from pyVmomi import vim  # pylint: disable=E0611
 
 from datadog_checks.base import AgentCheck, is_affirmative, ensure_unicode, ConfigurationError
-from datadog_checks.vsphere.api import ConnectionPool
+from datadog_checks.vsphere.api import VSphereAPI
 from datadog_checks.vsphere.cache import InfrastructureCache, MetricsMetadataCache
 from datadog_checks.vsphere.metrics import ALLOWED_METRICS_FOR_MOR, should_collect_per_instance_values, \
     get_mapped_instance_tag
@@ -37,9 +39,9 @@ class VSphereCheck(AgentCheck):
 
     def __init__(self, name, init_config, instances):
         AgentCheck.__init__(self, name, init_config, instances)
-        self.conn_pool = ConnectionPool(self.instance)
         self.infrastructure_cache = InfrastructureCache(interval_sec=180)
         self.metrics_metadata_cache = MetricsMetadataCache(interval_sec=600)
+        self.api = VSphereAPI(self.instance)
 
         self.base_tags = self.instance.get("tags", [])
         self.collection_level = self.instance.get("collection_level", 1)
@@ -49,16 +51,12 @@ class VSphereCheck(AgentCheck):
         self.use_guest_hostname = self.instance.get("use_guest_hostname", False)
 
         self.thread_count = self.instance.get("thread_count", 4)
-        self.batch_morlist_size = self.instance.get("batch_morlist_size", 50)
+        self.batch_morlist_size = self.instance.get("batch_morlist_size", 200)
         self.max_historical_metrics = self.instance.get("max_query_metrics", self.api.get_max_query_metrics())
         self.collected_resource_types = REALTIME_RESOURCES if self.collection_type == 'realtime' else HISTORICAL_RESOURCES
 
         self.latest_event_query = datetime.now()
         self.validate_and_format_config()
-
-    @property
-    def api(self):
-        return self.conn_pool.get_api()
 
     def validate_and_format_config(self):
         if 'ssl_verify' in self.instance and 'ssl_capath' in self.instance:
@@ -77,7 +75,7 @@ class VSphereCheck(AgentCheck):
             )
 
         formatted_resource_filters = {}
-        allowed_prop_names = ('name', 'inventory_path')
+        allowed_prop_names = ALLOWED_FILTER_PROPERTIES
         allowed_prop_names_for_vm = allowed_prop_names + ('hostname', 'guest_hostname')
         allowed_resource_types = [MOR_TYPE_AS_STRING[k] for k in self.collected_resource_types]
 
@@ -143,7 +141,6 @@ class VSphereCheck(AgentCheck):
             if not isinstance(mor, tuple(self.collected_resource_types)):
                 # Do nothing for the resource types we do not collect
                 continue
-            import pdb; pdb.set_trace()
             if is_resource_excluded_by_filters(mor, infrastructure_data, self.resource_filters):
                 # The resource does not match the specified patterns
                 continue
@@ -153,10 +150,11 @@ class VSphereCheck(AgentCheck):
             hostname = None
             tags = []
 
-            if mor_type == vim.VirtualMachine:
+            if isinstance(mor, vim.VirtualMachine):
                 power_state = properties.get("runtime.powerState")
                 if power_state != vim.VirtualMachinePowerState.poweredOn:
                     # Skipping because of not powered on
+                    # TODO: Sometimes VM are "poweredOn" but "disconnected" and thus have no metrics
                     continue
 
                 # Host are not considered parents of the VMs they run, we use the `runtime.host` property
@@ -170,7 +168,7 @@ class VSphereCheck(AgentCheck):
                     hostname = properties.get("guest.hostName", mor_name)
                 else:
                     hostname = mor_name
-            elif mor_type == vim.HostSystem:
+            elif isinstance(mor, vim.HostSystem):
                 hostname = mor_name
             else:
                 tags.append('vsphere_{}:{}'.format(mor_type, mor_name))
@@ -186,7 +184,7 @@ class VSphereCheck(AgentCheck):
 
             self.infrastructure_cache.set_mor_data(mor, mor_payload)
 
-    def submit_metrics_callback(self, task, resource_type):
+    def submit_metrics_callback(self, task):
         try:
             results = task.result()
         except Exception as e:
@@ -195,14 +193,16 @@ class VSphereCheck(AgentCheck):
             print(task.__dict__)
             print(e)
             return
-        metadata = self.metrics_metadata_cache.get_metadata(resource_type)
+
         if not results:
+            # No metric from this call, maybe the mor is disconnected.
             return
 
         for result_per_mor in results:
             # TODO: IMPLEMENT ERROR HANDLING IF MOR NOT FOUND
             mor_props = self.infrastructure_cache.get_mor_props(result_per_mor.entity)
-
+            resource_type = type(result_per_mor.entity)
+            metadata = self.metrics_metadata_cache.get_metadata(resource_type)
             for result in result_per_mor.value:
                 counter = metadata.get(result.id.counterId)
                 if not counter:
@@ -247,7 +247,7 @@ class VSphereCheck(AgentCheck):
     def collect_metrics(self):
         """Keep all apis connections"""
         pool_executor = ThreadPoolExecutor(max_workers=self.thread_count)
-
+        tasks = []
         for resource_type in ALL_RESOURCES:
             mors = self.infrastructure_cache.get_mors(resource_type)
             if not mors:
@@ -279,8 +279,19 @@ class VSphereCheck(AgentCheck):
                         query_spec.startTime = datetime.now() - timedelta(hours=2)
                     query_specs.append(query_spec)
                 if query_specs:
-                    task = pool_executor.submit(lambda q: self.api.query_metrics(q), query_specs)
-                    task.add_done_callback(lambda x, r=resource_type: self.submit_metrics_callback(x, r))
+                    tasks.append(pool_executor.submit(lambda q: self.api.query_metrics(q), query_specs))
+                    print("Making a request")
+
+        while tasks:
+            finished_tasks = []
+            for task in tasks:
+                if task.done():
+                    self.submit_metrics_callback(task)
+                    finished_tasks.append(task)
+
+            for task in finished_tasks:
+                tasks.remove(task)
+            time.sleep(0.1)
 
         pool_executor.shutdown()
 
@@ -312,7 +323,8 @@ class VSphereCheck(AgentCheck):
         external_host_tags = []
         hosts = self.infrastructure_cache.get_mors(vim.HostSystem)
         vms = self.infrastructure_cache.get_mors(vim.VirtualMachine)
-        for mor in hosts + vms:
+
+        for mor in chain(hosts, vms):
             # Note: some mors have a None hostname
             mor_props = self.infrastructure_cache.get_mor_props(mor)
             hostname = mor_props.get('hostname')
