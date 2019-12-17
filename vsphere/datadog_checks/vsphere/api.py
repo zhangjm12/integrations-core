@@ -8,6 +8,7 @@ from pyVim import connect
 from pyVmomi import vim, vmodl  # pylint: disable=E0611
 
 from datadog_checks.base import is_affirmative, ensure_unicode
+from datadog_checks.vsphere.constants import DEFAULT_MAX_QUERY_METRICS
 from datadog_checks.vsphere.utils import smart_retry
 
 
@@ -15,7 +16,7 @@ ALL_RESOURCES = [vim.VirtualMachine, vim.HostSystem, vim.Datacenter, vim.Datasto
 BATCH_COLLETOR_SIZE = 500
 
 
-class MetricCollector(object):
+class ConnectionPool(object):
     """This class is used for collecting metrics from multiple threads.
     """
 
@@ -23,12 +24,12 @@ class MetricCollector(object):
         self._apis = {}
         self.instance = config_instance
 
-    def query_metrics(self, query_specs):
+    def get_api(self):
         thread_id = threading.get_ident()
         if thread_id not in self._apis:
             self._apis[thread_id] = VSphereAPI(self.instance)
 
-        return self._apis[thread_id].query_metrics(query_specs)
+        return self._apis[thread_id]
 
 
 class VSphereAPI(object):
@@ -150,6 +151,7 @@ class VSphereAPI(object):
 
     @smart_retry
     def query_metrics(self, query_specs):
+        print("Running from id: {}".format(threading.get_ident()))
         perf_manager = self._conn.content.perfManager
         return perf_manager.QueryPerf(query_specs)
 
@@ -165,3 +167,13 @@ class VSphereAPI(object):
     def get_latest_event_timestamp(self):
         event_manager = self._conn.content.eventManager
         return event_manager.latestEvent.createdTime
+
+    @smart_retry
+    def get_max_query_metrics(self):
+        vcenter_settings = self._conn.content.setting.QueryOptions("config.vpxd.stats.maxQueryMetrics")
+        try:
+            max_historical_metrics = int(vcenter_settings[0].value)
+
+            return max_historical_metrics if max_historical_metrics > 0 else float('inf')
+        except:
+            return DEFAULT_MAX_QUERY_METRICS
