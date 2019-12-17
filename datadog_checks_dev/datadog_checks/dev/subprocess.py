@@ -39,6 +39,7 @@ def run_command(command, capture=None, check=False, encoding='utf-8', shell=Fals
     :param env: The environment to replace ``os.environ`` with in the subprocess.
     :type env: ``dict``
     """
+    print("command: ", command)
     if shell == 'detect':
         shell = NEED_SHELL
 
