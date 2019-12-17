@@ -15,7 +15,7 @@ from datadog_checks.vsphere.api import ConnectionPool
 from datadog_checks.vsphere.cache import InfrastructureCache, MetricsMetadataCache
 from datadog_checks.vsphere.metrics import ALLOWED_METRICS_FOR_MOR, should_collect_per_instance_values, \
     get_mapped_instance_tag
-from datadog_checks.vsphere.utils import format_metric_name, is_excluded_by_filters, get_parent_tags_recursively, \
+from datadog_checks.vsphere.utils import format_metric_name, is_resource_excluded_by_filters, get_parent_tags_recursively, \
     MOR_TYPE_AS_STRING, make_inventory_path
 
 REALTIME_RESOURCES = [vim.VirtualMachine, vim.HostSystem]
@@ -144,7 +144,7 @@ class VSphereCheck(AgentCheck):
             if not isinstance(mor, tuple(self.collected_resource_types)):
                 # Do nothing for the resource types we do not collect
                 continue
-            if is_excluded_by_filters(mor, infrastructure_data, self.resource_filters):
+            if is_resource_excluded_by_filters(mor, infrastructure_data, self.resource_filters):
                 # The resource does not match the specified patterns
                 continue
 
@@ -342,8 +342,8 @@ class VSphereCheck(AgentCheck):
         import pdb; pdb.set_trace()
         self.thread_count = 4
         self.base_tags.append("flo:test")
-        self.collection_type = 'historical'
-        self.collected_resource_types = HISTORICAL_RESOURCES
+        self.collection_type = 'realtime'
+        self.collected_resource_types = REALTIME_RESOURCES
 
         # resource_filters:
         #   - resource: vm
@@ -364,7 +364,8 @@ class VSphereCheck(AgentCheck):
         #     patterns:
         #       - <INVENTORY_PATH_REGEX>
         self.resource_filters = [
-            {'resource': 'vm', 'property': 'name', 'patterns': ['cpu\..*']}
+            {'resource': 'vm', 'property': 'name', 'patterns': [r'^VM.*', r'^\$VM5']},
+            {'resource': 'host', 'property': 'name', 'patterns': [r'NO_HOST_LIKE_ME']}
         ]
 
         self.max_historical_metrics = self.instance.get("max_query_metrics", self.api.get_max_query_metrics())
