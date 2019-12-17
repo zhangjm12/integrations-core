@@ -3,6 +3,7 @@
 # Licensed under a 3-clause BSD style license (see LICENSE)
 import json
 import os
+import time
 
 import pytest
 
@@ -17,7 +18,7 @@ from .utils import read_fixture
 def dd_environment():
     compose_file = os.path.join(common.HERE, 'compose', 'docker-compose.yml')
 
-    with docker_run(compose_file, service_name='mesos-slave', log_patterns=['Finished recovery']):
+    with docker_run(compose_file, service_name='mesos-slave'):
         yield common.INSTANCE
 
 

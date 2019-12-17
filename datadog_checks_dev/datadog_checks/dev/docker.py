@@ -148,4 +148,5 @@ class ComposeFileDown(LazyFunction):
         self.command = ['docker-compose', '-f', self.compose_file, 'down', '--volumes', '--remove-orphans', '-t', '0']
 
     def __call__(self):
+        return
         return run_command(self.command, check=self.check)

@@ -150,6 +150,8 @@ def test(
             pytest_options = pytest_options.format(pytest_coverage_sources(check))
         test_env_vars['PYTEST_ADDOPTS'] = pytest_options
 
+        print("pytest_options: ", pytest_options)
+
         if verbose:
             echo_info('pytest options: `{}`'.format(test_env_vars['PYTEST_ADDOPTS']))
 
