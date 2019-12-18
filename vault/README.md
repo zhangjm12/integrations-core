@@ -17,6 +17,26 @@ The Vault check is included in the [Datadog Agent][3] package. No additional ins
 
 2. [Restart the Agent][6].
 
+#### Log Collection
+
+**Available for Agent >6.0**
+
+1. Collecting logs is disabled by default in the Datadog Agent, enable it in your `datadog.yaml` file:
+
+```
+logs_enabled: true
+```
+
+2. Add this configuration block to your `vault.d/conf.yaml` file to start collecting your Vertica logs:
+
+```
+logs:
+  - source: vault
+    type: file
+    path: /var/log/vault/vault-server.log
+    service: core
+```
+
 ### Validation
 
 [Run the Agent's status subcommand][7] and look for `vault` under the Checks section.
