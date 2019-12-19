@@ -237,10 +237,20 @@ instances:
 ##
 ## Discover Datadog log collection: https://docs.datadoghq.com/logs/log_collection/
 #
+#
 # logs:
 #   - source: vault
 #     type: file
-#     path: /var/log/vault.log
+#     path: /var/log/vault/vault.log
+#     service: <APPLICATION_NAME>
+#     log_processing_rules:
+#       - type: multi_line
+#         name: log_start_with_date
+#         pattern: \d{4}\.\d{2}\.\d{2}
+#  
+#   - source: vault
+#     type: file
+#     path: /vault/vault-audit.log
 #     service: <APPLICATION_NAME>
 #     log_processing_rules:
 #       - type: multi_line

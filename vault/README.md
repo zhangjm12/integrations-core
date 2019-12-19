@@ -27,13 +27,13 @@ The Vault check is included in the [Datadog Agent][3] package. No additional ins
 logs_enabled: true
 ```
 
-2. Add this configuration block to your `vault.d/conf.yaml` file to start collecting your Vertica logs:
+2. Add this configuration block to your `vault.d/conf.yaml` file to start collecting your Vault server logs:
 
 ```
 logs:
   - source: vault
     type: file
-    path: /var/log/vault/vault-server.log
+    path: /var/log/vault/vault.log
     service: core
 ```
 
