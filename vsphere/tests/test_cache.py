@@ -1,6 +1,7 @@
-import pytest
-from mock import patch, MagicMock
 from datetime import datetime, timedelta
+
+import pytest
+from mock import MagicMock, patch
 
 from datadog_checks.vsphere.cache import VSphereCache
 
@@ -39,7 +40,7 @@ def test_refresh():
     interval = 120
     with patch('datadog_checks.vsphere.cache.time') as time:
         base_time = 1576263848
-        mocked_timestamps = [base_time + 50*i for i in range(4)]
+        mocked_timestamps = [base_time + 50 * i for i in range(4)]
         time.time = MagicMock(side_effect=mocked_timestamps)
         cache = VSphereCache(interval)
 
@@ -48,7 +49,7 @@ def test_refresh():
 
         assert not cache.is_expired()  # Only 50 seconds
         assert not cache.is_expired()  # Only 100 seconds
-        assert cache.is_expired()      # 150 > 120 seconds
+        assert cache.is_expired()  # 150 > 120 seconds
 
 
 def test_metrics_metadata_cache():
@@ -59,4 +60,3 @@ def test_metrics_metadata_cache():
 def test_infrastructure_cache():
     # TODO
     pass
-

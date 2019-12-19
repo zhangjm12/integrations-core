@@ -1,23 +1,36 @@
 # (C) Datadog, Inc. 2019
 # All rights reserved
 # Licensed under Simplified BSD License (see LICENSE)
+import functools
 import ssl
 import threading
 
 from pyVim import connect
 from pyVmomi import vim, vmodl  # pylint: disable=E0611
 
-from datadog_checks.base import is_affirmative, ensure_unicode
-from datadog_checks.vsphere.constants import DEFAULT_MAX_QUERY_METRICS
-from datadog_checks.vsphere.utils import smart_retry
+from datadog_checks.base import ensure_unicode, is_affirmative
+from datadog_checks.vsphere.constants import ALL_RESOURCES, DEFAULT_BATCH_COLLECTOR_SIZE, DEFAULT_MAX_QUERY_METRICS
 
 
-ALL_RESOURCES = [vim.VirtualMachine, vim.HostSystem, vim.Datacenter, vim.Datastore, vim.ClusterComputeResource, vim.ComputeResource, vim.Folder]
-BATCH_COLLETOR_SIZE = 500
+def smart_retry(f):
+    """A function decorated with this `@smart_retry` will trigger a new authentication if it fails. The function
+    will then be retried.
+    This is useful when the integration keeps a semi-healthy connection to the vSphere API"""
+
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        api_instance = args[0]
+        try:
+            return f(*args, **kwargs)
+        except Exception:
+            api_instance.smart_connect()
+            return f(*args, **kwargs)
+
+    return wrapper
 
 
 class VSphereAPI(object):
-    """Abstraction class over vSphere SOAP api using the pyvmomi library"""
+    """Abstraction class over the vSphere SOAP api using the pyvmomi library"""
 
     def __init__(self, instance):
         self.host = instance['host']
@@ -25,10 +38,13 @@ class VSphereAPI(object):
         self.password = instance['password']
         self.ssl_verify = is_affirmative(instance.get('ssl_verify', True))
         self.ssl_capath = instance.get('ssl_capath')
+        self.batch_collector_size = instance.get('batch_property_collector_size', DEFAULT_BATCH_COLLECTOR_SIZE)
         self._conn = None
         self.smart_connect()
 
     def smart_connect(self):
+        """Creates the connection object to the vSphere API using parameters supplied from the configuration.
+        """
         context = None
         if not self.ssl_verify:
             context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
@@ -41,12 +57,7 @@ class VSphereAPI(object):
         try:
             # Object returned by SmartConnect is a ServerInstance
             # https://www.vmware.com/support/developer/vc-sdk/visdk2xpubs/ReferenceGuide/vim.ServiceInstance.html
-            conn = connect.SmartConnect(
-                host=self.host,
-                user=self.username,
-                pwd=self.password,
-                sslContext=context,
-            )
+            conn = connect.SmartConnect(host=self.host, user=self.username, pwd=self.password, sslContext=context)
             conn.CurrentTime()
         except Exception as e:
             err_msg = "Connection to {} failed: {}".format(ensure_unicode(self.host), e)
@@ -54,16 +65,14 @@ class VSphereAPI(object):
 
         self._conn = conn
 
-    def get_connection(self):
-        return self._conn
-
     @smart_retry
     def get_perf_counter_by_level(self, collection_level):
+        """Requests and returns the list of counter available for a given collection_level."""
         return self._conn.content.perfManager.QueryPerfCounterByLevel(collection_level)
 
     @smart_retry
     def get_infrastructure(self):
-        """Traverse the whole vSphere infrastructure and outputs dict mapping the mors to their properties.
+        """Traverse the whole vSphere infrastructure and outputs a dict mapping the mors to their properties.
 
         :return: {
             'vim.VirtualMachine-VM0': {
@@ -96,7 +105,7 @@ class VSphereAPI(object):
         retr_opts = vmodl.query.PropertyCollector.RetrieveOptions()
         # To limit the number of objects retrieved per call.
         # If batch_collector_size is 0, collect maximum number of objects.
-        retr_opts.maxObjects = BATCH_COLLETOR_SIZE
+        retr_opts.maxObjects = self.batch_collector_size
 
         # Specify the root object from where we collect the rest of the objects
         obj_spec = vmodl.query.PropertyCollector.ObjectSpec()
@@ -122,12 +131,7 @@ class VSphereAPI(object):
         finally:
             view_ref.Destroy()
 
-        infrastructure_data = {
-            mor.obj: {
-                prop.name: prop.val for prop in mor.propSet
-            }
-            for mor in mors if mor.propSet
-        }
+        infrastructure_data = {mor.obj: {prop.name: prop.val for prop in mor.propSet} for mor in mors if mor.propSet}
 
         root_folder = self._conn.content.rootFolder
         infrastructure_data[root_folder] = {"name": root_folder.name, "parent": None}
@@ -156,7 +160,6 @@ class VSphereAPI(object):
         vcenter_settings = self._conn.content.setting.QueryOptions("config.vpxd.stats.maxQueryMetrics")
         try:
             max_historical_metrics = int(vcenter_settings[0].value)
-
             return max_historical_metrics if max_historical_metrics > 0 else float('inf')
         except:
             return DEFAULT_MAX_QUERY_METRICS

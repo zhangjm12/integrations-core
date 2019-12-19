@@ -1,6 +1,12 @@
-from pyVmomi import vim  # pylint: disable=E0611
+# (C) Datadog, Inc. 2019
+# All rights reserved
+# Licensed under Simplified BSD License (see LICENSE)
+from pyVmomi import vim  # pylint: disable=E061
+
 # https://code.vmware.com/apis/358/vsphere/doc/cpu_counters.html
 
+# Set of metrics that are emitted as percentages between 0 and 100. For those metrics, we divide the value by 100
+# to get a float between 0 and 1.
 PERCENT_METRICS = {
     'cpu.capacity.contention.avg',
     'cpu.coreUtilization.avg',
@@ -67,9 +73,12 @@ PERCENT_METRICS = {
     'vcResources.systemcpuusage.avg',
     'vcResources.systemnetusage.avg',
     'vcResources.usercpuusage.avg',
-    'vsanDomObj.readCacheHitRate.latest'
+    'vsanDomObj.readCacheHitRate.latest',
 }
 
+# All metrics that can be collected from VirtualMachines.
+# The table maps a dd-formatted metric_name to a tuple containing:
+# (collection_level, per_instance_collection_level, (optional)is_available_per_instance)
 VM_METRICS = {
     'cpu.costop.sum': (2, 3),
     'cpu.demand.avg': (2, 3),
@@ -245,9 +254,12 @@ VM_METRICS = {
     'virtualDisk.writeIOSize.latest': (4, 4, True),
     'virtualDisk.writeLatencyUS.latest': (4, 4, True),
     'virtualDisk.writeLoadMetric.latest': (2, 2, True),
-    'virtualDisk.writeOIO.latest': (2, 2, 'instance')
+    'virtualDisk.writeOIO.latest': (2, 2, 'instance'),
 }
 
+# All metrics that can be collected from ESXi Hosts.
+# The table maps a dd-formatted metric_name to a tuple containing:
+# (collection_level, per_instance_collection_level, (optional)is_available_per_instance)
 HOST_METRICS = {
     'cpu.coreUtilization.avg': (2, 3, True),
     'cpu.coreUtilization.max': (4, 4, True),
@@ -516,9 +528,12 @@ HOST_METRICS = {
     'sys.resourceMemZero.latest': (3, 3, True),
     'sys.uptime.latest': (1, 3),
     'virtualDisk.busResets.sum': (2, 4, True),
-    'virtualDisk.commandsAborted.sum': (2, 4, 'instance')
+    'virtualDisk.commandsAborted.sum': (2, 4, 'instance'),
 }
 
+# All metrics that can be collected from Datastores.
+# The table maps a dd-formatted metric_name to a tuple containing:
+# (collection_level, per_instance_collection_level, (optional)is_available_per_instance)
 DATASTORE_METRICS = {
     'datastore.busResets.sum': (2, 2, True),
     'datastore.commandsAborted.sum': (2, 2, True),
@@ -535,9 +550,12 @@ DATASTORE_METRICS = {
     'disk.numberWriteAveraged.avg': (1, 3),
     'disk.provisioned.latest': (1, 1, True),
     'disk.unshared.latest': (1, 1, True),
-    'disk.used.latest': (1, 1, 'instance')
+    'disk.used.latest': (1, 1, 'instance'),
 }
 
+# All metrics that can be collected from Datacenters.
+# The table maps a dd-formatted metric_name to a tuple containing:
+# (collection_level, per_instance_collection_level, (optional)is_available_per_instance)
 DATACENTER_METRICS = {
     'vmop.numChangeDS.latest': (1, 3),
     'vmop.numChangeHost.latest': (1, 3),
@@ -558,9 +576,12 @@ DATACENTER_METRICS = {
     'vmop.numSuspend.latest': (1, 3),
     'vmop.numUnregister.latest': (1, 3),
     'vmop.numVMotion.latest': (1, 3),
-    'vmop.numXVMotion.latest': (1, 3, 'aggregate')
+    'vmop.numXVMotion.latest': (1, 3, 'aggregate'),
 }
 
+# All metrics that can be collected from Clusters.
+# The table maps a dd-formatted metric_name to a tuple containing:
+# (collection_level, per_instance_collection_level, (optional)is_available_per_instance)
 CLUSTER_METRICS = {
     # clusterServices are only available for DRS and HA clusters, and are causing errors. Let's deactivate for now
     # 'clusterServices.cpufairness.latest': (1, 3),
@@ -595,7 +616,7 @@ CLUSTER_METRICS = {
     'vmop.numSuspend.latest': (1, 3),
     'vmop.numUnregister.latest': (1, 3),
     'vmop.numVMotion.latest': (1, 3),
-    'vmop.numXVMotion.latest': (1, 3, 'aggregate')
+    'vmop.numXVMotion.latest': (1, 3, 'aggregate'),
 }
 
 ALLOWED_METRICS_FOR_MOR = {
@@ -603,24 +624,5 @@ ALLOWED_METRICS_FOR_MOR = {
     vim.HostSystem: HOST_METRICS,
     vim.Datacenter: DATACENTER_METRICS,
     vim.Datastore: DATASTORE_METRICS,
-    vim.ClusterComputeResource: CLUSTER_METRICS
+    vim.ClusterComputeResource: CLUSTER_METRICS,
 }
-
-
-def should_collect_per_instance_values(metric_name):
-    return False
-
-"""
-    if metric_name.startswith('cpu.us'):
-        return True
-    elif metric_name.startswith('disk.used.latest'):
-        return True
-    return False"""
-
-
-def get_mapped_instance_tag(metric_name):
-    if metric_name.startswith('cpu'):
-        return 'cpu_core'
-    return 'instance'
-
-

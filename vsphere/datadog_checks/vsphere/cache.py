@@ -8,7 +8,7 @@ from contextlib import contextmanager
 class VSphereCache(object):
     """
     Wraps configuration and status for the Morlist and Metadata caches.
-    CacheConfig is *not* threadsafe.
+    VSphereCache is *not* threadsafe.
     """
 
     def __init__(self, interval_sec, log=None):
@@ -19,7 +19,13 @@ class VSphereCache(object):
 
     @contextmanager
     def update(self):
-        """Reset the cache object to its initial state
+        """A context manager to allow modification of the cache. It will restore the previous value
+        on any error.
+        Usage:
+        ```
+            with cache.update():
+                cache.set_XXX(SOME_DATA)
+        ```
         """
         old_content = self._content
         self._content = {}  # 1. clear the content
@@ -32,6 +38,8 @@ class VSphereCache(object):
             raise
 
     def is_expired(self):
+        """The cache has a global time to live, all elements expire at the same time.
+        :return True if the cache is expired."""
         elapsed = time.time() - self._last_ts
         return elapsed > self._interval
 
@@ -52,6 +60,7 @@ class MetricsMetadataCache(VSphereCache):
         ...
     }
     """
+
     def get_metadata(self, resource_type):
         return self._content.get(resource_type)
 
@@ -70,6 +79,7 @@ class InfrastructureCache(VSphereCache):
 
     }
     """
+
     def get_mor_props(self, mor, default=None):
         mor_type = type(mor)
         return self._content.get(mor_type, {}).get(mor, default)

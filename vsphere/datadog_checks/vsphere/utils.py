@@ -1,6 +1,13 @@
-import functools
+# (C) Datadog, Inc. 2019
+# All rights reserved
+# Licensed under Simplified BSD License (see LICENSE)
 import re
+import sys
+from gc import get_referents
+from types import FunctionType, ModuleType
+
 from pyVmomi import vim
+
 from datadog_checks.base import ensure_unicode
 
 SHORT_ROLLUP = {
@@ -17,20 +24,8 @@ MOR_TYPE_AS_STRING = {
     vim.VirtualMachine: 'vm',
     vim.Datacenter: 'datacenter',
     vim.Datastore: 'datastore',
-    vim.ClusterComputeResource: 'cluster'
+    vim.ClusterComputeResource: 'cluster',
 }
-
-
-def smart_retry(f):
-    @functools.wraps(f)
-    def wrapper(*args, **kwargs):
-        api_instance = args[0]
-        try:
-            return f(*args, **kwargs)
-        except Exception:
-            api_instance.smart_connect()
-            return f(*args, **kwargs)
-    return wrapper
 
 
 def format_metric_name(counter):
@@ -39,10 +34,6 @@ def format_metric_name(counter):
         ensure_unicode(counter.nameInfo.key),
         ensure_unicode(SHORT_ROLLUP[str(counter.rollupType)]),
     )
-
-
-def is_metric_excluded_by_filters(mors, metric_filters):
-    return False
 
 
 def match_any_regex(string, regexes):
@@ -55,10 +46,7 @@ def match_any_regex(string, regexes):
 
 def is_resource_excluded_by_filters(mor, infrastructure_data, resource_filters):
     resource_type = MOR_TYPE_AS_STRING[type(mor)]
-    valid_filter_types =
-    filters = {
-        d: resource_filters.get((resource_type, 'name')) for d in
-    }
+
     name_filter = resource_filters.get((resource_type, 'name'))
     inventory_path_filter = resource_filters.get((resource_type, 'inventory_path'))
     hostname_filter = resource_filters.get((resource_type, 'hostname'))
@@ -74,16 +62,32 @@ def is_resource_excluded_by_filters(mor, infrastructure_data, resource_filters):
             return False
     if inventory_path_filter:
         path = make_inventory_path(mor, infrastructure_data)
-        if match_any_regex(path, name_filter):
+        if match_any_regex(path, inventory_path_filter):
             return False
+
     if hostname_filter and isinstance(mor, vim.VirtualMachine):
-        hostname = infrastructure_data.get(mor).get("runtime.host", "")
-        if match_any_regex(hostname, name_filter):
+        host = infrastructure_data.get(mor).get("runtime.host")
+        hostname = infrastructure_data.get(host, {}).get("name", "")
+        if match_any_regex(hostname, hostname_filter):
             return False
     if guest_hostname_filter and isinstance(mor, vim.VirtualMachine):
-        guest_hostname = infrastructure_data.get(mor).get("guest.hostName", "")
-        if match_any_regex(guest_hostname, name_filter):
+        guest_hostname = infrastructure_data.get(mor, {}).get("guest.hostName", "")
+        if match_any_regex(guest_hostname, guest_hostname_filter):
             return False
+
+    return True
+
+
+def is_metric_excluded_by_filters(metric_name, mor_type, metric_filters):
+    filters = metric_filters.get(MOR_TYPE_AS_STRING[mor_type])
+    if not filters:
+        # No filters means collect everything
+        return False
+    if match_any_regex(metric_name, filters):
+        return False
+
+    return True
+
 
 def make_inventory_path(mor, infrastructure_data):
     mor_name = infrastructure_data.get(mor).get('name', '')
@@ -131,10 +135,27 @@ def get_parent_tags_recursively(mor, infrastructure_data):
     return []
 
 
+def should_collect_per_instance_values(metric_name, resource_type):
+    # TODO: Implement. For now we don't collect per-instance level metrics (aka per-core for cpu, per-vm for disk etc.)
+    # TODO: Collective per-instance metrics is really expensive for big environments and has usually little value.
+    # TODO: Also that adds an extra layer of complexity where they have to set `instance:none` to see the correct value.
+    if resource_type == vim.Datastore:
+        return True
+    return False
 
-import sys
-from types import ModuleType, FunctionType
-from gc import get_referents
+
+def get_mapped_instance_tag(metric_name):
+    """When collecting per-instance metric, the `instance` tag can mean a lot of different things. The meaning of the
+    tag cannot be guessed by looking at the api results and has to be infered using documentation or experience.
+    This method acts as a utility to map a metric_name to the meaning of its instance tag.
+    TODO: More
+    """
+    if metric_name.startswith('cpu'):
+        return 'cpu_core'
+    elif metric_name.startswith('disk'):
+        return 'vm'
+    return 'instance'
+
 
 # Custom objects know their class.
 # Function objects seem to know way too much, including modules.
@@ -143,7 +164,7 @@ BLACKLIST = type, ModuleType, FunctionType
 
 
 def getsize(obj):
-    """sum size of object & members."""
+    """Not used. sum size of object & members."""
     if isinstance(obj, BLACKLIST):
         raise TypeError('getsize() does not take argument of type: ' + str(type(obj)))
     seen_ids = set()

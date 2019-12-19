@@ -1,6 +1,7 @@
-from mock import patch, MagicMock, ANY
 import pytest
+from mock import ANY, MagicMock, patch
 from pyVmomi import vim
+
 from datadog_checks.vsphere import VSphereCheck
 from datadog_checks.vsphere.api import VSphereAPI
 
@@ -54,23 +55,15 @@ def test_get_infrastructure(realtime_instance):
 
         obj1 = MagicMock(missingSet=None, obj="foo")
         obj2 = MagicMock(missingSet=None, obj="bar")
-        api._conn.content.propertyCollector.RetrievePropertiesEx.return_value = MagicMock(
-            objects=[obj1],
-            token=['baz']
-        )
+        api._conn.content.propertyCollector.RetrievePropertiesEx.return_value = MagicMock(objects=[obj1], token=['baz'])
         api._conn.content.propertyCollector.ContinueRetrievePropertiesEx.return_value = MagicMock(
-            objects=[obj2],
-            token=None
+            objects=[obj2], token=None
         )
 
         root_folder = api._conn.content.rootFolder
         root_folder.name = 'root-folder'
         infrastructure_data = api.get_infrastructure()
-        assert infrastructure_data == {
-            'foo': {},
-            'bar': {},
-            root_folder: {'name': 'root-folder', 'parent': None}
-        }
+        assert infrastructure_data == {'foo': {}, 'bar': {}, root_folder: {'name': 'root-folder', 'parent': None}}
 
 
 def test_smart_retry(realtime_instance):
@@ -105,11 +98,29 @@ def test_vsphere_realtime(realtime_instance, aggregator):
     realtime_instance['tags'] = ['flo:test']
     realtime_instance['resource_filters'] = [
         {'resource': 'vm', 'property': 'name', 'patterns': [r'^VM.*', r'^\$VM5']},
-        {'resource': 'host', 'property': 'inventory_path', 'patterns': [r'NO_HOST_LIKE_ME']}
+        {'resource': 'host', 'property': 'inventory_path', 'patterns': [r'NO_HOST_LIKE_ME']},
     ]
     realtime_instance['thread_count'] = 24
     import time
+
     t = time.time()
     check = VSphereCheck('vsphere', {}, [realtime_instance])
     check.check(realtime_instance)
     print(time.time() - t)
+
+
+def test_vsphere_historical(historical_instance, aggregator):
+    historical_instance['tags'] = ['flo:test']
+    historical_instance['resource_filters'] = [
+        {'resource': 'vm', 'property': 'name', 'patterns': [r'^VM.*', r'^\$VM5']},
+        {'resource': 'host', 'property': 'inventory_path', 'patterns': [r'NO_HOST_LIKE_ME']},
+    ]
+    historical_instance['thread_count'] = 8
+    historical_instance['metric_filters'] = {
+        'datastore': [r'^disk.used.latest$', r'^disk.capacity.latest$'],
+        'cluster': [r'NONE'],
+        'datacenter': [r'NONE'],
+    }
+
+    check = VSphereCheck('vsphere', {}, [historical_instance])
+    check.check(historical_instance)
