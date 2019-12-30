@@ -13,6 +13,7 @@ services:
       JMX_PORT: ${CONTAINER_PORT}
       LOCAL_JMX: "no"
       CASSANDRA_START_RPC: "true"
+      CASSANDRA_SLOW_QUERY_LOG_TIMEOUT_IN_MS: 2  # set limit very low to get slow logs (milliseconds)
       JVM_EXTRA_OPTS: >
         -Dcom.sun.management.jmxremote.port=${CONTAINER_PORT}
         -Dcom.sun.management.jmxremote.rmi.port=${CONTAINER_PORT}
@@ -20,6 +21,7 @@ services:
         -Dcom.sun.management.jmxremote.authenticate=true
         -Dcom.sun.management.jmxremote.password.file=/etc/cassandra/jmxremote.password
         -Djava.rmi.server.hostname=localhost
+        -Dcom.datastax.driver.core.QueryLogger.SLOW=DEBUG
     expose:
       - ${CONTAINER_PORT}
 
