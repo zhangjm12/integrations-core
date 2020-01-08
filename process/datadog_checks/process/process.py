@@ -6,6 +6,7 @@ from __future__ import division
 import os
 import re
 import subprocess
+import threading
 import time
 from collections import defaultdict
 
@@ -18,6 +19,7 @@ from datadog_checks.utils.platform import Platform
 
 DEFAULT_AD_CACHE_DURATION = 120
 DEFAULT_PID_CACHE_DURATION = 120
+DEFAULT_PROC_LIST_CACHE_DURATION = 120
 
 
 ATTR_TO_METRIC = {
@@ -51,9 +53,52 @@ ATTR_TO_METRIC_RATE = {
     'majflt': 'mem.page_faults.major_faults',
     'cmajflt': 'mem.page_faults.children_major_faults',
 }
+# taken verbatim from o'reilly python cookbook
+class ReadWriteLock:
+    """ A lock object that allows many simultaneous "read locks", but
+    only one "write lock." """
 
+    def __init__(self):
+        self._read_ready = threading.Condition(threading.Lock(  ))
+        self._readers = 0
+
+    def acquire_read(self):
+        """ Acquire a read lock. Blocks only if a thread has
+        acquired the write lock. """
+        self._read_ready.acquire(  )
+        try:
+            self._readers += 1
+        finally:
+            self._read_ready.release(  )
+
+    def release_read(self):
+        """ Release a read lock. """
+        self._read_ready.acquire(  )
+        try:
+            self._readers -= 1
+            if not self._readers:
+                self._read_ready.notifyAll(  )
+        finally:
+            self._read_ready.release(  )
+
+    def acquire_write(self):
+        """ Acquire a write lock. Blocks until there are no
+        acquired read or write locks. """
+        self._read_ready.acquire(  )
+        while self._readers > 0:
+            self._read_ready.wait(  )
+
+    def release_write(self):
+        """ Release a write lock. """
+        self._read_ready.release(  )
 
 class ProcessCheck(AgentCheck):
+    # process list, shared among all instances
+    process_list = []
+    process_list_lock = ReadWriteLock()
+    last_proc_list_ts = 0
+    proc_list_cache_duration = DEFAULT_PROC_LIST_CACHE_DURATION
+
     def __init__(self, name, init_config, agentConfig, instances=None):
         AgentCheck.__init__(self, name, init_config, agentConfig, instances)
 
@@ -87,6 +132,14 @@ class ProcessCheck(AgentCheck):
         # Process cache, indexed by instance
         self.process_cache = defaultdict(dict)
 
+        self.proc_list_cache_duration = int(init_config.get('proc_list_cache_duration', DEFAULT_PROC_LIST_CACHE_DURATION))
+        
+
+    def should_refresh_proclist(self):
+        now = time.time()
+        self.log.info("should_refresh_proclist {} - {}".format(self.last_proc_list_ts, now))
+        return now - self.last_proc_list_ts > self.proc_list_cache_duration
+
     def should_refresh_ad_cache(self, name):
         now = time.time()
         return now - self.last_ad_cache_ts.get(name, 0) > self.access_denied_cache_duration
@@ -94,6 +147,15 @@ class ProcessCheck(AgentCheck):
     def should_refresh_pid_cache(self, name):
         now = time.time()
         return now - self.last_pid_cache_ts.get(name, 0) > self.pid_cache_duration
+
+    def get_proc_list(self):
+        """
+        gets the list of processes from the system.  
+        """
+        tmplist = []
+        for proc in psutil.process_iter():
+            tmplist.append(proc)
+        return tmplist
 
     def find_pids(self, name, search_string, exact_match, ignore_ad=True):
         """
@@ -111,50 +173,67 @@ class ProcessCheck(AgentCheck):
 
         matching_pids = set()
 
-        for proc in psutil.process_iter():
-            # Skip access denied processes
-            if not refresh_ad_cache and proc.pid in self.ad_cache:
-                continue
+        # acquire the write lock to check whether to refresh because we're
+        # going to keep it to do the refresh, AND, we don't want multiple
+        # threads getting a `yes` result at once
+        self.process_list_lock.acquire_write()
+        if self.should_refresh_proclist():
+            self.log.info("Refreshing process list")
+            process_list = self.get_proc_list()
+            self.last_proc_list_ts = time.time()
+            self.log.info("Set last ts to {}".format(self.last_proc_list_ts))
+        else:
+            self.log.info("Using process list cache")
+        self.process_list_lock.release_write()
 
-            found = False
-            for string in search_string:
-                try:
-                    # FIXME 8.x: All has been deprecated
-                    # from the doc, should be removed
-                    if string == 'All':
-                        found = True
-                    if exact_match:
-                        if os.name == 'nt':
-                            if proc.name().lower() == string.lower():
-                                found = True
+        self.process_list_lock.acquire_read()
+        try:
+            for proc in self.process_list:
+                # Skip access denied processes
+                if not refresh_ad_cache and proc.pid in self.ad_cache:
+                    continue
+
+                found = False
+                for string in search_string:
+                    try:
+                        # FIXME 8.x: All has been deprecated
+                        # from the doc, should be removed
+                        if string == 'All':
+                            found = True
+                        if exact_match:
+                            if os.name == 'nt':
+                                if proc.name().lower() == string.lower():
+                                    found = True
+                            else:
+                                if proc.name() == string:
+                                    found = True
+
                         else:
-                            if proc.name() == string:
-                                found = True
-
+                            cmdline = proc.cmdline()
+                            if os.name == 'nt':
+                                lstring = string.lower()
+                                if re.search(lstring, ' '.join(cmdline).lower()):
+                                    found = True
+                            else:
+                                if re.search(string, ' '.join(cmdline)):
+                                    found = True
+                    except psutil.NoSuchProcess:
+                        self.log.warning('Process disappeared while scanning')
+                    except psutil.AccessDenied as e:
+                        ad_error_logger('Access denied to process with PID {}'.format(proc.pid))
+                        ad_error_logger('Error: {}'.format(e))
+                        if refresh_ad_cache:
+                            self.ad_cache.add(proc.pid)
+                        if not ignore_ad:
+                            raise
                     else:
-                        cmdline = proc.cmdline()
-                        if os.name == 'nt':
-                            lstring = string.lower()
-                            if re.search(lstring, ' '.join(cmdline).lower()):
-                                found = True
-                        else:
-                            if re.search(string, ' '.join(cmdline)):
-                                found = True
-                except psutil.NoSuchProcess:
-                    self.log.warning('Process disappeared while scanning')
-                except psutil.AccessDenied as e:
-                    ad_error_logger('Access denied to process with PID {}'.format(proc.pid))
-                    ad_error_logger('Error: {}'.format(e))
-                    if refresh_ad_cache:
-                        self.ad_cache.add(proc.pid)
-                    if not ignore_ad:
-                        raise
-                else:
-                    if refresh_ad_cache:
-                        self.ad_cache.discard(proc.pid)
-                    if found:
-                        matching_pids.add(proc.pid)
-                        break
+                        if refresh_ad_cache:
+                            self.ad_cache.discard(proc.pid)
+                        if found:
+                            matching_pids.add(proc.pid)
+                            break
+        finally:
+            self.process_list_lock.release_read()
 
         self.pid_cache[name] = matching_pids
         self.last_pid_cache_ts[name] = time.time()
@@ -492,3 +571,4 @@ class ProcessCheck(AgentCheck):
                 pass
 
         return filtered_pids
+
