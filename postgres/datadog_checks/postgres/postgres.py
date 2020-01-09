@@ -428,6 +428,7 @@ class PostgreSql(AgentCheck):
 
                 if not config_table_objects:
                     self.log.info("Got row %s.%s, but not relation", row_schema, row_table)
+                    continue
                 else:
                     # Create set of all schemas by flattening and removing duplicates
                     config_schemas = {s for r in config_table_objects for s in r['schemas']}
