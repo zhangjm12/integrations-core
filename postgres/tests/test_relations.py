@@ -72,16 +72,18 @@ def test_relations_metrics(aggregator, integration_check, pg_instance):
 @pytest.mark.usefixtures('dd_environment')
 def test_relations_metrics2(aggregator, integration_check, pg_instance):
     pg_instance['relations'] = [
-        {'relation_regex': r'.*', 'schemas': ['doghouse']},
+        {'relation_regex': r'^.*$', 'schemas': ['doghouse']},
         # Empty schemas means all schemas, even though the first relation matches first.
-        {'relation_regex': r'[pP]ersons[-_]?(dup\d)?'},
+        {'relation_regex': r'^persons[-_]?(dup1)?$'},
     ]
-    relations = ['persons', 'personsdup1', 'Personsdup2', 'doghouse.dog']
+    all_relations = ['persons', 'personsdup1', 'Personsdup2', 'doghouse.dog']
+    monitored_relations = ['persons', 'personsdup1', 'doghouse.dog']
+
     posgres_check = integration_check(pg_instance)
     posgres_check.check(pg_instance)
 
-    for relation in relations:
-        schema, _, table = relation.lower().rpartition('.')
+    for relation in all_relations:
+        schema, _, table = relation.rpartition('.')
         if not schema:
             schema = 'public'
 
@@ -94,14 +96,18 @@ def test_relations_metrics2(aggregator, integration_check, pg_instance):
         ]
 
         for name in RELATION_METRICS:
-            aggregator.assert_metric(name, count=1, tags=expected_tags)
+            count = 1 if relation in monitored_relations else 0
+            aggregator.assert_metric(name, count=count, tags=expected_tags)
 
         # None of the tables have indexes.
         for name in RELATION_INDEX_METRICS:
             aggregator.assert_metric(name, count=0, tags=expected_tags)
 
         for name in RELATION_SIZE_METRICS:
-            aggregator.assert_metric(name, count=1, tags=expected_tags)
+            count = 1 if relation in monitored_relations else 0
+            aggregator.assert_metric(name, count=count, tags=expected_tags)
+
+    assert False
 
 
 @pytest.mark.integration
