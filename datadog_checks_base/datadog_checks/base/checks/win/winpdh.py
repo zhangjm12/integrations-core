@@ -193,6 +193,8 @@ class WinPDHCounter(object):
         return path
 
     def collect_counters(self):
+        counters = list()
+        instances = list()
         try:
             counters, instances = win32pdh.EnumObjectItems(
                 None, self._machine_name, self._class_name, win32pdh.PERF_DETAIL_WIZARD
