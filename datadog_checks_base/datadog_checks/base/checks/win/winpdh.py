@@ -193,9 +193,12 @@ class WinPDHCounter(object):
         return path
 
     def collect_counters(self):
-        counters, instances = win32pdh.EnumObjectItems(
-            None, self._machine_name, self._class_name, win32pdh.PERF_DETAIL_WIZARD
-        )
+        try:
+            counters, instances = win32pdh.EnumObjectItems(
+                None, self._machine_name, self._class_name, win32pdh.PERF_DETAIL_WIZARD
+            )
+        except Exception as e:
+            self.logger.error(e)
         if self._instance_name is None and len(instances) > 0:
             all_instances = set()
             for inst in instances:
