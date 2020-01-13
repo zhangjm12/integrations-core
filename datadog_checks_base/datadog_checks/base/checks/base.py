@@ -159,7 +159,6 @@ class __AgentCheck(object):
         # Agent 6+ will only have one instance
         self.instance = self.instances[0] if self.instances else None
 
-        # `self.hostname` is deprecated, use `datadog_agent.get_hostname()` instead
         self.hostname = datadog_agent.get_hostname()
 
         logger = logging.getLogger('{}.{}'.format(__name__, self.name))
@@ -642,6 +641,9 @@ class __AgentCheck(object):
 
     def run(self):
         try:
+            # Refresh the hostname if it has changed
+            self.hostname = datadog_agent.get_hostname()
+            
             while self.check_initializations:
                 initialization = self.check_initializations.popleft()
                 try:
