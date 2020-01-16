@@ -2,6 +2,7 @@
 # All rights reserved
 # Licensed under a 3-clause BSD style license (see LICENSE)
 import win32wnet
+from win32netcon import RESOURCETYPE_ANY
 from six import iteritems
 
 from ... import AgentCheck, is_affirmative
@@ -12,6 +13,7 @@ try:
 except ImportError:
     from .winpdh_stub import WinPDHCounter, DATA_TYPE_INT, DATA_TYPE_DOUBLE
 
+DEFAULT_SHARE = 'c$'
 
 int_types = ["int", "long", "uint"]
 
@@ -52,10 +54,7 @@ class PDHBaseCheck(AgentCheck):
 
                         username = instance.get('username')
                         password = instance.get('password')
-                        nr = win32wnet.NETRESOURCE()
-                        nr.lpRemoteName = r"\\%s\c$" % remote_machine
-                        nr.dwType = 0
-                        nr.lpLocalName = None
+                        nr = self._get_netresource(remote_machine)
                         win32wnet.WNetAddConnection2(nr, password, username, 0)
 
                     except Exception as e:
@@ -104,6 +103,42 @@ class PDHBaseCheck(AgentCheck):
 
         if key is None or not self._metrics.get(key):
             raise AttributeError('No valid counters to collect')
+
+    def _get_netresource(self, remote_machine):
+        # To connect you have to use the name of the server followed by an administrative share.
+        # Administrative shares are hidden network shares created that allow system administrators to have remote access
+        # to every disk volume on a network-connected system.
+        # These shares may not be permanently deleted but may be disabled.
+        # Administrative shares cannot be accessed by users without administrative privileges.
+        #
+        # This page explains how to enable them: https://www.wintips.org/how-to-enable-admin-shares-windows-7/
+        #
+        # The administrative share can be:
+        # * A disk volume like c$
+        # * admin$: The folder in which Windows is installed
+        # * fax$: The folder in which faxed pages and cover pages are cached
+        # * ipc$: Area used for interprocess communication and is not part of the file system.
+        # * print$: Virtual folder that contains a representation of the installed printers
+        # * Domain controller shares: Windows creates two domain controller specific shares called sysvol and netlogon
+        # which do not have $ appended to their names.
+        administrative_share = self.instance.get('admin_share', DEFAULT_SHARE)
+
+        nr = win32wnet.NETRESOURCE()
+
+        # Specifies the network resource to connect to.
+        network_path = r"\\%s\%s" % (remote_machine, administrative_share)
+        nr.lpRemoteName = network_path.rstrip('\\')
+
+        # The type of network resource to connect to.
+        #
+        # Although this member is required, its information may be ignored by the network service provider.
+        nr.dwType = RESOURCETYPE_ANY
+
+        # Specifies the name of a local device to redirect, such as "F:" or "LPT1".
+        # If the string is empty, NULL, it connects to the network resource without redirecting a local device.
+        nr.lpLocalName = None
+
+        return nr
 
     def check(self, instance):
         self.log.debug("PDHBaseCheck: check()")
