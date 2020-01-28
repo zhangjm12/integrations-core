@@ -694,6 +694,9 @@ class KubeletCheck(CadvisorPrometheusScraperMixin, OpenMetricsBaseCheck, Cadviso
 
     def append_pod_tags_to_volume_metrics(self, metric, scraper_config, hostname=None):
         metric_name_with_namespace = '{}.{}'.format(scraper_config['namespace'], self.VOLUME_METRICS[metric.name])
+        self.log.info("CELENE")
+        self.log.info(scraper_config.get('_label_mapping'))
+        self.log.info(scraper_config.get('_active_label_mapping'))
         for sample in metric.samples:
             val = sample[self.SAMPLE_VALUE]
             if not self._is_value_valid(val):
