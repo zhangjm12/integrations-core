@@ -71,7 +71,7 @@ Follow the instructions below to configure this check for an Agent running on a 
 1. To modify the default log file location either set the `RABBITMQ_LOGS` environment variable or add the following to your RabbitMQ configuration file (`/etc/rabbitmq/rabbitmq.conf`):
 
     ```conf
-      log.dir = /var/log/rabbit
+      log.dir = /var/log/rabbitmq
       log.file = rabbit.log
     ```
 
@@ -86,7 +86,7 @@ Follow the instructions below to configure this check for an Agent running on a 
     ```yaml
       logs:
           - type: file
-            path: /var/log/rabbit/*.log
+            path: /var/log/rabbitmq/*.log
             source: rabbitmq
             service: myservice
             log_processing_rules:
