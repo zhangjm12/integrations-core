@@ -1,0 +1,15 @@
+# https://github.com/DataDog/slapr
+
+name: Slack emoji PR updates
+on:
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: DataDog/hackadog-slapr@hello-world
+      with:
+        repo-token: "${{ secrets.GITHUB_TOKEN }}"
+        configuration-path: .github/workflows/config/slapr.yml
