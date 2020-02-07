@@ -206,6 +206,17 @@
         
       
         
+  
+  
+    <li class="md-tabs__item">
+      
+        <a href="../../guidelines/style/" class="md-tabs__link">
+          Guidelines
+        </a>
+      
+    </li>
+  
+
       
         
   
@@ -305,10 +316,34 @@
       
 
 
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3">
+    
+    <label class="md-nav__link" for="nav-3">
+      Guidelines
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-3">
+        Guidelines
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
   <li class="md-nav__item">
-    <a href="../../style/" title="Style" class="md-nav__link">
+    <a href="../../guidelines/style/" title="Style" class="md-nav__link">
       Style
     </a>
+  </li>
+
+        
+      </ul>
+    </nav>
   </li>
 
     
@@ -383,9 +418,65 @@
       
     
     
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        API
+      </label>
+    
     <a href="./" title="API" class="md-nav__link md-nav__link--active">
       API
     </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#agentcheck" class="md-nav__link">
+    AgentCheck
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#stubs" class="md-nav__link">
+    Stubs
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#aggregator" class="md-nav__link">
+    Aggregator
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#datadog-agent" class="md-nav__link">
+    Datadog Agent
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
     
   </li>
 
@@ -412,6 +503,49 @@
     
   
   
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#agentcheck" class="md-nav__link">
+    AgentCheck
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#stubs" class="md-nav__link">
+    Stubs
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#aggregator" class="md-nav__link">
+    Aggregator
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#datadog-agent" class="md-nav__link">
+    Datadog Agent
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -425,6 +559,7 @@
                 
                 <h1 id="api">API<a class="headerlink" href="#api" title="Permanent link">&para;</a></h1>
 <hr />
+<h2 id="agentcheck">AgentCheck<a class="headerlink" href="#agentcheck" title="Permanent link">&para;</a></h2>
 <div class="autodoc">
 <div class="autodoc-signature"><em>class </em><code>datadog_checks.base.<strong>AgentCheck</strong></code><span class="autodoc-punctuation">(</span><em class="autodoc-param">*args</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">**kwargs</em><span class="autodoc-punctuation">)</span></div>
 <div class="autodoc-docstring"><p>The base class for any Agent based integration.</p>
@@ -557,6 +692,72 @@ turn, it'll be ignored - <strong>you should never derive from an existing Check<
 <ul>
 <li><strong>event</strong> (<em>dict</em>) - the event to be sent</li>
 </ul></div>
+</div>
+</div>
+<h2 id="stubs">Stubs<a class="headerlink" href="#stubs" title="Permanent link">&para;</a></h2>
+<h3 id="aggregator">Aggregator<a class="headerlink" href="#aggregator" title="Permanent link">&para;</a></h3>
+<div class="autodoc">
+<div class="autodoc-signature"><em>class </em><code>datadog_checks.base.stubs.aggregator.<strong>AggregatorStub</strong></code><span class="autodoc-punctuation">(</span><span class="autodoc-punctuation">)</span></div>
+<div class="autodoc-docstring"><p>Mainly used for unit testing checks, this stub makes possible to execute
+a check without a running Agent.</p></div>
+<div class="autodoc-members">
+<div class="autodoc-signature"><code><strong>assert_metric</strong></code><span class="autodoc-punctuation">(</span><em class="autodoc-param">self</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">name</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">value=None</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">tags=None</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">count=None</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">at_least=1</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">hostname=None</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">metric_type=None</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">device=None</em><span class="autodoc-punctuation">)</span></div>
+<div class="autodoc-docstring"><p>Assert a metric was processed by this stub</p></div>
+<div class="autodoc-signature"><code><strong>assert_metric_has_tag</strong></code><span class="autodoc-punctuation">(</span><em class="autodoc-param">self</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">metric_name</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">tag</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">count=None</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">at_least=1</em><span class="autodoc-punctuation">)</span></div>
+<div class="autodoc-docstring"><p>Assert a metric is tagged with tag</p></div>
+<div class="autodoc-signature"><code><strong>assert_metric_has_tag_prefix</strong></code><span class="autodoc-punctuation">(</span><em class="autodoc-param">self</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">metric_name</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">tag_prefix</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">count=None</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">at_least=1</em><span class="autodoc-punctuation">)</span></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>assert_service_check</strong></code><span class="autodoc-punctuation">(</span><em class="autodoc-param">self</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">name</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">status=None</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">tags=None</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">count=None</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">at_least=1</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">hostname=None</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">message=None</em><span class="autodoc-punctuation">)</span></div>
+<div class="autodoc-docstring"><p>Assert a service check was processed by this stub</p></div>
+<div class="autodoc-signature"><code><strong>assert_event</strong></code><span class="autodoc-punctuation">(</span><em class="autodoc-param">self</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">msg_text</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">count=None</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">at_least=1</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">exact_match=True</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">tags=None</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">**kwargs</em><span class="autodoc-punctuation">)</span></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>assert_all_metrics_covered</strong></code><span class="autodoc-punctuation">(</span><em class="autodoc-param">self</em><span class="autodoc-punctuation">)</span></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>assert_no_duplicate_metrics</strong></code><span class="autodoc-punctuation">(</span><em class="autodoc-param">self</em><span class="autodoc-punctuation">)</span></div>
+<div class="autodoc-docstring"><p>Assert no duplicate metrics have been submitted.</p>
+<p>Metrics are considered duplicate when all following fields match:
+    - metric name
+    - type (gauge, rate, etc)
+    - tags
+    - hostname</p></div>
+<div class="autodoc-signature"><code><strong>assert_no_duplicate_service_checks</strong></code><span class="autodoc-punctuation">(</span><em class="autodoc-param">self</em><span class="autodoc-punctuation">)</span></div>
+<div class="autodoc-docstring"><p>Assert no duplicate service checks have been submitted.</p>
+<p>Service checks are considered duplicate when all following fields match:
+    - metric name
+    - status
+    - tags
+    - hostname</p></div>
+<div class="autodoc-signature"><code><strong>assert_no_duplicate_all</strong></code><span class="autodoc-punctuation">(</span><em class="autodoc-param">self</em><span class="autodoc-punctuation">)</span></div>
+<div class="autodoc-docstring"><p>Assert no duplicate metrics and service checks have been submitted.</p></div>
+<div class="autodoc-signature"><code><strong>reset</strong></code><span class="autodoc-punctuation">(</span><em class="autodoc-param">self</em><span class="autodoc-punctuation">)</span></div>
+<div class="autodoc-docstring"><p>Set the stub to its initial state</p></div>
+</div>
+</div>
+<h3 id="datadog-agent">Datadog Agent<a class="headerlink" href="#datadog-agent" title="Permanent link">&para;</a></h3>
+<div class="autodoc">
+<div class="autodoc-signature"><em>class </em><code>datadog_checks.base.stubs.datadog_agent.<strong>DatadogAgentStub</strong></code><span class="autodoc-punctuation">(</span><span class="autodoc-punctuation">)</span></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-members">
+<div class="autodoc-signature"><code><strong>assert_metadata</strong></code><span class="autodoc-punctuation">(</span><em class="autodoc-param">self</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">check_id</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">data</em><span class="autodoc-punctuation">)</span></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>assert_metadata_count</strong></code><span class="autodoc-punctuation">(</span><em class="autodoc-param">self</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">count</em><span class="autodoc-punctuation">)</span></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>get_config</strong></code><span class="autodoc-punctuation">(</span><em class="autodoc-param">self</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">*args</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">**kwargs</em><span class="autodoc-punctuation">)</span></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>get_hostname</strong></code><span class="autodoc-punctuation">(</span><em class="autodoc-param">self</em><span class="autodoc-punctuation">)</span></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>get_version</strong></code><span class="autodoc-punctuation">(</span><em class="autodoc-param">self</em><span class="autodoc-punctuation">)</span></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>log</strong></code><span class="autodoc-punctuation">(</span><em class="autodoc-param">self</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">*args</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">**kwargs</em><span class="autodoc-punctuation">)</span></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>reset</strong></code><span class="autodoc-punctuation">(</span><em class="autodoc-param">self</em><span class="autodoc-punctuation">)</span></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>set_check_metadata</strong></code><span class="autodoc-punctuation">(</span><em class="autodoc-param">self</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">check_id</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">name</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">value</em><span class="autodoc-punctuation">)</span></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>set_external_tags</strong></code><span class="autodoc-punctuation">(</span><em class="autodoc-param">self</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">*args</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">**kwargs</em><span class="autodoc-punctuation">)</span></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>tracemalloc_enabled</strong></code><span class="autodoc-punctuation">(</span><em class="autodoc-param">self</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">*args</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">**kwargs</em><span class="autodoc-punctuation">)</span></div>
+<div class="autodoc-docstring"></div>
 </div>
 </div>
                 
