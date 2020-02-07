@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url>
      <loc>https://datadoghq.dev/integrations-core/</loc>
-     <lastmod>2020-02-06</lastmod>
+     <lastmod>2020-02-07</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://datadoghq.dev/integrations-core/setup/</loc>
-     <lastmod>2020-02-06</lastmod>
+     <lastmod>2020-02-07</lastmod>
+     <changefreq>daily</changefreq>
+    </url><url>
+     <loc>https://datadoghq.dev/integrations-core/style/</loc>
+     <lastmod>2020-02-07</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://datadoghq.dev/integrations-core/ddev/layers/</loc>
-     <lastmod>2020-02-06</lastmod>
+     <lastmod>2020-02-07</lastmod>
      <changefreq>daily</changefreq>
     </url>
 </urlset>
