@@ -24,6 +24,14 @@
      <lastmod>2020-02-07</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
+     <loc>https://datadoghq.dev/integrations-core/base/http/</loc>
+     <lastmod>2020-02-07</lastmod>
+     <changefreq>daily</changefreq>
+    </url><url>
+     <loc>https://datadoghq.dev/integrations-core/base/databases/</loc>
+     <lastmod>2020-02-07</lastmod>
+     <changefreq>daily</changefreq>
+    </url><url>
      <loc>https://datadoghq.dev/integrations-core/base/api/</loc>
      <lastmod>2020-02-07</lastmod>
      <changefreq>daily</changefreq>
