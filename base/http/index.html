@@ -444,9 +444,38 @@
       
     
     
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        HTTP
+      </label>
+    
     <a href="./" title="HTTP" class="md-nav__link md-nav__link--active">
       HTTP
     </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#options" class="md-nav__link">
+    Options
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
     
   </li>
 
@@ -497,6 +526,22 @@
     
   
   
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#options" class="md-nav__link">
+    Options
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -516,28 +561,14 @@
 popular <a href="https://github.com/psf/requests">requests</a> library and ensures consistent behavior across all integrations.</p>
 <p>The wrapper automatically parses and uses configuration from the <code>instance</code>, <code>init_config</code>, and Agent config. Also, this
 is only done once during initialization and cached to reduce the overhead of every call.</p>
-<p>The standard settings are:</p>
-<ul>
-<li><code>username</code> - For basic authentication</li>
-<li><code>password</code> - For basic authentication</li>
-<li><code>timeout</code> - The number of seconds to wait on a connect or read (default 10)</li>
-<li><code>headers</code> - Map of headers to send on every request</li>
-<li><code>proxy</code> - Map of proxy settings e.g. <code>HTTP: example.com</code>. May be defined in the agent config, <code>init_config</code>, or <code>instance</code> (with increasing priority)</li>
-<li><code>skip_proxy</code> - Whether or not to ignore proxy settings entirely. May be defined in the <code>init_config</code> or <code>instance</code> (with increasing priority)</li>
-<li><code>tls_verify</code> - Whether or not to verify SSL certificates (default true)</li>
-<li><code>tls_ca_cert</code> - The path to a CA_BUNDLE file or directory with certificates of trusted CAs. Implicitly sets <code>tls_verify</code> to true</li>
-<li><code>tls_cert</code> - The client side certificate to use</li>
-<li><code>tls_private_key</code> - The private key to use if it's not included in the <code>tls_cert</code> file</li>
-<li><code>tls_ignore_warning</code> - Whether or not to ignore <code>urllib3</code>'s <code>InsecureRequestWarning</code> when <code>tls_verify</code> is false</li>
-<li><code>persist_connections</code> - Whether or not to persist cookies and use connection pooling</li>
-</ul>
-<p>Since the wrapper exposes the exact same interface as <code>requests</code>, all you have to do is e.g.:</p>
-<div class="codehilite"><pre><span></span><span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">http</span><span class="o">.</span><span class="p">[</span><span class="n">get</span><span class="o">|</span><span class="n">post</span><span class="o">|</span><span class="n">head</span><span class="o">|</span><span class="n">put</span><span class="o">|</span><span class="n">patch</span><span class="o">|</span><span class="n">delete</span><span class="p">](</span><span class="n">url</span><span class="p">)</span>
+<p>All you have to do is e.g.:</p>
+<div class="codehilite"><pre><span></span><span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">http</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
 </pre></div>
 
-<p>and the wrapper will pass the right things to <code>requests</code> based on configuration. All methods accept optional keyword arguments like <code>stream</code>, etc.</p>
-<p>Any method-level option will override configuration. So for example if <code>tls_verify</code> was set to false and you do <code>self.http.get(url, verify=True)</code>,
-then SSL certificates will be verified on that particular request. You can use the keyword argument <code>persist</code> to override <code>persist_connections</code>.</p>
+<p>and the wrapper will pass the right things to <code>requests</code>. All methods accept optional keyword arguments like <code>stream</code>, etc.</p>
+<p>Any method-level option will override <a href="https://github.com/DataDog/integrations-core/blob/master/datadog_checks_dev/datadog_checks/dev/tooling/templates/configuration/instances/http.yaml">configuration</a>.
+So for example if <code>tls_verify</code> was set to false and you do <code>self.http.get(url, verify=True)</code>, then SSL certificates will
+be verified on that particular request. You can use the keyword argument <code>persist</code> to override <code>persist_connections</code>.</p>
 <p>There is also support for non-standard or legacy configurations with the <code>HTTP_CONFIG_REMAPPER</code> class attribute. For example:</p>
 <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">MyCheck</span><span class="p">(</span><span class="n">AgentCheck</span><span class="p">):</span>
     <span class="n">HTTP_CONFIG_REMAPPER</span> <span class="o">=</span> <span class="p">{</span>
@@ -550,6 +581,70 @@ then SSL certificates will be verified on that particular request. You can use t
     <span class="p">}</span>
     <span class="o">...</span>
 </pre></div>
+
+<h2 id="options">Options<a class="headerlink" href="#options" title="Permanent link">&para;</a></h2>
+<div class="autodoc">
+<div class="autodoc-signature"><em>class </em><code>datadog_checks.base.utils.http.<strong>StandardFields</strong></code><span class="autodoc-punctuation">(</span><span class="autodoc-punctuation">)</span></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-members">
+<div class="autodoc-signature"><code><strong>auth_type</strong></code></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>aws_host</strong></code></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>aws_region</strong></code></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>aws_service</strong></code></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>connect_timeout</strong></code></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>extra_headers</strong></code></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>headers</strong></code></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>kerberos_auth</strong></code></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>kerberos_cache</strong></code></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>kerberos_delegate</strong></code></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>kerberos_force_initiate</strong></code></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>kerberos_hostname</strong></code></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>kerberos_keytab</strong></code></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>kerberos_principal</strong></code></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>log_requests</strong></code></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>ntlm_domain</strong></code></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>password</strong></code></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>persist_connections</strong></code></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>proxy</strong></code></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>read_timeout</strong></code></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>skip_proxy</strong></code></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>timeout</strong></code></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>tls_ca_cert</strong></code></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>tls_cert</strong></code></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>tls_ignore_warning</strong></code></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>tls_private_key</strong></code></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>tls_verify</strong></code></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>username</strong></code></div>
+<div class="autodoc-docstring"></div>
+</div>
+</div>
                 
                   
                 
