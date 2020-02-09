@@ -475,6 +475,20 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#query" class="md-nav__link">
+    Query
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#querymanager" class="md-nav__link">
+    QueryManager
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#transformers" class="md-nav__link">
     Transformers
   </a>
@@ -550,6 +564,20 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#query" class="md-nav__link">
+    Query
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#querymanager" class="md-nav__link">
+    QueryManager
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#transformers" class="md-nav__link">
     Transformers
   </a>
@@ -597,6 +625,35 @@
                 
                 <h1 id="databases">Databases<a class="headerlink" href="#databases" title="Permanent link">&para;</a></h1>
 <hr />
+<p>The base class provides a standard way to define and collect data from arbitrary queries.</p>
+<p>All the functionality is exposed by the <code>Query</code> and <code>QueryManager</code> classes.</p>
+<h2 id="query">Query<a class="headerlink" href="#query" title="Permanent link">&para;</a></h2>
+<div class="autodoc">
+<div class="autodoc-signature"><em>class </em><code>datadog_checks.base.utils.db.<strong>Query</strong></code><span class="autodoc-punctuation">(</span><em class="autodoc-param">query_data</em><span class="autodoc-punctuation">)</span></div>
+<div class="autodoc-docstring"><p>This class accepts a single <code>dict</code> argument which is the necessary data to run the query. The representation
+is based on our <code>custom_queries</code> format originally designed and implemented way back in
+<a href="https://github.com/DataDog/integrations-core/pull/1528">#1528</a>.</p>
+<p>It is now part of all our database integrations and
+<a href="https://cloud.google.com/solutions/sap/docs/sap-hana-monitoring-agent-user-guide#defining_custom_queries">other</a>
+products have since adopted this idea.</p></div>
+<div class="autodoc-members">
+<div class="autodoc-signature"><code><strong>compile</strong></code><span class="autodoc-punctuation">(</span><em class="autodoc-param">self</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">column_transformers</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">extra_transformers</em><span class="autodoc-punctuation">)</span></div>
+<div class="autodoc-docstring"><p>This will be called by <code>QueryManager.compile_queries</code> and should never be called directly.</p></div>
+</div>
+</div>
+<h2 id="querymanager">QueryManager<a class="headerlink" href="#querymanager" title="Permanent link">&para;</a></h2>
+<div class="autodoc">
+<div class="autodoc-signature"><em>class </em><code>datadog_checks.base.utils.db.<strong>QueryManager</strong></code><span class="autodoc-punctuation">(</span><em class="autodoc-param">check</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">executor</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">queries=None</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">tags=None</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">error_handler=None</em><span class="autodoc-punctuation">)</span></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-members">
+<div class="autodoc-signature"><code><strong>compile_queries</strong></code><span class="autodoc-punctuation">(</span><em class="autodoc-param">self</em><span class="autodoc-punctuation">)</span></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>execute</strong></code><span class="autodoc-punctuation">(</span><em class="autodoc-param">self</em><span class="autodoc-punctuation">)</span></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>execute_query</strong></code><span class="autodoc-punctuation">(</span><em class="autodoc-param">self</em><span class="autodoc-punctuation">, </span><em class="autodoc-param">query</em><span class="autodoc-punctuation">)</span></div>
+<div class="autodoc-docstring"></div>
+</div>
+</div>
 <h2 id="transformers">Transformers<a class="headerlink" href="#transformers" title="Permanent link">&para;</a></h2>
 <h3 id="column">Column<a class="headerlink" href="#column" title="Permanent link">&para;</a></h3>
 <div class="autodoc">
