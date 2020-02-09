@@ -456,9 +456,58 @@
       
     
     
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Databases
+      </label>
+    
     <a href="./" title="Databases" class="md-nav__link md-nav__link--active">
       Databases
     </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#transformers" class="md-nav__link">
+    Transformers
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#column" class="md-nav__link">
+    Column
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extra" class="md-nav__link">
+    Extra
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
     
   </li>
 
@@ -497,6 +546,42 @@
     
   
   
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#transformers" class="md-nav__link">
+    Transformers
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#column" class="md-nav__link">
+    Column
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extra" class="md-nav__link">
+    Extra
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -512,6 +597,119 @@
                 
                 <h1 id="databases">Databases<a class="headerlink" href="#databases" title="Permanent link">&para;</a></h1>
 <hr />
+<h2 id="transformers">Transformers<a class="headerlink" href="#transformers" title="Permanent link">&para;</a></h2>
+<h3 id="column">Column<a class="headerlink" href="#column" title="Permanent link">&para;</a></h3>
+<div class="autodoc">
+<div class="autodoc-signature"><em>class </em><code>datadog_checks.base.utils.db.transform.<strong>ColumnTransformers</strong></code><span class="autodoc-punctuation">(</span><span class="autodoc-punctuation">)</span></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-members">
+<div class="autodoc-signature"><code><strong>match</strong></code></div>
+<div class="autodoc-docstring"><p>This is used for querying unstructured data.</p>
+<p>For example, say you want to collect the fields named <code>foo</code> and <code>bar</code>. Typically, they would be stored like:</p>
+<div class="codehilite"><pre><span></span>| foo | bar |
+| --- | --- |
+| 4   | 2   |
+</pre></div>
+
+
+<p>and would be queried like:</p>
+<div class="codehilite"><pre><span></span><span class="k">SELECT</span> <span class="n">foo</span><span class="p">,</span> <span class="n">bar</span> <span class="k">FROM</span> <span class="p">...</span>
+</pre></div>
+
+<p>Often, you will instead find data stored in the following format:</p>
+<div class="codehilite"><pre><span></span>| metric | value |
+| ------ | ----- |
+| foo    | 4     |
+| bar    | 2     |
+</pre></div>
+
+
+<p>and would be queried like:</p>
+<div class="codehilite"><pre><span></span><span class="k">SELECT</span> <span class="n">metric</span><span class="p">,</span> <span class="n">value</span> <span class="k">FROM</span> <span class="p">...</span>
+</pre></div>
+
+<p>In this case, the <code>metric</code> column stores the name with which to match on and its <code>value</code> is
+stored in a separate column.</p>
+<p>The required <code>items</code> modifier is a mapping of matched names to column data values. Consider the values
+to be exactly the same as the entries in the <code>columns</code> top level field. You must also define a <code>source</code>
+modifier either for this type itself or in the values of <code>items</code> (which will take precedence). The
+source will be treated as the value of the match.</p>
+<p>Say this is your configuration:</p>
+<div class="codehilite"><pre><span></span><span class="nt">query</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">SELECT source1, source2, metric FROM TABLE</span>
+<span class="nt">columns</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">value1</span>
+      <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">source</span>
+    <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">value2</span>
+      <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">source</span>
+    <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">metric_name</span>
+      <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">match</span>
+      <span class="nt">source</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">value1</span>
+      <span class="nt">items</span><span class="p">:</span>
+        <span class="nt">foo</span><span class="p">:</span>
+          <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">test.foo</span>
+          <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">gauge</span>
+          <span class="nt">source</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">value2</span>
+        <span class="nt">bar</span><span class="p">:</span>
+          <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">test.bar</span>
+          <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">monotonic_gauge</span>
+</pre></div>
+
+<p>and the result set is:</p>
+<div class="codehilite"><pre><span></span>| source1 | source2 | metric |
+| ------- | ------- | ------ |
+| 1       | 2       | foo    |
+| 3       | 4       | baz    |
+| 5       | 6       | bar    |
+</pre></div>
+
+
+<p>Here's what would be submitted:</p>
+<ul>
+<li><code>foo</code> - <code>test.foo</code> as a <code>gauge</code> with a value of <code>2</code></li>
+<li><code>bar</code> - <code>test.bar.total</code> as a <code>gauge</code> and <code>test.bar.count</code> as a <code>monotonic_count</code>, both with a value of <code>5</code></li>
+<li><code>baz</code> - nothing since it was not defined as a match item</li>
+</ul></div>
+<div class="autodoc-signature"><code><strong>monotonic_gauge</strong></code></div>
+<div class="autodoc-docstring"><p>Send the result as both a <code>gauge</code> suffixed by <code>.total</code> and a <code>monotonic_count</code> suffixed by <code>.count</code>.</p></div>
+<div class="autodoc-signature"><code><strong>service_check</strong></code></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>tag</strong></code></div>
+<div class="autodoc-docstring"><p>Convert a column to a tag that will be used in every subsequent submission.</p>
+<p>For example, if you named the column <code>env</code> and the column returned the value <code>prod1</code>, all submissions
+from that row will be tagged by <code>env:prod1</code>.</p>
+<p>This also accepts an optional modifier called <code>boolean</code> that when set to <code>true</code> will transform the result
+to the string <code>true</code> or <code>false</code>. So for example if you named the column <code>alive</code> and the result was the
+number <code>0</code> the tag will be <code>alive:false</code>.</p></div>
+<div class="autodoc-signature"><code><strong>temporal_percent</strong></code></div>
+<div class="autodoc-docstring"><p>Send the result a percentage of time since the last check run.</p>
+<p>For example, say the result is a forever increasing counter representing the total time spent pausing for
+garbage collection since start up. That number by itself is quite useless, but as a percentage of time spent
+pausing since the previous collection interval it becomes a useful metric.</p>
+<p>There is one required parameter called <code>scale</code> that indicates what unit of time the result should be considered.
+Valid values are:</p>
+<ul>
+<li><code>second</code></li>
+<li><code>millisecond</code></li>
+<li><code>microsecond</code></li>
+<li><code>nanosecond</code></li>
+</ul>
+<p>You may also define the unit as an integer number of parts compared to seconds e.g. <code>millisecond</code> is
+equivalent to <code>1000</code>.</p></div>
+<div class="autodoc-signature"><code><strong>time_elapsed</strong></code></div>
+<div class="autodoc-docstring"></div>
+</div>
+</div>
+<h3 id="extra">Extra<a class="headerlink" href="#extra" title="Permanent link">&para;</a></h3>
+<div class="autodoc">
+<div class="autodoc-signature"><em>class </em><code>datadog_checks.base.utils.db.transform.<strong>ExtraTransformers</strong></code><span class="autodoc-punctuation">(</span><span class="autodoc-punctuation">)</span></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-members">
+<div class="autodoc-signature"><code><strong>expression</strong></code></div>
+<div class="autodoc-docstring"></div>
+<div class="autodoc-signature"><code><strong>percent</strong></code></div>
+<div class="autodoc-docstring"></div>
+</div>
+</div>
                 
                   
                 
