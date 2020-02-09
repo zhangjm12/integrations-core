@@ -469,6 +469,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#future" class="md-nav__link">
+    Future
+  </a>
+  
+</li>
+      
       
       
       
@@ -536,6 +543,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#future" class="md-nav__link">
+    Future
+  </a>
+  
+</li>
+      
       
       
       
@@ -583,6 +597,12 @@ be verified on that particular request. You can use the keyword argument <code>p
 </pre></div>
 
 <h2 id="options">Options<a class="headerlink" href="#options" title="Permanent link">&para;</a></h2>
+<p>Some options can be set globally in <code>init_config</code> (with <code>instances</code> taking precedence).
+For complete documentation of every option, see the associated configuration templates:</p>
+<ul>
+<li><a href="https://github.com/DataDog/integrations-core/blob/master/datadog_checks_dev/datadog_checks/dev/tooling/templates/configuration/instances/http.yaml">instances</a></li>
+<li><a href="https://github.com/DataDog/integrations-core/blob/master/datadog_checks_dev/datadog_checks/dev/tooling/templates/configuration/init_config/http.yaml">init_config</a></li>
+</ul>
 <div class="autodoc">
 <div class="autodoc-signature"><em>class </em><code>datadog_checks.base.utils.http.<strong>StandardFields</strong></code><span class="autodoc-punctuation">(</span><span class="autodoc-punctuation">)</span></div>
 <div class="autodoc-docstring"></div>
@@ -645,6 +665,12 @@ be verified on that particular request. You can use the keyword argument <code>p
 <div class="autodoc-docstring"></div>
 </div>
 </div>
+<h2 id="future">Future<a class="headerlink" href="#future" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Support for configuring cookies! Since they can be set globally, per-domain, and even per-path, the configuration may be complex
+  if not thought out adequately. We'll discuss options for what that might look like. Only our <code>spark</code> and <code>cisco_aci</code> checks
+  currently set cookies, and that is based on code logic, not configuration.</li>
+</ul>
                 
                   
                 
