@@ -32,7 +32,7 @@ def populate_server():
 def dd_environment():
     with docker_run(
         os.path.join(HERE, 'compose', 'docker-compose.yaml'),
-        log_patterns=['ActiveMQ Jolokia REST API available'],
-        conditions=[WaitForPortListening(HOST, TEST_PORT), populate_server],
+        log_patterns=['Monitored service is now ready'],
+        # conditions=[WaitForPortListening(HOST, TEST_PORT), populate_server],
     ):
         yield load_jmx_config(), {'use_jmx': True}
