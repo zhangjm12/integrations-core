@@ -166,7 +166,6 @@ class Istio(OpenMetricsBaseCheck):
                     }
                 ],
                 # Defaults that were set when istio was based on PrometheusCheck
-                'send_monotonic_counter': instance.get('send_monotonic_counter', False),
                 'health_service_check': instance.get('health_service_check', False),
             }
         )
@@ -221,7 +220,6 @@ class Istio(OpenMetricsBaseCheck):
                     }
                 ],
                 # Defaults that were set when istio was based on PrometheusCheck
-                'send_monotonic_counter': instance.get('send_monotonic_counter', False),
                 'health_service_check': instance.get('health_service_check', False),
             }
         )
