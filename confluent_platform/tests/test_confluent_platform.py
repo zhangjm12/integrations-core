@@ -4,7 +4,8 @@
 from datadog_checks.confluent_platform import ConfluentPlatformCheck
 
 
-def test_check(aggregator, instance):
+def test_check(aggregator):
+    instance = {}
     check = ConfluentPlatformCheck('confluent_platform', {}, {})
     check.check(instance)
 
