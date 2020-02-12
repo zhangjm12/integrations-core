@@ -224,8 +224,3 @@ services:
       CONNECT_LOG4J_ROOT_LOGLEVEL: DEBUG
       CONNECT_LOG4J_LOGGERS: org.apache.zookeeper=ERROR,org.I0Itec.zkclient=ERROR,org.reflections=ERROR
       KAFKA_JMX_PORT: 31008
-
-#    volumes:
-#      - /tmp/replicator-host-cluster-test/:/tmp/test
-#    extra_hosts:
-#      - "moby:127.0.0.1"
