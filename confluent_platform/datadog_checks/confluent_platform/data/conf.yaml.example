@@ -22,6 +22,8 @@ instances:
     port: 31006      # OK
   - host: localhost  # confluentinc/cp-schema-registry
     port: 31007      # OK
+  - host: localhost  # confluentinc/cp-enterprise-replicator
+    port: 31008      # OK
 
     ## @param host - string - required
     ## Kafka host to connect to.
