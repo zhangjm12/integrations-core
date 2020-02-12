@@ -6,16 +6,33 @@
 
 instances:
 
+  - host: localhost  # confluentinc/cp-zookeeper
+    port: 31000      # OK
+  - host: localhost  # confluentinc/cp-server
+    port: 31001      # OK
+  - host: localhost  # cnfldemos/cp-server-connect-datagen
+    port: 31002      # OK
+#  - host: localhost  # confluentinc/cp-enterprise-control-center
+#    port: 31003      # DOES NOT WORK
+  - host: localhost  # confluentinc/cp-ksql-server
+    port: 31004      # OK
+#  - host: localhost  # confluentinc/ksql-examples
+#    port: 31005      # DOES NOT WORK
+  - host: localhost  # confluentinc/cp-kafka-rest
+    port: 31006      # OK
+  - host: localhost  # confluentinc/cp-schema-registry
+    port: 31007      # OK
+
     ## @param host - string - required
     ## Kafka host to connect to.
     #
-  - host: localhost
+#  - host: localhost
 
     ## @param port - integer - required
     ## Kafka port to connect to.
     ## This is the JMX port on which Kafka exposes its metrics.
     #
-    port: 31000
+#    port: 31000
 
     ## @param user - string - optional
     ## Username from the credentials needed to connect to the host.

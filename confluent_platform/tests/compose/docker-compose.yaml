@@ -11,6 +11,7 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+      KAFKA_JMX_HOSTNAME: "localhost"
       KAFKA_JMX_PORT: 31000
 
   broker:
@@ -21,6 +22,7 @@ services:
       - zookeeper
     ports:
       - "9092:9092"
+      - '31001:31001'
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
@@ -35,6 +37,8 @@ services:
       CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
       CONFLUENT_METRICS_ENABLE: 'true'
       CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
+      KAFKA_JMX_HOSTNAME: "localhost"
+      KAFKA_JMX_PORT: 31001
 
   schema-registry:
     image: confluentinc/cp-schema-registry:5.4.0
@@ -45,9 +49,12 @@ services:
       - broker
     ports:
       - "8081:8081"
+      - "31007:31007"
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
+      SCHEMA_REGISTRY_JMX_HOSTNAME: "localhost"
+      SCHEMA_REGISTRY_JMX_PORT: 31007
 
   connect:
     image: cnfldemos/cp-server-connect-datagen:0.2.0-5.4.0
@@ -59,6 +66,7 @@ services:
       - schema-registry
     ports:
       - "8083:8083"
+      - "31002:31002"
     environment:
       CONNECT_BOOTSTRAP_SERVERS: 'broker:29092'
       CONNECT_REST_ADVERTISED_HOST_NAME: connect
@@ -83,6 +91,7 @@ services:
       CONNECT_CONSUMER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor"
       CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components"
       CONNECT_LOG4J_LOGGERS: org.apache.zookeeper=ERROR,org.I0Itec.zkclient=ERROR,org.reflections=ERROR
+      KAFKA_JMX_PORT: 31002
 
   control-center:
     image: confluentinc/cp-enterprise-control-center:5.4.0
@@ -96,6 +105,7 @@ services:
       - ksql-server
     ports:
       - "9021:9021"
+      # - "31003:31003"
     environment:
       CONTROL_CENTER_BOOTSTRAP_SERVERS: 'broker:29092'
       CONTROL_CENTER_ZOOKEEPER_CONNECT: 'zookeeper:2181'
@@ -118,6 +128,7 @@ services:
       - connect
     ports:
       - "8088:8088"
+      - "31004:31004"
     environment:
       KSQL_CONFIG_DIR: "/etc/ksql"
       KSQL_LOG4J_OPTS: "-Dlog4j.configuration=file:/etc/ksql/log4j-rolling.properties"
@@ -128,6 +139,7 @@ services:
       KSQL_KSQL_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
       KSQL_PRODUCER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor"
       KSQL_CONSUMER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor"
+      KSQL_JMX_PORT: 31004
 
   ksql-cli:
     image: confluentinc/cp-ksql-cli:5.4.0
@@ -171,6 +183,7 @@ services:
       - schema-registry
     ports:
       - 8082:8082
+      - 31006:31006
     hostname: rest-proxy
     container_name: rest-proxy
     environment:
@@ -178,4 +191,5 @@ services:
       KAFKA_REST_BOOTSTRAP_SERVERS: 'broker:29092'
       KAFKA_REST_LISTENERS: "http://0.0.0.0:8082"
       KAFKA_REST_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
-
+      KAFKAREST_JMX_HOSTNAME: "localhost"
+      KAFKAREST_JMX_PORT: 31006
