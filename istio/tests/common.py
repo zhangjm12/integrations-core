@@ -63,6 +63,16 @@ COUNT_METRICS = [
     'istio.citadel.go.memstats.frees_total',
     'istio.citadel.go.memstats.lookups_total',
     'istio.citadel.go.memstats.mallocs_total',
+    'istio.citadel.process.cpu_seconds_total',
+    'istio.citadel.secret_controller.csr_err_count',
+    'istio.citadel.secret_controller.secret_deleted_cert_count',
+    'istio.citadel.secret_controller.svc_acc_created_cert_count',
+    'istio.citadel.secret_controller.svc_acc_deleted_cert_count',
+    'istio.citadel.server.authentication_failure_count',
+    'istio.citadel.server.csr_count',
+    'istio.citadel.server.csr_parsing_err_count',
+    'istio.citadel.server.id_extraction_err_count',
+    'istio.citadel.server.success_cert_issuance_count',
 ]
 
 MESH_METRICS = [
