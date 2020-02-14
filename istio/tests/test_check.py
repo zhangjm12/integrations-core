@@ -11,7 +11,15 @@ from requests.exceptions import HTTPError
 from datadog_checks.istio import Istio
 from datadog_checks.utils.common import ensure_unicode
 
-from .common import CITADEL_METRICS, GALLEY_METRICS, MESH_METRICS, MIXER_METRICS, NEW_MIXER_METRICS, PILOT_METRICS
+from .common import (
+    CITADEL_METRICS,
+    COUNT_METRICS,
+    GALLEY_METRICS,
+    MESH_METRICS,
+    MIXER_METRICS,
+    NEW_MIXER_METRICS,
+    PILOT_METRICS,
+)
 
 MESH_METRICS_MAPPER = {
     'istio_request_count': 'request.count',
@@ -186,6 +194,13 @@ def new_galley_fixture():
         yield
 
 
+def _assert_metric(aggregator, metric):
+    if metric in COUNT_METRICS:
+        aggregator.assert_metric(metric, metric_type=aggregator.MONOTONIC_COUNT)
+    else:
+        aggregator.assert_metric(metric, metric_type=aggregator.GAUGE)
+
+
 def test_istio(aggregator, mesh_mixture_fixture):
     """
     Test the full check
@@ -194,7 +209,7 @@ def test_istio(aggregator, mesh_mixture_fixture):
     check.check(MOCK_INSTANCE)
 
     for metric in MESH_METRICS + MIXER_METRICS:
-        aggregator.assert_metric(metric)
+        _assert_metric(aggregator, metric)
 
     aggregator.assert_all_metrics_covered()
 
@@ -204,7 +219,7 @@ def test_new_istio(aggregator, new_mesh_mixture_fixture):
     check.check(NEW_MOCK_INSTANCE)
 
     for metric in MESH_METRICS + NEW_MIXER_METRICS + GALLEY_METRICS + PILOT_METRICS + CITADEL_METRICS:
-        aggregator.assert_metric(metric)
+        _assert_metric(aggregator, metric)
 
     aggregator.assert_all_metrics_covered()
 
@@ -214,7 +229,7 @@ def test_pilot_only_istio(aggregator, new_pilot_fixture):
     check.check(NEW_MOCK_PILOT_ONLY_INSTANCE)
 
     for metric in PILOT_METRICS:
-        aggregator.assert_metric(metric)
+        _assert_metric(aggregator, metric)
 
     aggregator.assert_all_metrics_covered()
 
@@ -224,7 +239,7 @@ def test_galley_only_istio(aggregator, new_galley_fixture):
     check.check(NEW_MOCK_GALLEY_ONLY_INSTANCE)
 
     for metric in GALLEY_METRICS:
-        aggregator.assert_metric(metric)
+        _assert_metric(aggregator, metric)
 
     aggregator.assert_all_metrics_covered()
 
