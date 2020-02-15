@@ -1,55 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url>
      <loc>https://datadoghq.dev/integrations-core/</loc>
-     <lastmod>2020-02-13</lastmod>
+     <lastmod>2020-02-15</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://datadoghq.dev/integrations-core/setup/</loc>
-     <lastmod>2020-02-13</lastmod>
+     <lastmod>2020-02-15</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://datadoghq.dev/integrations-core/testing/</loc>
-     <lastmod>2020-02-13</lastmod>
+     <lastmod>2020-02-15</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://datadoghq.dev/integrations-core/base/about/</loc>
-     <lastmod>2020-02-13</lastmod>
+     <lastmod>2020-02-15</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://datadoghq.dev/integrations-core/base/http/</loc>
-     <lastmod>2020-02-13</lastmod>
+     <lastmod>2020-02-15</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://datadoghq.dev/integrations-core/base/databases/</loc>
-     <lastmod>2020-02-13</lastmod>
+     <lastmod>2020-02-15</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://datadoghq.dev/integrations-core/base/api/</loc>
-     <lastmod>2020-02-13</lastmod>
+     <lastmod>2020-02-15</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://datadoghq.dev/integrations-core/ddev/layers/</loc>
-     <lastmod>2020-02-13</lastmod>
+     <lastmod>2020-02-15</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://datadoghq.dev/integrations-core/guidelines/style/</loc>
-     <lastmod>2020-02-13</lastmod>
+     <lastmod>2020-02-15</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://datadoghq.dev/integrations-core/guidelines/pr/</loc>
-     <lastmod>2020-02-13</lastmod>
+     <lastmod>2020-02-15</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://datadoghq.dev/integrations-core/meta/config_specs/</loc>
-     <lastmod>2020-02-13</lastmod>
+     <lastmod>2020-02-15</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://datadoghq.dev/integrations-core/meta/ci/</loc>
-     <lastmod>2020-02-13</lastmod>
+     <lastmod>2020-02-15</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://datadoghq.dev/integrations-core/meta/cd/</loc>
-     <lastmod>2020-02-13</lastmod>
+     <lastmod>2020-02-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
 </urlset>
