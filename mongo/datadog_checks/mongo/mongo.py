@@ -1008,6 +1008,11 @@ class MongoDb(AgentCheck):
 
             # Submit the metric
             submit_method, metric_name_alias = self._resolve_metric(metric_name, metrics_to_collect)
+
+            # add some extra debug for 'assert' metrics only
+            if 'assert' in metric_name_alias:
+                self.log.debug('Assert Metric `%s` submitting value: %f with tags: %s', metric_name_alias, value, tags)
+
             submit_method(self, metric_name_alias, value, tags=tags)
 
         for st, value in iteritems(dbstats):
@@ -1036,9 +1041,6 @@ class MongoDb(AgentCheck):
 
                 submit_method, metric_name_alias = self._resolve_metric(metric_name, metrics_to_collect)
 
-                # add some extra debug for 'assert' metrics only
-                if 'assert' in metric_name_alias:
-                    self.log.debug('Assert Metric `%s` submitting value: %f with tags: %s', metric_name_alias, val, metrics_tags)
                 submit_method(self, metric_name_alias, val, tags=metrics_tags)
 
         if is_affirmative(instance.get('collections_indexes_stats')):
