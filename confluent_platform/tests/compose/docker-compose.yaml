@@ -207,7 +207,7 @@ services:
     # network_mode: host
     # This is a workaround for the invalid topic exception. If you allow auto-topic creation, sometimes
     # the worker fails with Invalid topic exception, restarting fixes the issue.
-    restart: on-failure
+    # restart: on-failure
     container_name: connect-replicator
     depends_on:
       - zookeeper
@@ -229,7 +229,12 @@ services:
       CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
       CONNECT_REST_ADVERTISED_HOST_NAME: "localhost"
       CONNECT_PLUGIN_PATH: /usr/share/java
-      CONNECT_LOG4J_ROOT_LOGLEVEL: DEBUG
+      CONNECT_LOG4J_ROOT_LOGLEVEL: INFO
       CONNECT_LOG4J_LOGGERS: org.apache.zookeeper=ERROR,org.I0Itec.zkclient=ERROR,org.reflections=ERROR
+      CONNECT_REPLICATION_FACTOR: "1"
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: "1"
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: "1"
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: "1"
+      CONNECT_CONFLUENT_TOPIC_REPLICATION_FACTOR: "1"
       KAFKA_JMX_HOSTNAME: "localhost"
       KAFKA_JMX_PORT: 31008
