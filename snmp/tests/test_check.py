@@ -45,10 +45,8 @@ def test_command_generator():
     # Test command generator MIB source
     mib_folders = config._snmp_engine.getMibBuilder().getMibSources()
     full_path_mib_folders = [f.fullPath() for f in mib_folders]
-    assert check.ignore_nonincreasing_oid is False  # Default value
 
     check = SnmpCheck('snmp', common.IGNORE_NONINCREASING_OID, [instance])
-    assert check.ignore_nonincreasing_oid
 
     assert common.MIBS_FOLDER["mibs_folder"] in full_path_mib_folders
 

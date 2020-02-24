@@ -13,6 +13,7 @@ from datadog_checks.base import ConfigurationError, is_affirmative
 
 from .resolver import OIDResolver
 from .utils import to_oid_tuple
+from .commands import PySNMPAsyncSession
 
 
 class ParsedMetric(object):
@@ -72,6 +73,7 @@ class InstanceConfig:
     def __init__(
         self,
         instance,  # type: dict
+        init_config=None,  # type: dict
         warning=_no_op,  # type: Callable[..., None]
         log=_no_op,  # type: Callable[..., None]
         global_metrics=None,  # type: List[dict]
@@ -80,6 +82,7 @@ class InstanceConfig:
         profiles_by_oid=None,  # type: Dict[str, str]
     ):
         # type: (...) -> None
+        init_config = {} if init_config is None else init_config
         global_metrics = [] if global_metrics is None else global_metrics
         profiles = {} if profiles is None else profiles
         profiles_by_oid = {} if profiles_by_oid is None else profiles_by_oid
@@ -158,6 +161,15 @@ class InstanceConfig:
         self._context_data = hlapi.ContextData(*self.get_context_data(instance))
 
         self._uptime_metric_added = False
+
+        self.async_session = PySNMPAsyncSession(
+            engine=self._snmp_engine,
+            transport=self._transport,
+            auth=self._auth_data,
+            context_data=self._context_data,
+            enforce_constraints=self.enforce_constraints,
+            ignore_nonincreasing_oids=is_affirmative(init_config.get('ignore_nonincreasing_oid', False)),
+        )
 
     def resolve_oid(self, oid):
         # type: (Any) -> Tuple[Any, Any]

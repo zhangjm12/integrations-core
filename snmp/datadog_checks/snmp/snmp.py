@@ -9,6 +9,7 @@ import time
 from collections import defaultdict
 from typing import Any, DefaultDict, Dict, Iterator, List, Optional, Tuple, Union
 
+import anyio
 import pysnmp.proto.rfc1902 as snmp_type
 from pyasn1.codec.ber import decoder
 from pysnmp import hlapi
@@ -17,9 +18,10 @@ from pysnmp.smi import builder
 from pysnmp.smi.exval import endOfMibView, noSuchInstance, noSuchObject
 from six import iteritems
 
-from datadog_checks.base import AgentCheck, ConfigurationError, is_affirmative
+from datadog_checks.base import AgentCheck, ConfigurationError
 from datadog_checks.base.errors import CheckException
 
+from .commands import CommandResult
 from .compat import read_persistent_cache, total_time_to_temporal_percent, write_persistent_cache
 from .config import InstanceConfig, ParsedMetric, ParsedMetricTag, ParsedTableMetric
 from .utils import get_profile_definition, oid_pattern_specificity, recursively_expand_base_profiles
@@ -67,8 +69,6 @@ class SnmpCheck(AgentCheck):
         # Load Custom MIB directory
         self.mibs_path = self.init_config.get('mibs_folder')
 
-        self.ignore_nonincreasing_oid = is_affirmative(self.init_config.get('ignore_nonincreasing_oid', False))
-
         self.profiles = self.init_config.get('profiles', {})  # type: Dict[str, Dict[str, Any]]
         self.profiles_by_oid = {}  # type: Dict[str, str]
         self._load_profiles()
@@ -101,6 +101,7 @@ class SnmpCheck(AgentCheck):
         # type: (dict) -> InstanceConfig
         return InstanceConfig(
             instance,
+            init_config=self.init_config,
             warning=self.warning,
             log=self.log,
             global_metrics=self.init_config.get('global_metrics', []),
@@ -144,7 +145,7 @@ class SnmpCheck(AgentCheck):
                 host_config = self._build_config(instance)
 
                 try:
-                    sys_object_oid = self.fetch_sysobject_oid(host_config)
+                    sys_object_oid = anyio.run(self.fetch_sysobject_oid, host_config)
                 except Exception as e:
                     self.log.debug("Error scanning host %s: %s", host, e)
                     continue
@@ -176,7 +177,7 @@ class SnmpCheck(AgentCheck):
             message = '{} for instance {}'.format(error_indication, ip_address)
             raise CheckException(message)
 
-    def fetch_results(self, config, all_oids, bulk_oids):
+    async def fetch_results(self, config, all_oids, bulk_oids):
         # type: (InstanceConfig, list, list) -> Tuple[dict, Optional[str]]
         """
         Perform a snmpwalk on the domain specified by the oids, on the device
@@ -193,7 +194,7 @@ class SnmpCheck(AgentCheck):
         error = None  # type: Optional[str]
 
         for to_fetch in all_oids:
-            binds, current_error = self.fetch_oids(config, to_fetch, enforce_constraints=enforce_constraints)
+            binds, current_error = await self.fetch_oids(config, to_fetch, enforce_constraints=enforce_constraints)
             all_binds.extend(binds)
             error = current_error if not error else error
 
@@ -227,7 +228,7 @@ class SnmpCheck(AgentCheck):
         results.default_factory = None
         return results, error
 
-    def fetch_oids(self, config, oids, enforce_constraints):
+    async def fetch_oids(self, config, oids, enforce_constraints):
         # type: (InstanceConfig, list, bool) -> Tuple[List[Any], Optional[str]]
         # UPDATE: We used to perform only a snmpgetnext command to fetch metric values.
         # It returns the wrong value when the OID passed is referring to a specific leaf.
@@ -241,10 +242,11 @@ class SnmpCheck(AgentCheck):
         while first_oid < len(oids):
             try:
                 oids_batch = oids[first_oid : first_oid + self.oid_batch_size]
+
                 self.log.debug('Running SNMP command get on OIDS %s', oids_batch)
-                error_indication, error_status, _, var_binds = next(
-                    config.call_cmd(hlapi.getCmd, *oids_batch, lookupMib=enforce_constraints)
-                )
+                result = await config.async_session.get(*oids_batch)
+                error_indication = result['error_indication']
+                var_binds = result['var_binds']
                 self.log.debug('Returned vars: %s', var_binds)
 
                 self.raise_on_error_indication(error_indication, config.ip_address)
@@ -263,15 +265,9 @@ class SnmpCheck(AgentCheck):
                     # If we didn't catch the metric using snmpget, try snmpnext
                     # Don't walk through the entire MIB, stop at end of table
                     self.log.debug('Running SNMP command getNext on OIDS %s', missing_results)
-                    binds_iterator = config.call_cmd(
-                        hlapi.nextCmd,
-                        *missing_results,
-                        lookupMib=enforce_constraints,
-                        ignoreNonIncreasingOid=self.ignore_nonincreasing_oid,
-                        lexicographicMode=False
-                    )
-                    binds, error = self._consume_binds_iterator(binds_iterator, config)
-                    all_binds.extend(binds)
+                    result = await config.async_session.get_next(*missing_results)
+                    var_binds, error = self._wrap_errors(result, config)
+                    all_binds.extend(var_binds)
 
             except PySnmpError as e:
                 message = 'Failed to collect some metrics: {}'.format(e)
@@ -284,16 +280,23 @@ class SnmpCheck(AgentCheck):
 
         return all_binds, error
 
-    def fetch_sysobject_oid(self, config):
+    async def fetch_sysobject_oid(self, config):
         # type: (InstanceConfig) -> str
         """Return the sysObjectID of the instance."""
         # Reference sysObjectID directly, see http://oidref.com/1.3.6.1.2.1.1.2
-        oid = hlapi.ObjectType(hlapi.ObjectIdentity((1, 3, 6, 1, 2, 1, 1, 2)))
-        self.log.debug('Running SNMP command on OID %r', oid)
-        error_indication, _, _, var_binds = next(config.call_cmd(hlapi.nextCmd, oid, lookupMib=False))
+        sysobjectid = hlapi.ObjectType(hlapi.ObjectIdentity((1, 3, 6, 1, 2, 1, 1, 2, 0)))
+
+        self.log.debug('Running SNMP command on OID %r', sysobjectid)
+        result = await config.async_session.get(sysobjectid)
+        var_binds = result['var_binds']
+        error_indication = result['error_indication']
         self.raise_on_error_indication(error_indication, config.ip_address)
         self.log.debug('Returned vars: %s', var_binds)
-        return var_binds[0][1].prettyPrint()
+
+        sysobjectid_var_bind = var_binds[0]
+        _, value = sysobjectid_var_bind
+
+        return value.prettyPrint()
 
     def _profile_for_sysobject_oid(self, sys_object_oid):
         # type: (str) -> str
@@ -308,6 +311,30 @@ class SnmpCheck(AgentCheck):
         return max(
             profiles, key=lambda profile: oid_pattern_specificity(self.profiles[profile]['definition']['sysobjectid'])
         )
+
+    def _wrap_errors(self, result, config):
+        # type: (CommandResult, InstanceConfig) -> Tuple[List[Any], Optional[str]]
+        var_binds = result['var_binds']
+        error_indication = result['error_indication']
+        error_status = result['error_status']
+
+        self.log.debug('Returned vars: %s', var_binds)
+
+        self.raise_on_error_indication(error_indication, config.ip_address)
+
+        if error_status:
+            message = '{} for instance {}'.format(error_status.prettyPrint(), config.ip_address)
+            error = message
+
+            # submit CRITICAL service check if we can't connect to device
+            if 'unknownUserName' in message:
+                self.log.error(message)
+            else:
+                self.warning(message)
+
+        var_binds = [var_bind for var_bind in var_binds if var_bind[1] is not endOfMibView]
+
+        return var_binds, error
 
     def _consume_binds_iterator(self, binds_iterator, config):
         # type: (Iterator[Any], InstanceConfig) -> Tuple[List[Any], Optional[str]]
@@ -361,7 +388,8 @@ class SnmpCheck(AgentCheck):
             if self._thread is None:
                 self._start_discovery()
             for host, discovered in list(config.discovered_instances.items()):
-                if self._check_with_config(discovered):
+                error = anyio.run(self._check_with_config, discovered)
+                if error is not None:
                     config.failing_instances[host] += 1
                     if config.failing_instances[host] >= config.allowed_failures:
                         # Remove it from discovered instances, we'll re-discover it later if it reappears
@@ -375,9 +403,9 @@ class SnmpCheck(AgentCheck):
             tags.extend(config.tags)
             self.gauge('snmp.discovered_devices_count', len(config.discovered_instances), tags=tags)
         else:
-            self._check_with_config(config)
+            anyio.run(self._check_with_config, config)
 
-    def _check_with_config(self, config):
+    async def _check_with_config(self, config):
         # type: (InstanceConfig) -> Optional[str]
         # Reset errors
         instance = config.instance
@@ -385,7 +413,7 @@ class SnmpCheck(AgentCheck):
         tags = config.tags
         try:
             if not (config.all_oids or config.bulk_oids):
-                sys_object_oid = self.fetch_sysobject_oid(config)
+                sys_object_oid = await self.fetch_sysobject_oid(config)
                 profile = self._profile_for_sysobject_oid(sys_object_oid)
                 config.refresh_with_profile(self.profiles[profile], self.warning, self.log)
                 config.add_profile_tag(profile)
@@ -393,7 +421,7 @@ class SnmpCheck(AgentCheck):
             if config.all_oids or config.bulk_oids:
                 self.log.debug('Querying device %s', config.ip_address)
                 config.add_uptime_metric()
-                results, error = self.fetch_results(config, config.all_oids, config.bulk_oids)
+                results, error = await self.fetch_results(config, config.all_oids, config.bulk_oids)
                 tags = self.extract_metric_tags(config.parsed_metric_tags, results)
                 tags.extend(config.tags)
                 self.report_metrics(config.parsed_metrics, results, tags)
