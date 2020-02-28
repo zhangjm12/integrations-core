@@ -35,4 +35,7 @@ def dd_environment():
         log_patterns=['ActiveMQ Jolokia REST API available'],
         conditions=[WaitForPortListening(HOST, TEST_PORT), populate_server],
     ):
+        config = load_jmx_config()
+        del config['init_config']['conf']
+        config['init_config']['collect_default_metrics'] = False
         yield load_jmx_config(), {'use_jmx': True}
