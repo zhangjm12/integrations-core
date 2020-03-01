@@ -29,7 +29,7 @@ def get_profile_definition(profile):
     return profile['definition']
 
 
-def _get_profiles_root():
+def get_profiles_root():
     # NOTE: this separate helper function exists for mocking purposes.
     confd = get_config('confd_path')
     return os.path.join(confd, 'snmp.d', 'profiles')
@@ -38,7 +38,7 @@ def _get_profiles_root():
 def _read_profile_definition(definition_file):
     # type: (str) -> Dict[str, Any]
     if not os.path.isabs(definition_file):
-        definition_file = os.path.join(_get_profiles_root(), definition_file)
+        definition_file = os.path.join(get_profiles_root(), definition_file)
 
     with open(definition_file) as f:
         return yaml.safe_load(f)

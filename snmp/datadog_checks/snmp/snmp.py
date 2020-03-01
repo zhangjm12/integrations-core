@@ -129,7 +129,7 @@ class SnmpCheck(AgentCheck):
         else:
             return None
 
-    def discover_instances(self):
+    def discover_instances(self, notify_callback=lambda host: None):
         # type: () -> None
         config = self._config
 
@@ -165,6 +165,7 @@ class SnmpCheck(AgentCheck):
 
                 config.discovered_instances[host] = host_config
 
+                notify_callback(host)
                 write_persistent_cache(self.check_id, json.dumps(list(config.discovered_instances)))
 
             # Write again at the end of the loop, in case some host have been removed since last
@@ -336,8 +337,8 @@ class SnmpCheck(AgentCheck):
             all_binds.extend(var_bind for var_bind in var_binds_table if var_bind[1] is not endOfMibView)
         return all_binds, error
 
-    def _start_discovery(self):
-        # type: () -> None
+    def load_cache(self):
+        # type: () -> Optional[list]
         cache = read_persistent_cache(self.check_id)
         if cache:
             hosts = json.loads(cache)
@@ -346,14 +347,18 @@ class SnmpCheck(AgentCheck):
                     ipaddress.ip_address(host)
                 except ValueError:
                     write_persistent_cache(self.check_id, json.dumps([]))
-                    break
+                    return []
                 instance = copy.deepcopy(self.instance)
                 instance.pop('network_address')
                 instance['ip_address'] = host
 
                 host_config = self._build_config(instance)
                 self._config.discovered_instances[host] = host_config
+            return hosts
 
+    def _start_discovery(self):
+        # type: () -> None
+        self.load_cache()
         self._thread = threading.Thread(target=self.discover_instances, name=self.name)
         self._thread.daemon = True
         self._thread.start()
