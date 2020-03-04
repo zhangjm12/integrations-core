@@ -37,10 +37,10 @@ The Agent collects metrics via a stats endpoint:
 
 ### Configuration
 
+Follow the instructions below to configure this check for an Agent running on a host. For containerized environments, see the Containerized section.
+
 <details><summary>Host</summary>
 <p>
-
-Follow the instructions below to configure this check for an Agent running on a host. For containerized environments, see the [Containerized](#containerized) section.
 
 Edit the `haproxy.d/conf.yaml` file, in the `conf.d/` folder at the root of your [Agent's configuration directory][4] to start collecting your HAProxy [metrics](#metric-collection) and [logs](#log-collection). See the [sample haproxy.d/conf.yaml][5] for all available configuration options.
 
