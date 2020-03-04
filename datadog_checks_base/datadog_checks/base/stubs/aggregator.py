@@ -295,6 +295,8 @@ class AggregatorStub(object):
         missing_metrics = ''
         if self.metrics_asserted_pct < 100.0:
             missing_metrics = self.not_asserted()
+
+        # use `condition` to avoid building the `msg` if not needed
         condition = self.metrics_asserted_pct >= 100.0
         msg = ''
         if not condition:
