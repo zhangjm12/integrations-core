@@ -37,13 +37,14 @@ The Agent collects metrics via a stats endpoint:
 
 ### Configuration
 
-#### Host
+<details><summary>Host</summary>
+<p>
 
 Follow the instructions below to configure this check for an Agent running on a host. For containerized environments, see the [Containerized](#containerized) section.
 
 Edit the `haproxy.d/conf.yaml` file, in the `conf.d/` folder at the root of your [Agent's configuration directory][4] to start collecting your HAProxy [metrics](#metric-collection) and [logs](#log-collection). See the [sample haproxy.d/conf.yaml][5] for all available configuration options.
 
-##### Metric collection
+#### Metric collection
 
 1. Add this configuration block to your `haproxy.d/conf.yaml` file to start gathering your [Haproxy Metrics](#metrics):
 
@@ -61,7 +62,7 @@ Edit the `haproxy.d/conf.yaml` file, in the `conf.d/` folder at the root of your
 
 2. [Restart the Agent][6].
 
-##### Log collection
+#### Log collection
 
 _Available for Agent versions >6.0_
 
@@ -91,23 +92,27 @@ By default Haproxy sends logs over UDP to port 514. The Agent can listen for the
     ```bash
     sudo setcap CAP_NET_BIND_SERVICE=+ep /opt/datadog-agent/bin/agent/agent
     ```
-    
+
     Verify the setup is correct by running the `getcap` command:
-    
+
     ```bash
     sudo getcap /opt/datadog-agent/bin/agent/agent
     ```
-    
+
     With the expected output:
     ```bash
     /opt/datadog-agent/bin/agent/agent = cap_net_bind_service+ep
     ```
-    
+
     **Note:** Re-run this `setcap` command every time you upgrade the Agent.
-    
+
 4. [Restart the Agent][6].
 
-#### Containerized
+</p>
+</details>
+
+<details><summary>Containerized</summary>
+<p>
 
 For containerized environments, see the [Autodiscovery Integration Templates][7] for guidance on applying the parameters below.
 
@@ -128,6 +133,9 @@ Collecting logs is disabled by default in the Datadog Agent. To enable it, see [
 | Parameter      | Value                                                |
 | -------------- | ---------------------------------------------------- |
 | `<LOG_CONFIG>` | `{"source": "haproxy", "service": "<SERVICE_NAME>"}` |
+
+</p>
+</details>
 
 ### Validation
 
