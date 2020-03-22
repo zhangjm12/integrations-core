@@ -15,3 +15,8 @@ div.autodoc-members {
   padding-left: 20px;
   margin-bottom: 15px;
 }
+
+.md-typeset h5 {
+  color: var(--md-default-fg-color);
+  text-transform: none;
+}
