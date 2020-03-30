@@ -16,6 +16,12 @@ div.autodoc-members {
   margin-bottom: 15px;
 }
 
+/* div.doc-contents:not(.first) {
+  padding-left: 25px;
+  border-left: 4px solid rgba(230, 230, 230);
+  margin-bottom: 80px;
+} */
+
 .md-typeset h5 {
   color: var(--md-default-fg-color);
   text-transform: none;
