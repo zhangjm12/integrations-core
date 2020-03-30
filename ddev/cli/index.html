@@ -26,15 +26,15 @@
 </code></pre></div></p> <h3 id="setup">setup<a class="headerlink" href="#setup" title="Permanent link">¶</a></h3> <p>Run CI setup scripts</p> <p>Usage: <div class="highlight"><pre><span></span><code>ddev ci setup [OPTIONS] [CHECKS]...
 </code></pre></div> Options: <div class="highlight"><pre><span></span><code>  --changed  Only target changed checks
 </code></pre></div></p> <h2 id="clean">clean<a class="headerlink" href="#clean" title="Permanent link">¶</a></h2> <p>Remove build and test artifacts for the given CHECK. If CHECK is not specified, the current working directory is used.</p> <p>Usage: <div class="highlight"><pre><span></span><code>ddev clean [OPTIONS] [CHECK]
-</code></pre></div> Options: <div class="highlight"><pre><span></span><code>  -c, --compiled-only  Remove compiled files only (*.pyd, __pycache__, *.pyc,
-                       *.whl, *.pyo).
+</code></pre></div> Options: <div class="highlight"><pre><span></span><code>  -c, --compiled-only  Remove compiled files only (*.pyo, __pycache__, *.pyc,
+                       *.whl, *.pyd).
   -a, --all            Disable the detection of a project's dedicated virtual
                        env and/or editable installation. By default, these
                        will not be considered.
   -f, --force          If set and the command is run from the root directory,
-                       allow removing build and test artifacts (dist,
-                       .coverage, .tox, .eggs, .pytest_cache, *.egg-info,
-                       .cache, build, .benchmarks).
+                       allow removing build and test artifacts (dist, .eggs,
+                       .cache, *.egg-info, .benchmarks, .pytest_cache,
+                       .coverage, .tox, build).
   -v, --verbose        Shows removed paths.
 </code></pre></div></p> <h2 id="config">config<a class="headerlink" href="#config" title="Permanent link">¶</a></h2> <p>Manage the config file</p> <p>Usage: <div class="highlight"><pre><span></span><code>ddev config [OPTIONS] COMMAND [ARGS]...
 </code></pre></div></p> <h3 id="explore">explore<a class="headerlink" href="#explore" title="Permanent link">¶</a></h3> <p>Open the config location in your file manager.</p> <p>Usage: <div class="highlight"><pre><span></span><code>ddev config explore [OPTIONS]
