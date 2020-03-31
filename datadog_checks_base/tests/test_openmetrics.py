@@ -2093,6 +2093,31 @@ def test_label_join_state_change(aggregator, mocked_prometheus_check, mocked_pro
         assert 15 == len(mocked_prometheus_scraper_config['_label_mapping']['pod'])
         assert mocked_prometheus_scraper_config['_label_mapping']['pod']['dd-agent-62bgh']['phase'] == 'Test'
 
+def test_old_label_to_match_single(benchmark, mocked_prometheus_check, mocked_prometheus_scraper_config, mock_get):
+    """ Tests label join and hostname override on a metric """
+    check = mocked_prometheus_check
+    mocked_prometheus_scraper_config['namespace'] = 'ksm'
+    mocked_prometheus_scraper_config['label_joins'] = {
+        'kube_pod_info': {'label_to_match': 'pod', 'labels_to_get': ['node']},
+        '1': {'label_to_match': 'pod', 'labels_to_get': ['node']},
+        '2': {'label_to_match': 'pod', 'labels_to_get': ['node']},
+        '3': {'label_to_match': 'pod', 'labels_to_get': ['node']},
+        '4': {'label_to_match': 'pod', 'labels_to_get': ['node']},
+        '5': {'label_to_match': 'pod', 'labels_to_get': ['node']},
+        '6': {'label_to_match': 'pod', 'labels_to_get': ['node']},
+        '7': {'label_to_match': 'pod', 'labels_to_get': ['node']},
+        '8': {'label_to_match': 'pod', 'labels_to_get': ['node']},
+        '9': {'label_to_match': 'pod', 'labels_to_get': ['node']},
+    }
+    mocked_prometheus_scraper_config['label_to_hostname'] = 'node'
+    mocked_prometheus_scraper_config['metrics_mapper'] = {'kube_pod_status_ready': 'pod.ready'}
+
+    @benchmark
+    def run_check():
+        # dry run to build mapping
+        check.process(mocked_prometheus_scraper_config)
+        # run with submit
+        check.process(mocked_prometheus_scraper_config)
 
 def test_health_service_check_ok(mock_get, aggregator, mocked_prometheus_check, mocked_prometheus_scraper_config):
     """ Tests endpoint health service check OK """
