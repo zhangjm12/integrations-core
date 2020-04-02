@@ -16,6 +16,13 @@
   value:
     type: string
 
+- name: max_returned_metrics
+  description: Max returned jmx metrics (contexts).
+  hidden: true
+  value:
+    type: number
+    example: 350
+
 - name: user
   description: User to use when connecting to JMX.
   value:
