@@ -104,20 +104,57 @@ To add benchmarks, define environments in `tox.ini` with `bench` somewhere in th
 
 ```ini
 [tox]
+...
 envlist =
     ...
     bench
+
+...
 
 [testenv:bench]
 ```
 
 By default, the [test](cli.md#test_1) command skips all benchmark environments and tests. To run only benchmark
-environments and tests use the `--bench`/`-b` flag. The results are be sorted by `tottime`, which is the total
+environments and tests use the `--bench`/`-b` flag. The results are sorted by `tottime`, which is the total
 time spent in the given function (and excluding time made in calls to sub-functions).
 
 ## Logs
 
+We provide an easy way to utilize [log collection](https://docs.datadoghq.com/logs/log_collection/) with E2E
+[Docker environments](#docker).
 
+1. Pass `mount_logs=True` to [docker_run](#datadog_checks.dev.docker.docker_run). This will use the logs example in
+   the integration's [config spec](../meta/config_specs.md). For example, the following defines 2 example log files:
+
+    ```yaml
+    - template: logs
+      example:
+      - type: file
+        path: /var/log/apache2/access.log
+        source: apache
+        service: apache
+      - type: file
+        path: /var/log/apache2/error.log
+        source: apache
+        service: apache
+    ```
+
+    ??? info "Alternatives"
+        - If `mount_logs` is a sequence of `int`, only the selected indices (starting at 1) will be used. So,
+          using the Apache example above, to only monitor the error log you would set it to `[2]`.
+        - In lieu of a config spec, for whatever reason, you may set `mount_logs` to a `dict` containing the
+          standard [logs](https://docs.datadoghq.com/agent/logs/?tab=tailfiles) key.
+
+1. All requested log files are available to reference as environment variables for any Docker calls as
+   `DD_LOG_<LOG_CONFIG_INDEX>` where the indices start at 1.
+
+     ```yaml
+     volumes:
+     - ${DD_LOG_1}:/usr/local/apache2/logs/access_log
+     - ${DD_LOG_2}:/usr/local/apache2/logs/error_log
+     ```
+
+1. When [starting](cli.md#start) the environment, pass `-e DD_LOGS_ENABLED=true` to activate the Logs Agent.
 
 ## Reference
 

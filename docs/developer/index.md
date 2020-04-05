@@ -29,6 +29,6 @@ Desktop readers can use keyboard shortcuts to navigate.
 
 | Keys | Action |
 | --- | --- |
-| <ul><li><code>,</code> (comma)</li><li><code>p</code></li></ul> | Navigate to the "previous" page |
-| <ul><li><code>.</code> (period)</li><li><code>n</code></li></ul> | Navigate to the "next" page |
-| <ul><li><code>/</code></li><li><code>s</code></li></ul> | Display the search modal |
+| <ul><li><kbd>,</kbd> (comma)</li><li><kbd>p</kbd></li></ul> | Navigate to the "previous" page |
+| <ul><li><kbd>.</kbd> (period)</li><li><kbd>n</kbd></li></ul> | Navigate to the "next" page |
+| <ul><li><kbd>/</kbd></li><li><kbd>s</kbd></li></ul> | Display the search modal |

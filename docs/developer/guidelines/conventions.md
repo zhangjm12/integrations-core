@@ -27,7 +27,7 @@ accepts is redundant and wasteful since you are parsing the same configuration a
             ...
     ```
 
-=== "Do NOT this"
+=== "Do NOT do this"
     ```python
     class AwesomeCheck(AgentCheck):
         def check(self, instance):

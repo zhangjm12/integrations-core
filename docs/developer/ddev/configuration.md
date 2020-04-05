@@ -11,13 +11,16 @@ ddev config find
 
 ## Repository
 
-All CLI commands are aware of the current repository context, defined by the option `repo`. This option should be
-a reference to another key which is set to the path of a supported repository. For example, this configuration:
+All CLI commands are aware of the current repository context, defined by the option `repo`. This option should be a
+reference to a key in `repos` which is set to the path of a supported repository. For example, this configuration:
 
 ```toml
+repo = "core"
+
+[repos]
 core = "/path/to/integrations-core"
 extras = "/path/to/integrations-extras"
-repo = "core"
+agent = "/path/to/datadog-agent"
 ```
 
 would make it so running e.g. `ddev test nginx` will look for an integration named `nginx` in `/path/to/integrations-core`
