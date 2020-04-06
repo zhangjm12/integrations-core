@@ -62,7 +62,7 @@ setup(
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
     ],
-    packages=['datadog_checks', 'datadog_checks.dev'],
+    packages=['datadog_checks', 'datadog_checks.dev', 'aggregator'],
     install_requires=REQUIRES,
     # TODO: Uncomment when we fully drop Python 2
     # python_requires='>=3.7',
